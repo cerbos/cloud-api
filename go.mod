@@ -9,7 +9,7 @@ require (
 	github.com/go-logr/logr v1.2.3
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/minio/sha256-simd v1.0.0
-	github.com/rogpeppe/go-internal v1.8.1
+	github.com/rogpeppe/go-internal v1.9.0
 	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/otel v1.9.0
 	go.uber.org/multierr v1.8.0
