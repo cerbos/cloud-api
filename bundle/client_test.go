@@ -71,6 +71,10 @@ func TestGetBundle(t *testing.T) {
 
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
+
+		cached, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
 	})
 
 	t.Run("MultipleDownloadURLs", func(t *testing.T) {
@@ -105,6 +109,10 @@ func TestGetBundle(t *testing.T) {
 
 		haveChecksum := checksum(t, file)
 		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
+
+		cached, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
 	})
 
 	t.Run("MultipleSegments", func(t *testing.T) {
@@ -153,6 +161,10 @@ func TestGetBundle(t *testing.T) {
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for segment 00")
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for segment 02")
+
+		cached, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
 	})
 
 	t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
@@ -197,6 +209,10 @@ func TestGetBundle(t *testing.T) {
 			haveChecksum1 := checksum(t, file1)
 			require.Equal(t, wantChecksum1, haveChecksum1, "Checksum1 does not match")
 		}
+
+		cached1, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
 
 		// second call returns bundle2. segment_00 and segment_01 are identical for both bundle1 and bundle2.
 		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
@@ -243,6 +259,10 @@ func TestGetBundle(t *testing.T) {
 			haveChecksum2 := checksum(t, file2)
 			require.Equal(t, wantChecksum2, haveChecksum2, "Checksum2 does not match")
 		}
+
+		cached2, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
 
 		require.Equal(t, 6, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for bundle1 segment 00")
@@ -472,6 +492,9 @@ func TestWatchBundle(t *testing.T) {
 		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
+		cached1, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
 
 		haveEvent2, ok := <-eventStream
 		require.True(t, ok, "Event stream closed")
@@ -481,6 +504,9 @@ func TestWatchBundle(t *testing.T) {
 		require.Equal(t, wantChecksum2, haveChecksum2, "Checksum does not match")
 		require.Equal(t, 2, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle2.crbp"), "Path hit count does not match")
+		cached2, err := client.GetCachedBundle("label")
+		require.NoError(t, err, "Failed to get cached bundle")
+		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
 
 		_, ok = <-eventStream
 		require.False(t, ok, "Event stream not closed")
@@ -622,6 +648,14 @@ func TestWatchBundle(t *testing.T) {
 
 		_, ok = <-eventStream
 		require.False(t, ok, "Event stream not closed")
+	})
+}
+
+func TestGetCachedBundle(t *testing.T) {
+	t.Run("NonExistentLabel", func(t *testing.T) {
+		client := mkClient(t, "https://localhost")
+		_, err := client.GetCachedBundle("blah")
+		require.Error(t, err)
 	})
 }
 
