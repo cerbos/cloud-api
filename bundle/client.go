@@ -159,7 +159,7 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (<-chan Wa
 	return outChan, nil
 }
 
-func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (string, error) {
+func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (outPath string, outErr error) {
 	log := logr.FromContextOrDiscard(ctx)
 
 	if len(binfo.BundleHash) != cache.HashSize {
@@ -169,6 +169,14 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 	}
 
 	bdlCacheKey := *((*cache.ActionID)(binfo.BundleHash))
+	defer func() {
+		if outErr == nil && outPath != "" {
+			if err := c.updateLabelCache(binfo.Label, bdlCacheKey); err != nil {
+				log.V(1).Error(err, "Failed to update label mapping")
+			}
+		}
+	}()
+
 	entry, err := c.bundleCache.Get(bdlCacheKey)
 	if err == nil {
 		log.V(1).Info("Bundle exists in cache")
@@ -388,10 +396,42 @@ func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *
 	}
 }
 
+func (c *Client) updateLabelCache(bundleLabel string, bundleCacheKey cache.ActionID) error {
+	lblCacheKey := labelCacheKey(bundleLabel)
+	return c.bundleCache.PutBytes(lblCacheKey, bundleCacheKey[:])
+}
+
+// GetCachedBundle returns the last cached entry for the given label if it exists.
+func (c *Client) GetCachedBundle(bundleLabel string) (string, error) {
+	lblCacheKey := labelCacheKey(bundleLabel)
+	entry, _, err := c.bundleCache.GetBytes(lblCacheKey)
+	if err != nil {
+		return "", fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)
+	}
+
+	if len(entry) != cache.HashSize {
+		return "", errors.New("invalid cache entry for label")
+	}
+
+	bdlCacheKey := *((*cache.ActionID)(entry))
+	bdlEntry, err := c.bundleCache.Get(bdlCacheKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to find bundle in cache: %w", err)
+	}
+
+	return c.bundleCache.OutputFile(bdlEntry.OutputID), nil
+}
+
 func segmentCacheKey(checksum []byte) cache.ActionID {
 	s := sha256.New()
 	_, _ = fmt.Fprint(s, "segment:")
 	_, _ = s.Write(checksum)
+	return *((*cache.ActionID)(s.Sum(nil)))
+}
+
+func labelCacheKey(label string) cache.ActionID {
+	s := sha256.New()
+	_, _ = fmt.Fprintf(s, "cerbos:cloud:bundle:label=%s", label)
 	return *((*cache.ActionID)(s.Sum(nil)))
 }
 
