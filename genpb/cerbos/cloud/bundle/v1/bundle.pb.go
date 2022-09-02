@@ -90,6 +90,132 @@ func (x *BundleInfo) GetSegments() []*BundleInfo_Segment {
 	return nil
 }
 
+type Meta struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Identifier string `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Source     string `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+}
+
+func (x *Meta) Reset() {
+	*x = Meta{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Meta) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Meta) ProtoMessage() {}
+
+func (x *Meta) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Meta.ProtoReflect.Descriptor instead.
+func (*Meta) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Meta) GetIdentifier() string {
+	if x != nil {
+		return x.Identifier
+	}
+	return ""
+}
+
+func (x *Meta) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+type Manifest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ApiVersion  string            `protobuf:"bytes,1,opt,name=api_version,json=apiVersion,proto3" json:"api_version,omitempty"`
+	PolicyIndex map[string]string `protobuf:"bytes,2,rep,name=policy_index,json=policyIndex,proto3" json:"policy_index,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Schemas     []string          `protobuf:"bytes,3,rep,name=schemas,proto3" json:"schemas,omitempty"`
+	Meta        *Meta             `protobuf:"bytes,4,opt,name=meta,proto3" json:"meta,omitempty"`
+}
+
+func (x *Manifest) Reset() {
+	*x = Manifest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Manifest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Manifest) ProtoMessage() {}
+
+func (x *Manifest) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Manifest.ProtoReflect.Descriptor instead.
+func (*Manifest) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Manifest) GetApiVersion() string {
+	if x != nil {
+		return x.ApiVersion
+	}
+	return ""
+}
+
+func (x *Manifest) GetPolicyIndex() map[string]string {
+	if x != nil {
+		return x.PolicyIndex
+	}
+	return nil
+}
+
+func (x *Manifest) GetSchemas() []string {
+	if x != nil {
+		return x.Schemas
+	}
+	return nil
+}
+
+func (x *Manifest) GetMeta() *Meta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
 type GetBundleRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -102,7 +228,7 @@ type GetBundleRequest struct {
 func (x *GetBundleRequest) Reset() {
 	*x = GetBundleRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -115,7 +241,7 @@ func (x *GetBundleRequest) String() string {
 func (*GetBundleRequest) ProtoMessage() {}
 
 func (x *GetBundleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +254,7 @@ func (x *GetBundleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBundleRequest.ProtoReflect.Descriptor instead.
 func (*GetBundleRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{1}
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBundleRequest) GetPdpId() *v1.Identifier {
@@ -156,7 +282,7 @@ type GetBundleResponse struct {
 func (x *GetBundleResponse) Reset() {
 	*x = GetBundleResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -169,7 +295,7 @@ func (x *GetBundleResponse) String() string {
 func (*GetBundleResponse) ProtoMessage() {}
 
 func (x *GetBundleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -182,7 +308,7 @@ func (x *GetBundleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBundleResponse.ProtoReflect.Descriptor instead.
 func (*GetBundleResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{2}
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetBundleResponse) GetBundleInfo() *BundleInfo {
@@ -204,7 +330,7 @@ type WatchBundleRequest struct {
 func (x *WatchBundleRequest) Reset() {
 	*x = WatchBundleRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -217,7 +343,7 @@ func (x *WatchBundleRequest) String() string {
 func (*WatchBundleRequest) ProtoMessage() {}
 
 func (x *WatchBundleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +356,7 @@ func (x *WatchBundleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchBundleRequest.ProtoReflect.Descriptor instead.
 func (*WatchBundleRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{3}
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *WatchBundleRequest) GetPdpId() *v1.Identifier {
@@ -262,7 +388,7 @@ type WatchBundleResponse struct {
 func (x *WatchBundleResponse) Reset() {
 	*x = WatchBundleResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -275,7 +401,7 @@ func (x *WatchBundleResponse) String() string {
 func (*WatchBundleResponse) ProtoMessage() {}
 
 func (x *WatchBundleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -288,7 +414,7 @@ func (x *WatchBundleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchBundleResponse.ProtoReflect.Descriptor instead.
 func (*WatchBundleResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{4}
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{6}
 }
 
 func (m *WatchBundleResponse) GetMsg() isWatchBundleResponse_Msg {
@@ -341,7 +467,7 @@ type BundleInfo_Segment struct {
 func (x *BundleInfo_Segment) Reset() {
 	*x = BundleInfo_Segment{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -354,7 +480,7 @@ func (x *BundleInfo_Segment) String() string {
 func (*BundleInfo_Segment) ProtoMessage() {}
 
 func (x *BundleInfo_Segment) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -403,7 +529,7 @@ type WatchBundleResponse_Reconnect struct {
 func (x *WatchBundleResponse_Reconnect) Reset() {
 	*x = WatchBundleResponse_Reconnect{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
+		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -416,7 +542,7 @@ func (x *WatchBundleResponse_Reconnect) String() string {
 func (*WatchBundleResponse_Reconnect) ProtoMessage() {}
 
 func (x *WatchBundleResponse_Reconnect) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -429,7 +555,7 @@ func (x *WatchBundleResponse_Reconnect) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchBundleResponse_Reconnect.ProtoReflect.Descriptor instead.
 func (*WatchBundleResponse_Reconnect) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{4, 0}
+	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *WatchBundleResponse_Reconnect) GetBackoff() *durationpb.Duration {
@@ -479,7 +605,28 @@ var file_cerbos_cloud_bundle_v1_bundle_proto_rawDesc = []byte{
 	0x63, 0x6b, 0x73, 0x75, 0x6d, 0x12, 0x35, 0x0a, 0x0d, 0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61,
 	0x64, 0x5f, 0x75, 0x72, 0x6c, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x42, 0x10, 0xfa, 0x42,
 	0x0d, 0x92, 0x01, 0x0a, 0x08, 0x01, 0x18, 0x01, 0x22, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x0c,
-	0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x55, 0x72, 0x6c, 0x73, 0x22, 0x80, 0x01, 0x0a,
+	0x64, 0x6f, 0x77, 0x6e, 0x6c, 0x6f, 0x61, 0x64, 0x55, 0x72, 0x6c, 0x73, 0x22, 0x3e, 0x0a, 0x04,
+	0x4d, 0x65, 0x74, 0x61, 0x12, 0x1e, 0x0a, 0x0a, 0x69, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69,
+	0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x69, 0x64, 0x65, 0x6e, 0x74, 0x69,
+	0x66, 0x69, 0x65, 0x72, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x22, 0x8d, 0x02, 0x0a,
+	0x08, 0x4d, 0x61, 0x6e, 0x69, 0x66, 0x65, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x61, 0x70, 0x69,
+	0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a,
+	0x61, 0x70, 0x69, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x54, 0x0a, 0x0c, 0x70, 0x6f,
+	0x6c, 0x69, 0x63, 0x79, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x31, 0x2e, 0x63, 0x65, 0x72, 0x62, 0x6f, 0x73, 0x2e, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2e,
+	0x62, 0x75, 0x6e, 0x64, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x61, 0x6e, 0x69, 0x66, 0x65,
+	0x73, 0x74, 0x2e, 0x50, 0x6f, 0x6c, 0x69, 0x63, 0x79, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x45, 0x6e,
+	0x74, 0x72, 0x79, 0x52, 0x0b, 0x70, 0x6f, 0x6c, 0x69, 0x63, 0x79, 0x49, 0x6e, 0x64, 0x65, 0x78,
+	0x12, 0x18, 0x0a, 0x07, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28,
+	0x09, 0x52, 0x07, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x73, 0x12, 0x30, 0x0a, 0x04, 0x6d, 0x65,
+	0x74, 0x61, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x65, 0x72, 0x62, 0x6f,
+	0x73, 0x2e, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2e, 0x62, 0x75, 0x6e, 0x64, 0x6c, 0x65, 0x2e, 0x76,
+	0x31, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x1a, 0x3e, 0x0a, 0x10,
+	0x50, 0x6f, 0x6c, 0x69, 0x63, 0x79, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x45, 0x6e, 0x74, 0x72, 0x79,
+	0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b,
+	0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x80, 0x01, 0x0a,
 	0x10, 0x47, 0x65, 0x74, 0x42, 0x75, 0x6e, 0x64, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x12, 0x40, 0x0a, 0x06, 0x70, 0x64, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x1f, 0x2e, 0x63, 0x65, 0x72, 0x62, 0x6f, 0x73, 0x2e, 0x63, 0x6c, 0x6f, 0x75, 0x64,
@@ -556,35 +703,40 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_rawDescGZIP() []byte {
 	return file_cerbos_cloud_bundle_v1_bundle_proto_rawDescData
 }
 
-var file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_cerbos_cloud_bundle_v1_bundle_proto_goTypes = []interface{}{
 	(*BundleInfo)(nil),                    // 0: cerbos.cloud.bundle.v1.BundleInfo
-	(*GetBundleRequest)(nil),              // 1: cerbos.cloud.bundle.v1.GetBundleRequest
-	(*GetBundleResponse)(nil),             // 2: cerbos.cloud.bundle.v1.GetBundleResponse
-	(*WatchBundleRequest)(nil),            // 3: cerbos.cloud.bundle.v1.WatchBundleRequest
-	(*WatchBundleResponse)(nil),           // 4: cerbos.cloud.bundle.v1.WatchBundleResponse
-	(*BundleInfo_Segment)(nil),            // 5: cerbos.cloud.bundle.v1.BundleInfo.Segment
-	(*WatchBundleResponse_Reconnect)(nil), // 6: cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect
-	(*v1.Identifier)(nil),                 // 7: cerbos.cloud.pdp.v1.Identifier
-	(*durationpb.Duration)(nil),           // 8: google.protobuf.Duration
+	(*Meta)(nil),                          // 1: cerbos.cloud.bundle.v1.Meta
+	(*Manifest)(nil),                      // 2: cerbos.cloud.bundle.v1.Manifest
+	(*GetBundleRequest)(nil),              // 3: cerbos.cloud.bundle.v1.GetBundleRequest
+	(*GetBundleResponse)(nil),             // 4: cerbos.cloud.bundle.v1.GetBundleResponse
+	(*WatchBundleRequest)(nil),            // 5: cerbos.cloud.bundle.v1.WatchBundleRequest
+	(*WatchBundleResponse)(nil),           // 6: cerbos.cloud.bundle.v1.WatchBundleResponse
+	(*BundleInfo_Segment)(nil),            // 7: cerbos.cloud.bundle.v1.BundleInfo.Segment
+	nil,                                   // 8: cerbos.cloud.bundle.v1.Manifest.PolicyIndexEntry
+	(*WatchBundleResponse_Reconnect)(nil), // 9: cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect
+	(*v1.Identifier)(nil),                 // 10: cerbos.cloud.pdp.v1.Identifier
+	(*durationpb.Duration)(nil),           // 11: google.protobuf.Duration
 }
 var file_cerbos_cloud_bundle_v1_bundle_proto_depIdxs = []int32{
-	5, // 0: cerbos.cloud.bundle.v1.BundleInfo.segments:type_name -> cerbos.cloud.bundle.v1.BundleInfo.Segment
-	7, // 1: cerbos.cloud.bundle.v1.GetBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
-	0, // 2: cerbos.cloud.bundle.v1.GetBundleResponse.bundle_info:type_name -> cerbos.cloud.bundle.v1.BundleInfo
-	7, // 3: cerbos.cloud.bundle.v1.WatchBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
-	0, // 4: cerbos.cloud.bundle.v1.WatchBundleResponse.bundle_update:type_name -> cerbos.cloud.bundle.v1.BundleInfo
-	6, // 5: cerbos.cloud.bundle.v1.WatchBundleResponse.reconnect:type_name -> cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect
-	8, // 6: cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect.backoff:type_name -> google.protobuf.Duration
-	1, // 7: cerbos.cloud.bundle.v1.CerbosBundleService.GetBundle:input_type -> cerbos.cloud.bundle.v1.GetBundleRequest
-	3, // 8: cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle:input_type -> cerbos.cloud.bundle.v1.WatchBundleRequest
-	2, // 9: cerbos.cloud.bundle.v1.CerbosBundleService.GetBundle:output_type -> cerbos.cloud.bundle.v1.GetBundleResponse
-	4, // 10: cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle:output_type -> cerbos.cloud.bundle.v1.WatchBundleResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	7,  // 0: cerbos.cloud.bundle.v1.BundleInfo.segments:type_name -> cerbos.cloud.bundle.v1.BundleInfo.Segment
+	8,  // 1: cerbos.cloud.bundle.v1.Manifest.policy_index:type_name -> cerbos.cloud.bundle.v1.Manifest.PolicyIndexEntry
+	1,  // 2: cerbos.cloud.bundle.v1.Manifest.meta:type_name -> cerbos.cloud.bundle.v1.Meta
+	10, // 3: cerbos.cloud.bundle.v1.GetBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	0,  // 4: cerbos.cloud.bundle.v1.GetBundleResponse.bundle_info:type_name -> cerbos.cloud.bundle.v1.BundleInfo
+	10, // 5: cerbos.cloud.bundle.v1.WatchBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	0,  // 6: cerbos.cloud.bundle.v1.WatchBundleResponse.bundle_update:type_name -> cerbos.cloud.bundle.v1.BundleInfo
+	9,  // 7: cerbos.cloud.bundle.v1.WatchBundleResponse.reconnect:type_name -> cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect
+	11, // 8: cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect.backoff:type_name -> google.protobuf.Duration
+	3,  // 9: cerbos.cloud.bundle.v1.CerbosBundleService.GetBundle:input_type -> cerbos.cloud.bundle.v1.GetBundleRequest
+	5,  // 10: cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle:input_type -> cerbos.cloud.bundle.v1.WatchBundleRequest
+	4,  // 11: cerbos.cloud.bundle.v1.CerbosBundleService.GetBundle:output_type -> cerbos.cloud.bundle.v1.GetBundleResponse
+	6,  // 12: cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle:output_type -> cerbos.cloud.bundle.v1.WatchBundleResponse
+	11, // [11:13] is the sub-list for method output_type
+	9,  // [9:11] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_bundle_v1_bundle_proto_init() }
@@ -606,7 +758,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetBundleRequest); i {
+			switch v := v.(*Meta); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -618,7 +770,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetBundleResponse); i {
+			switch v := v.(*Manifest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -630,7 +782,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WatchBundleRequest); i {
+			switch v := v.(*GetBundleRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -642,7 +794,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WatchBundleResponse); i {
+			switch v := v.(*GetBundleResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -654,7 +806,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BundleInfo_Segment); i {
+			switch v := v.(*WatchBundleRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -666,6 +818,30 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*WatchBundleResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BundleInfo_Segment); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*WatchBundleResponse_Reconnect); i {
 			case 0:
 				return &v.state
@@ -678,7 +854,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			}
 		}
 	}
-	file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4].OneofWrappers = []interface{}{
+	file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6].OneofWrappers = []interface{}{
 		(*WatchBundleResponse_BundleUpdate)(nil),
 		(*WatchBundleResponse_Reconnect_)(nil),
 	}
@@ -688,7 +864,7 @@ func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_cerbos_cloud_bundle_v1_bundle_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

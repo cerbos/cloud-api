@@ -32,6 +32,18 @@ message BundleInfo {
   repeated Segment segments = 3 [(validate.rules).repeated.min_items = 1];
 }
 
+message Meta {
+  string identifier = 1;
+  string source = 2;
+}
+
+message Manifest {
+  string api_version = 1;
+  map<string, string> policy_index = 2;
+  repeated string schemas = 3;
+  Meta meta = 4;
+}
+
 message GetBundleRequest {
   cerbos.cloud.pdp.v1.Identifier pdp_id = 1 [(validate.rules).message.required = true];
   string bundle_label = 2 [(validate.rules).string.min_len = 1];
