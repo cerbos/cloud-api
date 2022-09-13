@@ -29,6 +29,7 @@ import (
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	"github.com/go-logr/logr/testr"
 	"github.com/minio/sha256-simd"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
@@ -827,7 +828,7 @@ func startToxiProxy(t *testing.T) *toxiclient.Client {
 	host, port, err := getFreeListenAddr()
 	require.NoError(t, err, "Failed to get free listen address")
 
-	server := toxiproxy.NewServer(toxiproxy.NewMetricsContainer(nil))
+	server := toxiproxy.NewServer(toxiproxy.NewMetricsContainer(nil), log.Logger)
 	go server.Listen(host, port)
 	runtime.Gosched()
 
