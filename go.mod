@@ -12,7 +12,7 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.0
-	go.opentelemetry.io/otel v1.10.0
+	go.opentelemetry.io/otel v1.11.0
 	go.uber.org/multierr v1.8.0
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
@@ -41,7 +41,7 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
-	go.opentelemetry.io/otel/trace v1.10.0 // indirect
+	go.opentelemetry.io/otel/trace v1.11.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
 	golang.org/x/text v0.3.7 // indirect
