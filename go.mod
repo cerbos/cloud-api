@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Shopify/toxiproxy/v2 v2.5.0
-	github.com/bufbuild/connect-go v1.0.0
+	github.com/bufbuild/connect-go v1.1.0
 	github.com/envoyproxy/protoc-gen-validate v0.6.13
 	github.com/go-logr/logr v1.2.3
 	github.com/hashicorp/go-retryablehttp v0.7.1
@@ -14,8 +14,8 @@ require (
 	github.com/stretchr/testify v1.8.0
 	go.opentelemetry.io/otel v1.11.0
 	go.uber.org/multierr v1.8.0
-	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	golang.org/x/net v0.0.0-20221019024206-cb67ada4b0ad
+	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -43,7 +43,7 @@ require (
 	github.com/stretchr/objx v0.4.0 // indirect
 	go.opentelemetry.io/otel/trace v1.11.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
+	golang.org/x/sys v0.0.0-20221010170243-090e33056c14 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
