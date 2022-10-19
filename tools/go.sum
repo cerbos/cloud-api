@@ -43,6 +43,7 @@ github.com/bufbuild/buf v1.6.0 h1:VXHJ+n3NYzpDH4Ysuj9ivVf23Xk/NAxcZPbAAFv4EDs=
 github.com/bufbuild/buf v1.6.0/go.mod h1:23u11F6tmCF9sSB/dz7ybxxJ5q6qmWY0Lb4E4TR1rqw=
 github.com/bufbuild/connect-go v0.4.0 h1:fIMyUYG8mXSTH+nnlOx9KmRUf3mBF0R2uKK+BQBoOHE=
 github.com/bufbuild/connect-go v0.4.0/go.mod h1:ZEtBnQ7J/m7bvWOW+H8T/+hKQCzPVfhhhICuvtcnjlI=
+github.com/bufbuild/connect-go v1.1.0/go.mod h1:9iNvh/NOsfhNBUH5CtvXeVUskQO1xsrEviH7ZArwZ3I=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cerbos/protoc-gen-go-hashpb v0.1.0 h1:op49nfiCa8cpwz05A2FS2rg2fLCqc16Z5XApeaKjm/Y=
 github.com/cerbos/protoc-gen-go-hashpb v0.1.0/go.mod h1:bQiu5sfRYjuelT0G/JsIHlKlv1JZUsoL8TXplyjQnZ4=
