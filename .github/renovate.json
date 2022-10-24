@@ -25,7 +25,7 @@
         "GOPRIVATE": "github.com/cerbos/cloud-api"
       },
       "postUpdateOptions": [
-        "gomodtidy1.17"
+        "gomodTidy1.17"
       ]
     }
   ],
