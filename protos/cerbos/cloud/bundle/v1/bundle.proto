@@ -20,9 +20,7 @@ message BundleInfo {
       unique: true,
       min_items: 1,
       items {
-        string {
-          min_len: 1
-        }
+        string {min_len: 1}
       }
     }];
   }
