@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.1.0
-	github.com/envoyproxy/protoc-gen-validate v0.6.13
+	github.com/envoyproxy/protoc-gen-validate v0.8.0
 	github.com/go-logr/logr v1.2.3
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/minio/sha256-simd v1.0.0
@@ -15,7 +15,7 @@ require (
 	go.opentelemetry.io/otel v1.11.1
 	go.uber.org/multierr v1.8.0
 	golang.org/x/net v0.1.0
-	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55
+	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c
 	google.golang.org/protobuf v1.28.1
 )
 
