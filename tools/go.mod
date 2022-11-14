@@ -6,7 +6,7 @@ require (
 	github.com/bufbuild/buf v1.9.0
 	github.com/bufbuild/connect-go v1.1.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.1.0
-	github.com/envoyproxy/protoc-gen-validate v0.8.0
+	github.com/envoyproxy/protoc-gen-validate v0.9.0
 	github.com/planetscale/vtprotobuf v0.3.0
 	github.com/vektra/mockery/v2 v2.14.1
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
