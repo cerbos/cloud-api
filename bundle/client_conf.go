@@ -3,6 +3,7 @@
 package bundle
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"os"
@@ -28,6 +29,7 @@ const (
 
 type ClientConf struct {
 	PDPIdentifier    *pdpv1.Identifier
+	TLS              *tls.Config
 	Logger           logr.Logger
 	ClientID         string
 	ClientSecret     string

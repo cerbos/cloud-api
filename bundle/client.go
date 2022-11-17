@@ -91,6 +91,12 @@ func NewClient(conf ClientConf) (*Client, error) {
 
 func mkHTTPClient(conf ClientConf) *http.Client {
 	httpClient := retryablehttp.NewClient()
+	httpClient.HTTPClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig:   conf.TLS.Clone(),
+			ForceAttemptHTTP2: true,
+		},
+	}
 	httpClient.RetryMax = conf.RetryMaxAttempts
 	httpClient.RetryWaitMin = conf.RetryWaitMin
 	httpClient.RetryWaitMax = conf.RetryWaitMax
