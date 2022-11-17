@@ -53,6 +53,7 @@ type WatchEvent struct {
 }
 
 type Client struct {
+	authClient  *authClient
 	rpcClient   bundlev1connect.CerbosBundleServiceClient
 	httpClient  *http.Client
 	bundleCache *cache.Cache
@@ -70,11 +71,19 @@ func NewClient(conf ClientConf) (*Client, error) {
 	}
 
 	httpClient := mkHTTPClient(conf)
-	rpcClient := mkRPCClient(conf, httpClient)
+
+	interceptors := connect.WithInterceptors(
+		newTracingInterceptor(),
+		newUserAgentInterceptor(),
+	)
+
+	authClient := newAuthClient(conf, httpClient, interceptors)
+	rpcClient := mkRPCClient(conf, httpClient, authClient, interceptors)
 
 	return &Client{
 		bundleCache: bcache,
 		conf:        conf,
+		authClient:  authClient,
 		rpcClient:   rpcClient,
 		httpClient:  httpClient,
 	}, nil
@@ -82,6 +91,12 @@ func NewClient(conf ClientConf) (*Client, error) {
 
 func mkHTTPClient(conf ClientConf) *http.Client {
 	httpClient := retryablehttp.NewClient()
+	httpClient.HTTPClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig:   conf.TLS.Clone(),
+			ForceAttemptHTTP2: true,
+		},
+	}
 	httpClient.RetryMax = conf.RetryMaxAttempts
 	httpClient.RetryWaitMin = conf.RetryWaitMin
 	httpClient.RetryWaitMax = conf.RetryWaitMax
@@ -90,14 +105,9 @@ func mkHTTPClient(conf ClientConf) *http.Client {
 	return httpClient.StandardClient()
 }
 
-func mkRPCClient(conf ClientConf, httpClient *http.Client) bundlev1connect.CerbosBundleServiceClient {
+func mkRPCClient(conf ClientConf, httpClient *http.Client, authClient *authClient, options ...connect.ClientOption) bundlev1connect.CerbosBundleServiceClient {
 	return bundlev1connect.NewCerbosBundleServiceClient(httpClient, conf.ServerURL,
-		connect.WithInterceptors(
-			newTracingInterceptor(),
-			newUserAgentInterceptor(),
-			newAuthInterceptor(conf.APIKey),
-		),
-	)
+		append(options, connect.WithInterceptors(newAuthInterceptor(authClient)))...)
 }
 
 func mkBundleCache(path string) (*cache.Cache, error) {
@@ -257,7 +267,12 @@ func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, s
 		log.V(1).Error(err, "Failed to construct download request")
 		return "", fmt.Errorf("failed to construct download request: %w", err)
 	}
-	req.Header.Set(APIKeyHeader, c.conf.APIKey)
+
+	err = c.authClient.SetAuthTokenHeader(ctx, req.Header)
+	if err != nil {
+		log.V(1).Error(err, "Failed to authenticate")
+		return "", err
+	}
 
 	log.V(1).Info("Sending download request")
 	resp, err := c.httpClient.Do(req)

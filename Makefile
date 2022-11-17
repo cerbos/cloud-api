@@ -33,8 +33,10 @@ generate-proto-code: proto-gen-deps
 
 .PHONY: generate-mocks
 generate-mocks: $(MOCKERY)
+	@ $(MOCKERY) --quiet --srcpkg=./genpb/cerbos/cloud/apikey/v1/apikeyv1connect --name=ApiKeyServiceHandler \
+		--packageprefix=mock --output=test/mocks --with-expecter --keeptree
 	@ $(MOCKERY) --quiet --srcpkg=./genpb/cerbos/cloud/bundle/v1/bundlev1connect --name=CerbosBundleServiceHandler \
-		--outpkg=bundle_test --output=bundle --filename=mock_test.go --with-expecter
+		--packageprefix=mock --output=test/mocks --with-expecter --keeptree
 
 .PHONY: compile
 compile:
@@ -50,4 +52,3 @@ test-unit: $(GOTESTSUM)
 .PHONY: test-integration
 test-integration: $(GOTESTSUM)
 	@ $(GOTESTSUM) -- -tags=tests,integration $(COVERPROFILE) -cover ./...
-

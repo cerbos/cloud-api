@@ -24,9 +24,13 @@ import (
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
 	"github.com/bufbuild/connect-go"
 	"github.com/cerbos/cloud-api/bundle"
+	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
+	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	"github.com/go-logr/logr/testr"
 	"github.com/minio/sha256-simd"
 	"github.com/rs/zerolog/log"
@@ -39,14 +43,17 @@ import (
 
 func TestGetBundle(t *testing.T) {
 	t.Run("SingleSegment", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -79,14 +86,17 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("MultipleDownloadURLs", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -117,14 +127,17 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("MultipleSegments", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -169,15 +182,18 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 
+		expectIssueAccessToken(mockAPIKeySvc)
+
 		// first call returns bundle1
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		mockSvc.EXPECT().
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -217,7 +233,7 @@ func TestGetBundle(t *testing.T) {
 
 		// second call returns bundle2. segment_00 and segment_01 are identical for both bundle1 and bundle2.
 		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
-		mockSvc.EXPECT().
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -277,14 +293,17 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("BundleNotAvailableForDownload", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -308,14 +327,17 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("SegmentNotAvailableForDownload", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -351,13 +373,16 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("ChecksumMismatch", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -381,13 +406,16 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("InvalidBundleHash", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
 				BundleInfo: &bundlev1.BundleInfo{
@@ -408,13 +436,16 @@ func TestGetBundle(t *testing.T) {
 	})
 
 	t.Run("RPCErrorRetries", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(nil, connect.NewError(connect.CodeInternal, errors.New("internal error"))).
 			Times(3)
@@ -422,6 +453,23 @@ func TestGetBundle(t *testing.T) {
 		_, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 		require.Equal(t, 0, counter.getTotal(), "Total download count does not match")
+	})
+
+	t.Run("AuthenticationFailure", func(t *testing.T) {
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		t.Cleanup(server.Close)
+
+		client := mkClient(t, server.URL)
+
+		mockAPIKeySvc.EXPECT().
+			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
+
+		_, err := client.GetBundle(context.Background(), "label")
+		require.Error(t, err)
+		require.Equal(t, connect.CodeUnauthenticated, connect.CodeOf(err))
 	})
 }
 
@@ -433,8 +481,9 @@ func getBundleReq(wantLabel string) func(*connect.Request[bundlev1.GetBundleRequ
 
 func TestWatchBundle(t *testing.T) {
 	t.Run("NormalStream", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
@@ -474,7 +523,9 @@ func TestWatchBundle(t *testing.T) {
 			},
 		}
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
 			Run(setServerStream(wantResponses, 10*time.Millisecond)).
 			Return(nil)
@@ -514,8 +565,9 @@ func TestWatchBundle(t *testing.T) {
 	})
 
 	t.Run("BadDownloadURL", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
@@ -539,7 +591,9 @@ func TestWatchBundle(t *testing.T) {
 			},
 		}
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
 			Run(setServerStream(wantResponses, 10*time.Millisecond)).
 			Return(nil)
@@ -561,13 +615,16 @@ func TestWatchBundle(t *testing.T) {
 	})
 
 	t.Run("BundleNotFound", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
 			Return(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
 
@@ -587,8 +644,9 @@ func TestWatchBundle(t *testing.T) {
 	})
 
 	t.Run("Reconnect", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
 		client := mkClient(t, server.URL)
@@ -619,7 +677,9 @@ func TestWatchBundle(t *testing.T) {
 			},
 		}
 
-		mockSvc.EXPECT().
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
 			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
 			Run(setServerStream(wantResponses, 10*time.Millisecond)).
 			Return(nil)
@@ -650,6 +710,23 @@ func TestWatchBundle(t *testing.T) {
 		_, ok = <-eventStream
 		require.False(t, ok, "Event stream not closed")
 	})
+
+	t.Run("AuthenticationFailure", func(t *testing.T) {
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		t.Cleanup(server.Close)
+
+		client := mkClient(t, server.URL)
+
+		mockAPIKeySvc.EXPECT().
+			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
+
+		_, err := client.WatchBundle(context.Background(), "label")
+		require.Error(t, err)
+		require.Equal(t, connect.CodeUnauthenticated, connect.CodeOf(err))
+	})
 }
 
 func TestGetCachedBundle(t *testing.T) {
@@ -668,8 +745,22 @@ func TestNetworkIssues(t *testing.T) {
 	toxic := startToxiProxy(t)
 
 	t.Run("ServerDown", func(t *testing.T) {
-		client := mkClient(t, "http://127.0.0.10:6666")
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		t.Cleanup(server.Close)
 
+		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
+		t.Cleanup(func() { _ = proxy.Delete() })
+
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
+			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
+			Run(introduceNetworkIssue(t, proxy.Disable)).
+			Return(nil)
+
+		client := mkClient(t, "http://"+proxy.Listen)
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
 
@@ -686,41 +777,25 @@ func TestNetworkIssues(t *testing.T) {
 	})
 
 	t.Run("ServerReset", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
-
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		mockSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 30*time.Millisecond)).
-			Return(nil)
 
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
 		client := mkClient(t, "http://"+proxy.Listen)
 
-		_, err := proxy.AddToxic("", "reset_peer", "", 1, toxiclient.Attributes{"timeout": 10})
-		require.NoError(t, err, "Failed to add toxic")
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
+			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
+			Run(introduceNetworkIssue(t, func() error {
+				_, err := proxy.AddToxic("", "reset_peer", "", 1, toxiclient.Attributes{"timeout": 10})
+				return err
+			})).
+			Return(nil)
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
@@ -738,41 +813,25 @@ func TestNetworkIssues(t *testing.T) {
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
-		mockSvc := NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockSvc)
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
-
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		mockSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 30*time.Millisecond)).
-			Return(nil)
 
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
 		client := mkClient(t, "http://"+proxy.Listen)
 
-		_, err := proxy.AddToxic("", "timeout", "", 1, toxiclient.Attributes{"timeout": 50})
-		require.NoError(t, err, "Failed to add toxic")
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
+			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
+			Run(introduceNetworkIssue(t, func() error {
+				_, err := proxy.AddToxic("", "timeout", "", 1, toxiclient.Attributes{"timeout": 50})
+				return err
+			})).
+			Return(nil)
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
@@ -803,16 +862,30 @@ func setServerStream(responses []*bundlev1.WatchBundleResponse, delay time.Durat
 	}
 }
 
-func startTestServer(t *testing.T, mockSvc bundlev1connect.CerbosBundleServiceHandler) (*httptest.Server, *downloadCounter) {
+func introduceNetworkIssue(t *testing.T, fn func() error) func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) {
+	t.Helper()
+
+	var once sync.Once
+
+	return func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) {
+		once.Do(func() {
+			require.NoError(t, fn(), "Failed to introduce network issue")
+		})
+	}
+}
+
+func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHandler, mockBundleSvc bundlev1connect.CerbosBundleServiceHandler) (*httptest.Server, *downloadCounter) {
 	t.Helper()
 
 	fileHandler := http.FileServer(http.Dir("testdata"))
-	path, svcHandler := bundlev1connect.NewCerbosBundleServiceHandler(mockSvc, connect.WithInterceptors(authCheck{}))
+	apiKeyPath, apiKeySvcHandler := apikeyv1connect.NewApiKeyServiceHandler(mockAPIKeySvc)
+	bundlePath, bundleSvcHandler := bundlev1connect.NewCerbosBundleServiceHandler(mockBundleSvc, connect.WithInterceptors(authCheck{}))
 
 	counter := newDownloadCounter()
 
 	mux := http.NewServeMux()
-	mux.Handle(path, svcHandler)
+	mux.Handle(apiKeyPath, apiKeySvcHandler)
+	mux.Handle(bundlePath, bundleSvcHandler)
 	mux.Handle("/files/", http.StripPrefix("/files/", counter.wrap(fileHandler)))
 
 	s := httptest.NewUnstartedServer(h2c.NewHandler(mux, &http2.Server{}))
@@ -910,7 +983,8 @@ func mkClient(t *testing.T, url string) *bundle.Client {
 	require.NoError(t, os.MkdirAll(tempDir, 0o774), "Failed to create %s", tempDir)
 
 	conf := bundle.ClientConf{
-		APIKey:           "apikey",
+		ClientID:         "client-id",
+		ClientSecret:     "client-secret",
 		ServerURL:        url,
 		PDPIdentifier:    &pdpv1.Identifier{Instance: "instance", Version: "0.19.0"},
 		RetryWaitMin:     10 * time.Millisecond,
@@ -931,24 +1005,24 @@ type authCheck struct{}
 
 func (ac authCheck) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		if req.Header().Get(bundle.APIKeyHeader) != "apikey" {
-			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing API key"))
+		if req.Header().Get(bundle.AuthTokenHeader) != "access-token" {
+			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 		return next(ctx, req)
 	})
 }
 
-func (ac authCheck) WrapStreamingClient(c connect.StreamingClientFunc) connect.StreamingClientFunc {
-	return c
+func (ac authCheck) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return next
 }
 
-func (ac authCheck) WrapStreamingHandler(h connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+func (ac authCheck) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	return connect.StreamingHandlerFunc(func(ctx context.Context, conn connect.StreamingHandlerConn) error {
-		if conn.RequestHeader().Get(bundle.APIKeyHeader) != "apikey" {
-			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing API key"))
+		if conn.RequestHeader().Get(bundle.AuthTokenHeader) != "access-token" {
+			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 
-		return h(ctx, conn)
+		return next(ctx, conn)
 	})
 }
 
@@ -985,4 +1059,19 @@ func (dc *downloadCounter) pathHits(path string) int {
 	defer dc.mu.RUnlock()
 
 	return dc.paths[path]
+}
+
+func expectIssueAccessToken(mockAPIKeySvc *mockapikeyv1connect.ApiKeyServiceHandler) {
+	mockAPIKeySvc.EXPECT().
+		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+		Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
+			AccessToken: "access-token",
+			ExpiresIn:   durationpb.New(1 * time.Minute),
+		}), nil)
+}
+
+func issueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
+	return func(req *connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
+		return req.Msg.ClientId == "client-id" && req.Msg.ClientSecret == "client-secret"
+	}
 }

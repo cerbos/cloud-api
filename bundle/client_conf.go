@@ -3,6 +3,7 @@
 package bundle
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"os"
@@ -14,9 +15,10 @@ import (
 )
 
 var (
-	errEmptyServerURL    = errors.New("server URL must be defined")
-	errMissingAPIKey     = errors.New("missing API key")
-	errMissingIdentifier = errors.New("missing PDP identifier")
+	errEmptyServerURL      = errors.New("server URL must be defined")
+	errMissingClientID     = errors.New("missing client ID")
+	errMissingClientSecret = errors.New("missing client secret")
+	errMissingIdentifier   = errors.New("missing PDP identifier")
 )
 
 const (
@@ -27,8 +29,10 @@ const (
 
 type ClientConf struct {
 	PDPIdentifier    *pdpv1.Identifier
+	TLS              *tls.Config
 	Logger           logr.Logger
-	APIKey           string
+	ClientID         string
+	ClientSecret     string
 	ServerURL        string
 	CacheDir         string
 	TempDir          string
@@ -38,8 +42,12 @@ type ClientConf struct {
 }
 
 func (cc ClientConf) Validate() (outErr error) {
-	if cc.APIKey == "" {
-		outErr = multierr.Append(outErr, errMissingAPIKey)
+	if cc.ClientID == "" {
+		outErr = multierr.Append(outErr, errMissingClientID)
+	}
+
+	if cc.ClientSecret == "" {
+		outErr = multierr.Append(outErr, errMissingClientSecret)
 	}
 
 	if cc.ServerURL == "" {

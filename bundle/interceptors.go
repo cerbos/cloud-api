@@ -80,41 +80,50 @@ func (uas uaStreamingClientConn) RequestHeader() http.Header {
 	return h
 }
 
-//nolint:gosec
-const APIKeyHeader = "x-cerbos-cloud-api-key"
-
 type authInterceptor struct {
-	apiKey string
+	authClient *authClient
 }
 
-func newAuthInterceptor(apiKey string) authInterceptor {
-	return authInterceptor{apiKey: apiKey}
+func newAuthInterceptor(authClient *authClient) authInterceptor {
+	return authInterceptor{authClient: authClient}
 }
 
 func (ai authInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		req.Header().Set(APIKeyHeader, ai.apiKey)
+		err := ai.authClient.SetAuthTokenHeader(ctx, req.Header())
+		if err != nil {
+			return nil, err
+		}
+
 		return next(ctx, req)
 	})
 }
 
-func (ai authInterceptor) WrapStreamingClient(c connect.StreamingClientFunc) connect.StreamingClientFunc {
+func (ai authInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
 	return func(ctx context.Context, spec connect.Spec) connect.StreamingClientConn {
-		return authStreamingClientConn{StreamingClientConn: c(ctx, spec), apiKey: ai.apiKey}
+		conn := next(ctx, spec)
+		err := ai.authClient.SetAuthTokenHeader(ctx, conn.RequestHeader())
+
+		return authStreamingClientConn{
+			StreamingClientConn: conn,
+			err:                 err,
+		}
 	}
 }
 
-func (ai authInterceptor) WrapStreamingHandler(h connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
-	return h
+func (ai authInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return next
 }
 
 type authStreamingClientConn struct {
 	connect.StreamingClientConn
-	apiKey string
+	err error
 }
 
-func (as authStreamingClientConn) RequestHeader() http.Header {
-	h := as.StreamingClientConn.RequestHeader()
-	h.Set(APIKeyHeader, as.apiKey)
-	return h
+func (as authStreamingClientConn) Send(req any) error {
+	if as.err != nil {
+		return as.err
+	}
+
+	return as.StreamingClientConn.Send(req)
 }
