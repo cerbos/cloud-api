@@ -403,7 +403,7 @@ func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *
 		}
 	}
 
-	if err := stream.Err(); err != nil && !errors.Is(err, io.EOF) {
+	if err := stream.Err(); err != nil {
 		log.V(1).Error(err, "Watch terminated due to error")
 		_ = sendWatchEvent(WatchEvent{Error: err})
 	} else {
