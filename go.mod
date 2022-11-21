@@ -15,7 +15,7 @@ require (
 	go.opentelemetry.io/otel v1.11.1
 	go.uber.org/multierr v1.8.0
 	golang.org/x/net v0.2.0
-	google.golang.org/genproto v0.0.0-20221111202108-142d8a6fa32e
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6
 	google.golang.org/protobuf v1.28.1
 )
 
