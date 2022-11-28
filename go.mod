@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Shopify/toxiproxy/v2 v2.5.0
-	github.com/bufbuild/connect-go v1.1.0
+	github.com/bufbuild/connect-go v1.2.0
 	github.com/envoyproxy/protoc-gen-validate v0.9.0
 	github.com/go-logr/logr v1.2.3
 	github.com/hashicorp/go-retryablehttp v0.7.1
