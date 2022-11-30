@@ -66,6 +66,7 @@ message WatchBundleResponse {
     option (validate.required) = true;
     BundleInfo bundle_update = 1;
     Reconnect reconnect = 2;
+    BundleInfo bundle_removed = 3;
   }
 }
 
