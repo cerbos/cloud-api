@@ -571,6 +571,25 @@ func (m *WatchBundleResponse_Reconnect_) MarshalToSizedBufferVT(dAtA []byte) (in
 	}
 	return len(dAtA) - i, nil
 }
+func (m *WatchBundleResponse_BundleRemoved) MarshalToVT(dAtA []byte) (int, error) {
+	size := m.SizeVT()
+	return m.MarshalToSizedBufferVT(dAtA[:size])
+}
+
+func (m *WatchBundleResponse_BundleRemoved) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	if m.BundleRemoved != nil {
+		size, err := m.BundleRemoved.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarint(dAtA, i, uint64(size))
+		i--
+		dAtA[i] = 0x1a
+	}
+	return len(dAtA) - i, nil
+}
 func encodeVarint(dAtA []byte, offset int, v uint64) int {
 	offset -= sov(v)
 	base := offset
@@ -816,6 +835,18 @@ func (m *WatchBundleResponse_Reconnect_) SizeVT() (n int) {
 	_ = l
 	if m.Reconnect != nil {
 		l = m.Reconnect.SizeVT()
+		n += 1 + l + sov(uint64(l))
+	}
+	return n
+}
+func (m *WatchBundleResponse_BundleRemoved) SizeVT() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.BundleRemoved != nil {
+		l = m.BundleRemoved.SizeVT()
 		n += 1 + l + sov(uint64(l))
 	}
 	return n
@@ -2084,6 +2115,47 @@ func (m *WatchBundleResponse) UnmarshalVT(dAtA []byte) error {
 					return err
 				}
 				m.Msg = &WatchBundleResponse_Reconnect_{v}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleRemoved", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if oneof, ok := m.Msg.(*WatchBundleResponse_BundleRemoved); ok {
+				if err := oneof.BundleRemoved.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+					return err
+				}
+			} else {
+				v := &BundleInfo{}
+				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+					return err
+				}
+				m.Msg = &WatchBundleResponse_BundleRemoved{v}
 			}
 			iNdEx = postIndex
 		default:

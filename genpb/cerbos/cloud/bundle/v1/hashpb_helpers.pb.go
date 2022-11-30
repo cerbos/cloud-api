@@ -162,6 +162,11 @@ func cerbos_cloud_bundle_v1_WatchBundleResponse_hashpb_sum(m *WatchBundleRespons
 					cerbos_cloud_bundle_v1_WatchBundleResponse_Reconnect_hashpb_sum(t.Reconnect, hasher, ignore)
 				}
 
+			case *WatchBundleResponse_BundleRemoved:
+				if t.BundleRemoved != nil {
+					cerbos_cloud_bundle_v1_BundleInfo_hashpb_sum(t.BundleRemoved, hasher, ignore)
+				}
+
 			}
 		}
 	}
