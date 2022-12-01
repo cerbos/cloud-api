@@ -387,6 +387,12 @@ func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *
 				return
 			}
 
+		case *bundlev1.WatchBundleResponse_BundleRemoved:
+			log.V(2).Info("Received bundle removed")
+			if err := sendWatchEvent(WatchEvent{}); err != nil {
+				log.V(1).Error(err, "Terminating watch")
+				return
+			}
 		case *bundlev1.WatchBundleResponse_Reconnect_:
 			log.V(1).Info("Server requests reconnect")
 			backoff := defaultBackoff
