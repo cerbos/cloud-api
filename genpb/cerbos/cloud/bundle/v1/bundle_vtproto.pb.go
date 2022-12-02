@@ -10,6 +10,7 @@ import (
 	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	io "io"
 	bits "math/bits"
 )
@@ -579,12 +580,24 @@ func (m *WatchBundleResponse_BundleRemoved) MarshalToVT(dAtA []byte) (int, error
 func (m *WatchBundleResponse_BundleRemoved) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	if m.BundleRemoved != nil {
-		size, err := m.BundleRemoved.MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
+		if marshalto, ok := interface{}(m.BundleRemoved).(interface {
+			MarshalToSizedBufferVT([]byte) (int, error)
+		}); ok {
+			size, err := marshalto.MarshalToSizedBufferVT(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarint(dAtA, i, uint64(size))
+		} else {
+			encoded, err := proto.Marshal(m.BundleRemoved)
+			if err != nil {
+				return 0, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = encodeVarint(dAtA, i, uint64(len(encoded)))
 		}
-		i -= size
-		i = encodeVarint(dAtA, i, uint64(size))
 		i--
 		dAtA[i] = 0x1a
 	}
@@ -846,7 +859,13 @@ func (m *WatchBundleResponse_BundleRemoved) SizeVT() (n int) {
 	var l int
 	_ = l
 	if m.BundleRemoved != nil {
-		l = m.BundleRemoved.SizeVT()
+		if size, ok := interface{}(m.BundleRemoved).(interface {
+			SizeVT() int
+		}); ok {
+			l = size.SizeVT()
+		} else {
+			l = proto.Size(m.BundleRemoved)
+		}
 		n += 1 + l + sov(uint64(l))
 	}
 	return n
@@ -2147,13 +2166,29 @@ func (m *WatchBundleResponse) UnmarshalVT(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if oneof, ok := m.Msg.(*WatchBundleResponse_BundleRemoved); ok {
-				if err := oneof.BundleRemoved.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
+				if unmarshal, ok := interface{}(oneof.BundleRemoved).(interface {
+					UnmarshalVT([]byte) error
+				}); ok {
+					if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+						return err
+					}
+				} else {
+					if err := proto.Unmarshal(dAtA[iNdEx:postIndex], oneof.BundleRemoved); err != nil {
+						return err
+					}
 				}
 			} else {
-				v := &BundleInfo{}
-				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
+				v := &emptypb.Empty{}
+				if unmarshal, ok := interface{}(v).(interface {
+					UnmarshalVT([]byte) error
+				}); ok {
+					if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+						return err
+					}
+				} else {
+					if err := proto.Unmarshal(dAtA[iNdEx:postIndex], v); err != nil {
+						return err
+					}
 				}
 				m.Msg = &WatchBundleResponse_BundleRemoved{v}
 			}

@@ -7,6 +7,7 @@ import (
 	v1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	hash "hash"
 	sort "sort"
 )
@@ -164,7 +165,7 @@ func cerbos_cloud_bundle_v1_WatchBundleResponse_hashpb_sum(m *WatchBundleRespons
 
 			case *WatchBundleResponse_BundleRemoved:
 				if t.BundleRemoved != nil {
-					cerbos_cloud_bundle_v1_BundleInfo_hashpb_sum(t.BundleRemoved, hasher, ignore)
+					google_protobuf_Empty_hashpb_sum(t.BundleRemoved, hasher, ignore)
 				}
 
 			}
@@ -192,4 +193,7 @@ func google_protobuf_Duration_hashpb_sum(m *durationpb.Duration, hasher hash.Has
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.Nanos)))
 
 	}
+}
+
+func google_protobuf_Empty_hashpb_sum(m *emptypb.Empty, hasher hash.Hash, ignore map[string]struct{}) {
 }
