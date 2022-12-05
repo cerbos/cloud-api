@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	toxiproxy "github.com/Shopify/toxiproxy/v2"
+	"github.com/Shopify/toxiproxy/v2"
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
 	"github.com/bufbuild/connect-go"
 	"github.com/cerbos/cloud-api/bundle"
@@ -706,6 +706,69 @@ func TestWatchBundle(t *testing.T) {
 		wantErr := new(bundle.ErrReconnect)
 		require.ErrorAs(t, haveEvent2.Error, wantErr, "Error is not a reconnect error")
 		require.Equal(t, 1*time.Minute, wantErr.Backoff, "Backoff duration mismatch")
+
+		_, ok = <-eventStream
+		require.False(t, ok, "Event stream not closed")
+	})
+
+	t.Run("BundleRemoved", func(t *testing.T) {
+		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		t.Cleanup(server.Close)
+
+		client := mkClient(t, server.URL)
+		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+
+		wantResponses := []*bundlev1.WatchBundleResponse{
+			{
+				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
+					BundleUpdate: &bundlev1.BundleInfo{
+						Label:      "label",
+						BundleHash: wantChecksum1,
+						Segments: []*bundlev1.BundleInfo_Segment{
+							{
+								SegmentId:    1,
+								Checksum:     wantChecksum1,
+								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+							},
+						},
+					},
+				},
+			},
+			{
+				Msg: &bundlev1.WatchBundleResponse_BundleRemoved_{
+					BundleRemoved: (*bundlev1.WatchBundleResponse_BundleRemoved)(nil),
+				},
+			},
+		}
+
+		expectIssueAccessToken(mockAPIKeySvc)
+
+		mockBundleSvc.EXPECT().
+			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
+			Run(setServerStream(wantResponses, 10*time.Millisecond)).
+			Return(nil)
+
+		ctx, cancelFn := context.WithCancel(context.Background())
+		t.Cleanup(cancelFn)
+
+		eventStream, err := client.WatchBundle(ctx, "label")
+		require.NoError(t, err, "Failed to call RPC")
+
+		haveEvent1, ok := <-eventStream
+		require.True(t, ok, "Event stream closed")
+		require.NoError(t, haveEvent1.Error, "Unexpected error in event")
+		require.NotEmpty(t, haveEvent1.BundlePath, "BundlePath is empty")
+		haveChecksum1 := checksum(t, haveEvent1.BundlePath)
+		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
+		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
+
+		haveEvent2, ok := <-eventStream
+		require.True(t, ok, "Event stream closed")
+		require.NoError(t, haveEvent2.Error, "Unexpected error in event")
+		require.Empty(t, haveEvent2.BundlePath, "BundlePath is not empty")
 
 		_, ok = <-eventStream
 		require.False(t, ok, "Event stream not closed")

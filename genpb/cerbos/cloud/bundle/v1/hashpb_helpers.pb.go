@@ -135,6 +135,9 @@ func cerbos_cloud_bundle_v1_WatchBundleRequest_hashpb_sum(m *WatchBundleRequest,
 	}
 }
 
+func cerbos_cloud_bundle_v1_WatchBundleResponse_BundleRemoved_hashpb_sum(m *WatchBundleResponse_BundleRemoved, hasher hash.Hash, ignore map[string]struct{}) {
+}
+
 func cerbos_cloud_bundle_v1_WatchBundleResponse_Reconnect_hashpb_sum(m *WatchBundleResponse_Reconnect, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.bundle.v1.WatchBundleResponse.Reconnect.backoff"]; !ok {
 		if m.Backoff != nil {
@@ -160,6 +163,11 @@ func cerbos_cloud_bundle_v1_WatchBundleResponse_hashpb_sum(m *WatchBundleRespons
 			case *WatchBundleResponse_Reconnect_:
 				if t.Reconnect != nil {
 					cerbos_cloud_bundle_v1_WatchBundleResponse_Reconnect_hashpb_sum(t.Reconnect, hasher, ignore)
+				}
+
+			case *WatchBundleResponse_BundleRemoved_:
+				if t.BundleRemoved != nil {
+					cerbos_cloud_bundle_v1_WatchBundleResponse_BundleRemoved_hashpb_sum(t.BundleRemoved, hasher, ignore)
 				}
 
 			}

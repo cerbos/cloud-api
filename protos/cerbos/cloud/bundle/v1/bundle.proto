@@ -62,10 +62,13 @@ message WatchBundleResponse {
     string reason = 2;
   }
 
+  message BundleRemoved {}
+
   oneof msg {
     option (validate.required) = true;
     BundleInfo bundle_update = 1;
     Reconnect reconnect = 2;
+    BundleRemoved bundle_removed = 3;
   }
 }
 
