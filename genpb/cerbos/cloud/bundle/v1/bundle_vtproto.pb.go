@@ -488,7 +488,7 @@ func (m *WatchBundleResponse_Reconnect) MarshalToSizedBufferVT(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
-func (m *WatchBundleResponse_BundleRemovedInfo) MarshalVT() (dAtA []byte, err error) {
+func (m *WatchBundleResponse_BundleRemoved) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -501,12 +501,12 @@ func (m *WatchBundleResponse_BundleRemovedInfo) MarshalVT() (dAtA []byte, err er
 	return dAtA[:n], nil
 }
 
-func (m *WatchBundleResponse_BundleRemovedInfo) MarshalToVT(dAtA []byte) (int, error) {
+func (m *WatchBundleResponse_BundleRemoved) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *WatchBundleResponse_BundleRemovedInfo) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *WatchBundleResponse_BundleRemoved) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -604,12 +604,12 @@ func (m *WatchBundleResponse_Reconnect_) MarshalToSizedBufferVT(dAtA []byte) (in
 	}
 	return len(dAtA) - i, nil
 }
-func (m *WatchBundleResponse_BundleRemoved) MarshalToVT(dAtA []byte) (int, error) {
+func (m *WatchBundleResponse_BundleRemoved_) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *WatchBundleResponse_BundleRemoved) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *WatchBundleResponse_BundleRemoved_) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	if m.BundleRemoved != nil {
 		size, err := m.BundleRemoved.MarshalToSizedBufferVT(dAtA[:i])
@@ -833,7 +833,7 @@ func (m *WatchBundleResponse_Reconnect) SizeVT() (n int) {
 	return n
 }
 
-func (m *WatchBundleResponse_BundleRemovedInfo) SizeVT() (n int) {
+func (m *WatchBundleResponse_BundleRemoved) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -884,7 +884,7 @@ func (m *WatchBundleResponse_Reconnect_) SizeVT() (n int) {
 	}
 	return n
 }
-func (m *WatchBundleResponse_BundleRemoved) SizeVT() (n int) {
+func (m *WatchBundleResponse_BundleRemoved_) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2051,7 +2051,7 @@ func (m *WatchBundleResponse_Reconnect) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *WatchBundleResponse_BundleRemovedInfo) UnmarshalVT(dAtA []byte) error {
+func (m *WatchBundleResponse_BundleRemoved) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2074,10 +2074,10 @@ func (m *WatchBundleResponse_BundleRemovedInfo) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: WatchBundleResponse_BundleRemovedInfo: wiretype end group for non-group")
+			return fmt.Errorf("proto: WatchBundleResponse_BundleRemoved: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: WatchBundleResponse_BundleRemovedInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: WatchBundleResponse_BundleRemoved: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -2242,16 +2242,16 @@ func (m *WatchBundleResponse) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if oneof, ok := m.Msg.(*WatchBundleResponse_BundleRemoved); ok {
+			if oneof, ok := m.Msg.(*WatchBundleResponse_BundleRemoved_); ok {
 				if err := oneof.BundleRemoved.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
 			} else {
-				v := &WatchBundleResponse_BundleRemovedInfo{}
+				v := &WatchBundleResponse_BundleRemoved{}
 				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
-				m.Msg = &WatchBundleResponse_BundleRemoved{v}
+				m.Msg = &WatchBundleResponse_BundleRemoved_{v}
 			}
 			iNdEx = postIndex
 		default:

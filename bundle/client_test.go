@@ -22,7 +22,6 @@ import (
 
 	"github.com/Shopify/toxiproxy/v2"
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
-	"github.com/bufbuild/connect-go"
 	"github.com/cerbos/cloud-api/bundle"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
@@ -39,6 +38,7 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"github.com/bufbuild/connect-go"
 )
 
 func TestGetBundle(t *testing.T) {
@@ -737,8 +737,8 @@ func TestWatchBundle(t *testing.T) {
 				},
 			},
 			{
-				Msg: &bundlev1.WatchBundleResponse_BundleRemoved{
-					BundleRemoved: (*bundlev1.WatchBundleResponse_BundleRemovedInfo)(nil),
+				Msg: &bundlev1.WatchBundleResponse_BundleRemoved_{
+					BundleRemoved: (*bundlev1.WatchBundleResponse_BundleRemoved)(nil),
 				},
 			},
 		}

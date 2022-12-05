@@ -989,7 +989,7 @@ func (m *WatchBundleResponse) validate(all bool) error {
 			}
 		}
 
-	case *WatchBundleResponse_BundleRemoved:
+	case *WatchBundleResponse_BundleRemoved_:
 		if v == nil {
 			err := WatchBundleResponseValidationError{
 				field:  "Msg",
@@ -1425,23 +1425,23 @@ var _ interface {
 	ErrorName() string
 } = WatchBundleResponse_ReconnectValidationError{}
 
-// Validate checks the field values on WatchBundleResponse_BundleRemovedInfo
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *WatchBundleResponse_BundleRemovedInfo) Validate() error {
+// Validate checks the field values on WatchBundleResponse_BundleRemoved with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *WatchBundleResponse_BundleRemoved) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on WatchBundleResponse_BundleRemovedInfo
+// ValidateAll checks the field values on WatchBundleResponse_BundleRemoved
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// WatchBundleResponse_BundleRemovedInfoMultiError, or nil if none found.
-func (m *WatchBundleResponse_BundleRemovedInfo) ValidateAll() error {
+// WatchBundleResponse_BundleRemovedMultiError, or nil if none found.
+func (m *WatchBundleResponse_BundleRemoved) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *WatchBundleResponse_BundleRemovedInfo) validate(all bool) error {
+func (m *WatchBundleResponse_BundleRemoved) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1449,20 +1449,20 @@ func (m *WatchBundleResponse_BundleRemovedInfo) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return WatchBundleResponse_BundleRemovedInfoMultiError(errors)
+		return WatchBundleResponse_BundleRemovedMultiError(errors)
 	}
 
 	return nil
 }
 
-// WatchBundleResponse_BundleRemovedInfoMultiError is an error wrapping
-// multiple validation errors returned by
-// WatchBundleResponse_BundleRemovedInfo.ValidateAll() if the designated
+// WatchBundleResponse_BundleRemovedMultiError is an error wrapping multiple
+// validation errors returned by
+// WatchBundleResponse_BundleRemoved.ValidateAll() if the designated
 // constraints aren't met.
-type WatchBundleResponse_BundleRemovedInfoMultiError []error
+type WatchBundleResponse_BundleRemovedMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m WatchBundleResponse_BundleRemovedInfoMultiError) Error() string {
+func (m WatchBundleResponse_BundleRemovedMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1471,12 +1471,12 @@ func (m WatchBundleResponse_BundleRemovedInfoMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m WatchBundleResponse_BundleRemovedInfoMultiError) AllErrors() []error { return m }
+func (m WatchBundleResponse_BundleRemovedMultiError) AllErrors() []error { return m }
 
-// WatchBundleResponse_BundleRemovedInfoValidationError is the validation error
-// returned by WatchBundleResponse_BundleRemovedInfo.Validate if the
-// designated constraints aren't met.
-type WatchBundleResponse_BundleRemovedInfoValidationError struct {
+// WatchBundleResponse_BundleRemovedValidationError is the validation error
+// returned by WatchBundleResponse_BundleRemoved.Validate if the designated
+// constraints aren't met.
+type WatchBundleResponse_BundleRemovedValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1484,24 +1484,24 @@ type WatchBundleResponse_BundleRemovedInfoValidationError struct {
 }
 
 // Field function returns field value.
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) Field() string { return e.field }
+func (e WatchBundleResponse_BundleRemovedValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) Reason() string { return e.reason }
+func (e WatchBundleResponse_BundleRemovedValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) Cause() error { return e.cause }
+func (e WatchBundleResponse_BundleRemovedValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) Key() bool { return e.key }
+func (e WatchBundleResponse_BundleRemovedValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) ErrorName() string {
-	return "WatchBundleResponse_BundleRemovedInfoValidationError"
+func (e WatchBundleResponse_BundleRemovedValidationError) ErrorName() string {
+	return "WatchBundleResponse_BundleRemovedValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e WatchBundleResponse_BundleRemovedInfoValidationError) Error() string {
+func (e WatchBundleResponse_BundleRemovedValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1513,14 +1513,14 @@ func (e WatchBundleResponse_BundleRemovedInfoValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sWatchBundleResponse_BundleRemovedInfo.%s: %s%s",
+		"invalid %sWatchBundleResponse_BundleRemoved.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = WatchBundleResponse_BundleRemovedInfoValidationError{}
+var _ error = WatchBundleResponse_BundleRemovedValidationError{}
 
 var _ interface {
 	Field() string
@@ -1528,4 +1528,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = WatchBundleResponse_BundleRemovedInfoValidationError{}
+} = WatchBundleResponse_BundleRemovedValidationError{}
