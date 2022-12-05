@@ -16,6 +16,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/bufbuild/connect-go"
 	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	"github.com/go-logr/logr"
@@ -23,7 +24,6 @@ import (
 	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
 	"go.uber.org/multierr"
-	"github.com/bufbuild/connect-go"
 )
 
 const (
