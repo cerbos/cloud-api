@@ -39,7 +39,6 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestGetBundle(t *testing.T) {
@@ -738,7 +737,9 @@ func TestWatchBundle(t *testing.T) {
 				},
 			},
 			{
-				Msg: &bundlev1.WatchBundleResponse_BundleRemoved{BundleRemoved: (*emptypb.Empty)(nil)},
+				Msg: &bundlev1.WatchBundleResponse_BundleRemoved{
+					BundleRemoved: (*bundlev1.WatchBundleResponse_BundleRemovedInfo)(nil),
+				},
 			},
 		}
 

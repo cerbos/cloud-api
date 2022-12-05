@@ -63,11 +63,13 @@ message WatchBundleResponse {
     string reason = 2;
   }
 
+  message BundleRemovedInfo {}
+
   oneof msg {
     option (validate.required) = true;
     BundleInfo bundle_update = 1;
     Reconnect reconnect = 2;
-    google.protobuf.Empty bundle_removed = 3;
+    BundleRemovedInfo bundle_removed = 3;
   }
 }
 
