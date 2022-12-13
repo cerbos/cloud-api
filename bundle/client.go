@@ -272,9 +272,6 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 
 	if err := c.authClient.SetAuthTokenHeader(ctx, req.Header); err != nil {
 		log.V(1).Error(err, "Failed to authenticate")
-		if r.size() > 1 && attempt < maxDownloadAttempts {
-			return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
-		}
 		return "", err
 	}
 
