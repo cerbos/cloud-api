@@ -70,8 +70,13 @@ func (a *authClient) authenticate(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("failed to authenticate: %w", err)
 	}
 
+	expiresIn := response.Msg.ExpiresIn.AsDuration()
+	if expiresIn > earlyExpiry {
+		expiresIn -= earlyExpiry
+	}
+
 	a.accessToken = response.Msg.AccessToken
-	a.expiresAt = time.Now().Add(response.Msg.ExpiresIn.AsDuration() - earlyExpiry)
+	a.expiresAt = time.Now().Add(expiresIn)
 
 	return a.accessToken, nil
 }

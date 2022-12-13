@@ -5,6 +5,7 @@ package bundle
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -24,6 +25,8 @@ import (
 	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
 	"go.uber.org/multierr"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -147,6 +150,8 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 		return "", fmt.Errorf("rpc failed: %w", err)
 	}
 
+	logResponsePayload(log, resp.Msg)
+
 	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 }
 
@@ -201,7 +206,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 		log.V(1).Info("No segments provided")
 		return "", errInvalidResponse
 	case 1:
-		return c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0], 1)
+		return c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0])
 	default:
 		sort.Slice(segments, func(i, j int) bool { return segments[i].SegmentId < segments[j].SegmentId })
 		// TODO(cell): Check segment IDs are sequential (not missing any IDs)
@@ -242,23 +247,20 @@ func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev1.BundleInf
 	}
 
 	log.V(1).Info("Cache miss: downloading segment")
-	return c.downloadSegment(ctx, cacheKey, segment, 1)
+	return c.downloadSegment(ctx, cacheKey, segment)
 }
 
-func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment, attempt int) (string, error) {
-	numDownloadURLS := len(segment.DownloadUrls)
-
-	var downloadURL string
-	switch numDownloadURLS {
-	case 0:
+func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment) (string, error) {
+	if len(segment.DownloadUrls) == 0 {
 		return "", errNoSegmentDownloadURL
-	case 1:
-		downloadURL = segment.DownloadUrls[0]
-	default:
-		//nolint:gosec
-		downloadURL = segment.DownloadUrls[rand.Intn(numDownloadURLS)]
 	}
 
+	r := newRing(segment.DownloadUrls)
+	return c.doDownloadSegment(ctx, cacheKey, segment, r, 1)
+}
+
+func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment, r *ring, attempt int) (string, error) {
+	downloadURL := r.next()
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", downloadURL, "attempt", attempt)
 	log.V(1).Info("Constructing download request")
 
@@ -268,9 +270,11 @@ func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, s
 		return "", fmt.Errorf("failed to construct download request: %w", err)
 	}
 
-	err = c.authClient.SetAuthTokenHeader(ctx, req.Header)
-	if err != nil {
+	if err := c.authClient.SetAuthTokenHeader(ctx, req.Header); err != nil {
 		log.V(1).Error(err, "Failed to authenticate")
+		if r.size() > 1 && attempt < maxDownloadAttempts {
+			return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
+		}
 		return "", err
 	}
 
@@ -278,6 +282,10 @@ func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, s
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
+		if r.size() > 1 && attempt < maxDownloadAttempts {
+			return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
+		}
+
 		return "", fmt.Errorf("failed to send download request: %w", err)
 	}
 
@@ -292,9 +300,9 @@ func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, s
 	switch {
 	case resp.StatusCode == http.StatusOK:
 		return c.addSegmentToCache(ctx, cacheKey, segment.Checksum, resp)
-	case resp.StatusCode >= 404 && numDownloadURLS > 1 && attempt < maxDownloadAttempts:
+	case resp.StatusCode >= 404 && r.size() > 1 && attempt < maxDownloadAttempts:
 		log.V(1).Info("Retrying download")
-		return c.downloadSegment(ctx, cacheKey, segment, attempt+1)
+		return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
 	default:
 		log.V(1).Info("Download failed")
 		return "", errDownloadFailed
@@ -368,6 +376,8 @@ func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *
 
 	for stream.Receive() {
 		msg := stream.Msg()
+		logResponsePayload(log, msg)
+
 		switch m := msg.Msg.(type) {
 		case *bundlev1.WatchBundleResponse_BundleUpdate:
 			log.V(2).Info("Received bundle update")
@@ -414,6 +424,12 @@ func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *
 		_ = sendWatchEvent(WatchEvent{Error: err})
 	} else {
 		log.V(1).Info("Watch terminated")
+	}
+}
+
+func logResponsePayload(log logr.Logger, payload proto.Message) {
+	if lg := log.V(3); lg.Enabled() {
+		lg.Info("RPC response", "payload", protoWrapper{p: payload})
 	}
 }
 
@@ -498,4 +514,39 @@ func (sj *segmentJoiner) join() io.ReadCloser {
 		Reader:        mr,
 		segmentJoiner: sj,
 	}
+}
+
+type ring struct {
+	elements []string
+	idx      int
+}
+
+func newRing(elements []string) *ring {
+	return &ring{
+		elements: elements,
+		idx:      rand.Intn(len(elements)), //nolint:gosec
+	}
+}
+
+func (r *ring) next() string {
+	el := r.elements[r.idx]
+	r.idx = (r.idx + 1) % len(r.elements)
+	return el
+}
+
+func (r *ring) size() int {
+	return len(r.elements)
+}
+
+type protoWrapper struct {
+	p proto.Message
+}
+
+func (pw protoWrapper) MarshalLog() any {
+	bytes, err := protojson.Marshal(pw.p)
+	if err != nil {
+		return fmt.Sprintf("error marshaling response: %v", err)
+	}
+
+	return json.RawMessage(bytes)
 }

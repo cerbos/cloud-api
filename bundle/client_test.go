@@ -311,9 +311,13 @@ func TestGetBundle(t *testing.T) {
 					BundleHash: wantChecksum,
 					Segments: []*bundlev1.BundleInfo_Segment{
 						{
-							SegmentId:    1,
-							Checksum:     wantChecksum,
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_BLAH.crbp", server.URL)},
+							SegmentId: 1,
+							Checksum:  wantChecksum,
+							DownloadUrls: []string{
+								fmt.Sprintf("%s/files/bundle1_BLAH1.crbp", server.URL),
+								fmt.Sprintf("%s/files/bundle1_BLAH2.crbp", server.URL),
+								fmt.Sprintf("%s/files/bundle1_BLAH3.crbp", server.URL),
+							},
 						},
 					},
 				},
@@ -322,8 +326,10 @@ func TestGetBundle(t *testing.T) {
 		_, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_BLAH.crbp"), "Path hit count does not match")
+		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
+		require.Equal(t, 1, counter.pathHits("bundle1_BLAH1.crbp"), "Path hit count does not match")
+		require.Equal(t, 1, counter.pathHits("bundle1_BLAH2.crbp"), "Path hit count does not match")
+		require.Equal(t, 1, counter.pathHits("bundle1_BLAH3.crbp"), "Path hit count does not match")
 	})
 
 	t.Run("SegmentNotAvailableForDownload", func(t *testing.T) {
