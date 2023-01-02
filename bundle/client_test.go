@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Zenauth Ltd.
+// Copyright 2021-2023 Zenauth Ltd.
 
 //go:build tests
 // +build tests
