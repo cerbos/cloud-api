@@ -3,14 +3,14 @@ module github.com/cerbos/cloud-api/tools
 go 1.19
 
 require (
-	github.com/bufbuild/buf v1.11.0
+	github.com/bufbuild/buf v1.12.0
 	github.com/bufbuild/connect-go v1.4.1
 	github.com/cerbos/protoc-gen-go-hashpb v0.1.0
 	github.com/envoyproxy/protoc-gen-validate v0.9.1
 	github.com/planetscale/vtprotobuf v0.3.0
 	github.com/vektra/mockery/v2 v2.16.0
-	google.golang.org/protobuf v1.28.2-0.20230105081712-a8d446d548e4
-	gotest.tools/gotestsum v1.8.2
+	google.golang.org/protobuf v1.28.2-0.20230112084515-31a59208116e
+	gotest.tools/gotestsum v1.9.0
 )
 
 require (
