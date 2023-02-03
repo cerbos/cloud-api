@@ -35,9 +35,13 @@ const (
 	maxDownloadAttempts = 3
 )
 
+const (
+	BundleIDUnknown  = "__unknown__"
+	BundleIDOrphaned = "__orphaned__"
+)
+
 var (
 	ErrBundleNotFound       = errors.New("bundle not found")
-	ErrBundleRemoved        = errors.New("bundle removed")
 	errChecksumMismatch     = errors.New("checksum mismatch")
 	errDownloadFailed       = errors.New("download failed")
 	errInvalidResponse      = errors.New("invalid response from server")
@@ -57,7 +61,8 @@ func (er ErrReconnect) Error() string {
 type ServerEventKind uint8
 
 const (
-	ServerEventError ServerEventKind = iota
+	ServerEventUndefined ServerEventKind = iota
+	ServerEventError
 	ServerEventNewBundle
 	ServerEventBundleRemoved
 	ServerEventReconnect
@@ -74,7 +79,7 @@ type ServerEvent struct {
 type ClientEventKind uint8
 
 const (
-	ClientEventError ClientEventKind = iota
+	ClientEventUndefined ClientEventKind = iota
 	ClientEventBundleSwap
 )
 
@@ -255,12 +260,12 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 				if connect.CodeOf(err) == connect.CodeNotFound {
 					log.V(1).Error(err, "Label does not exist")
-					_ = sendWatchEvent(ServerEvent{Error: ErrBundleNotFound})
+					_ = sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrBundleNotFound})
 					return ErrBundleNotFound
 				}
 
 				log.V(1).Error(err, "Error receiving message")
-				_ = sendWatchEvent(ServerEvent{Error: err})
+				_ = sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: err})
 				return err
 			}
 
@@ -289,7 +294,6 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 					log.V(2).Error(err, "Failed to send bundle removed")
 				}
 
-				return ErrBundleRemoved
 			case *bundlev1.WatchBundleResponse_Reconnect_:
 				log.V(1).Info("Server requests reconnect")
 				backoff := defaultBackoff
@@ -363,7 +367,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		log.V(2).Info("Starting heartbeat loop")
-		activeBundleID := "unknown"
+		activeBundleID := BundleIDUnknown
 		for {
 			select {
 			case <-ctx.Done():
