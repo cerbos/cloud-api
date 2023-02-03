@@ -22,23 +22,25 @@ var (
 )
 
 const (
-	defaultRetryWaitMin     = 1 * time.Second //nolint:revive
-	defaultRetryWaitMax     = 5 * time.Minute
-	defaultRetryMaxAttempts = 10
+	defaultHeartbeatInterval = 2 * time.Minute
+	defaultRetryWaitMin      = 1 * time.Second //nolint:revive
+	defaultRetryWaitMax      = 5 * time.Minute
+	defaultRetryMaxAttempts  = 10
 )
 
 type ClientConf struct {
-	PDPIdentifier    *pdpv1.Identifier
-	TLS              *tls.Config
-	Logger           logr.Logger
-	ClientID         string
-	ClientSecret     string
-	ServerURL        string
-	CacheDir         string
-	TempDir          string
-	RetryWaitMin     time.Duration
-	RetryWaitMax     time.Duration
-	RetryMaxAttempts int
+	PDPIdentifier     *pdpv1.Identifier
+	TLS               *tls.Config
+	Logger            logr.Logger
+	ClientID          string
+	ClientSecret      string
+	ServerURL         string
+	CacheDir          string
+	TempDir           string
+	RetryWaitMin      time.Duration
+	RetryWaitMax      time.Duration
+	RetryMaxAttempts  int
+	HeartbeatInterval time.Duration
 }
 
 func (cc ClientConf) Validate() (outErr error) {
@@ -86,6 +88,10 @@ func (cc *ClientConf) SetDefaults() {
 
 	if cc.RetryWaitMax == 0 {
 		cc.RetryWaitMax = defaultRetryWaitMax
+	}
+
+	if cc.HeartbeatInterval == 0 {
+		cc.HeartbeatInterval = defaultHeartbeatInterval
 	}
 }
 

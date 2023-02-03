@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime/trace"
 	"sort"
 	"time"
 
@@ -24,7 +23,9 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
+	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
+	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -35,6 +36,8 @@ const (
 )
 
 var (
+	ErrBundleNotFound       = errors.New("bundle not found")
+	ErrBundleRemoved        = errors.New("bundle removed")
 	errChecksumMismatch     = errors.New("checksum mismatch")
 	errDownloadFailed       = errors.New("download failed")
 	errInvalidResponse      = errors.New("invalid response from server")
@@ -50,9 +53,34 @@ func (er ErrReconnect) Error() string {
 	return fmt.Sprintf("reconnect in %s", er.Backoff)
 }
 
-type WatchEvent struct {
-	Error      error
-	BundlePath string
+// ServerEventKind represents events sent by the server through the watch stream.
+type ServerEventKind uint8
+
+const (
+	ServerEventError ServerEventKind = iota
+	ServerEventNewBundle
+	ServerEventBundleRemoved
+	ServerEventReconnect
+)
+
+type ServerEvent struct {
+	Error            error
+	NewBundlePath    string
+	ReconnectBackoff time.Duration
+	Kind             ServerEventKind
+}
+
+// ClientEventKind represents events sent by the client through the watch stream.
+type ClientEventKind uint8
+
+const (
+	ClientEventError ClientEventKind = iota
+	ClientEventBundleSwap
+)
+
+type ClientEvent struct {
+	ActiveBundleID string
+	Kind           ClientEventKind
 }
 
 type Client struct {
@@ -73,44 +101,26 @@ func NewClient(conf ClientConf) (*Client, error) {
 		return nil, err
 	}
 
-	httpClient := mkHTTPClient(conf)
+	httpClient := mkHTTPClient(conf) // Bidi streams don't work with retryable HTTP client.
+	retryableHTTPClient := mkRetryableHTTPClient(conf, httpClient)
+	options := []connect.ClientOption{
+		connect.WithInterceptors(
+			newTracingInterceptor(),
+			newUserAgentInterceptor(),
+		),
+	}
 
-	interceptors := connect.WithInterceptors(
-		newTracingInterceptor(),
-		newUserAgentInterceptor(),
-	)
-
-	authClient := newAuthClient(conf, httpClient, interceptors)
-	rpcClient := mkRPCClient(conf, httpClient, authClient, interceptors)
+	authClient := newAuthClient(conf, retryableHTTPClient, options...)
+	options = append(options, connect.WithInterceptors(newAuthInterceptor(authClient)))
+	rpcClient := bundlev1connect.NewCerbosBundleServiceClient(httpClient, conf.ServerURL, options...)
 
 	return &Client{
 		bundleCache: bcache,
 		conf:        conf,
 		authClient:  authClient,
 		rpcClient:   rpcClient,
-		httpClient:  httpClient,
+		httpClient:  retryableHTTPClient,
 	}, nil
-}
-
-func mkHTTPClient(conf ClientConf) *http.Client {
-	httpClient := retryablehttp.NewClient()
-	httpClient.HTTPClient = &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig:   conf.TLS.Clone(),
-			ForceAttemptHTTP2: true,
-		},
-	}
-	httpClient.RetryMax = conf.RetryMaxAttempts
-	httpClient.RetryWaitMin = conf.RetryWaitMin
-	httpClient.RetryWaitMax = conf.RetryWaitMax
-	httpClient.Logger = logWrapper{Logger: conf.Logger.WithName("transport")}
-
-	return httpClient.StandardClient()
-}
-
-func mkRPCClient(conf ClientConf, httpClient *http.Client, authClient *authClient, options ...connect.ClientOption) bundlev1connect.CerbosBundleServiceClient {
-	return bundlev1connect.NewCerbosBundleServiceClient(httpClient, conf.ServerURL,
-		append(options, connect.WithInterceptors(newAuthInterceptor(authClient)))...)
 }
 
 func mkBundleCache(path string) (*cache.Cache, error) {
@@ -136,6 +146,25 @@ func mkBundleCache(path string) (*cache.Cache, error) {
 	return c, nil
 }
 
+func mkHTTPClient(conf ClientConf) *http.Client {
+	return &http.Client{
+		Transport: &http2.Transport{
+			TLSClientConfig: conf.TLS.Clone(),
+		},
+	}
+}
+
+func mkRetryableHTTPClient(conf ClientConf, client *http.Client) *http.Client {
+	httpClient := retryablehttp.NewClient()
+	httpClient.HTTPClient = client
+	httpClient.RetryMax = conf.RetryMaxAttempts
+	httpClient.RetryWaitMin = conf.RetryWaitMin
+	httpClient.RetryWaitMax = conf.RetryWaitMax
+	httpClient.Logger = logWrapper{Logger: conf.Logger.WithName("transport")}
+
+	return httpClient.StandardClient()
+}
+
 // GetBundle returns the path to the bundle with the given label.
 func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, error) {
 	log := c.conf.Logger.WithValues("bundle", bundleLabel)
@@ -155,23 +184,218 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 }
 
-func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (<-chan WatchEvent, error) {
+func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHandle, error) {
 	log := c.conf.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling WatchBundle RPC")
 
-	stream, err := c.rpcClient.WatchBundle(ctx, connect.NewRequest(&bundlev1.WatchBundleRequest{
-		PdpId:       c.conf.PDPIdentifier,
-		BundleLabel: bundleLabel,
-	}))
-	if err != nil {
-		log.Error(err, "WatchBundle RPC failed")
-		return nil, fmt.Errorf("rpc failed: %w", err)
+	stream := c.rpcClient.WatchBundle(ctx)
+	if err := stream.Send(nil); err != nil {
+		log.V(1).Error(err, "Failed to send request headers")
+		return nil, fmt.Errorf("failed to send request headers: %w", err)
 	}
 
-	outChan := make(chan WatchEvent, 1)
-	go c.doWatchBundle(ctx, bundleLabel, stream, outChan)
+	wh := &watchHandleImpl{
+		serverEvents: make(chan ServerEvent, 1),
+		clientEvents: make(chan ClientEvent, 1),
+		errors:       make(chan error, 1),
+		bundleLabel:  bundleLabel,
+		p:            pool.New().WithContext(ctx).WithCancelOnError().WithFirstError(),
+	}
 
-	return outChan, nil
+	wh.p.Go(c.watchStreamRecv(stream, wh, log))
+	wh.p.Go(c.watchStreamSend(stream, wh, log))
+	go func() {
+		err := wh.wait()
+		log.V(2).Error(err, "Watch streams terminated")
+	}()
+
+	return wh, nil
+}
+
+func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
+	return func(ctx context.Context) (outErr error) {
+		log := logger.WithName("recv")
+		log.V(1).Info("Starting receive stream")
+
+		defer func() {
+			log.V(1).Info("Closing receive stream")
+			if err := stream.CloseResponse(); err != nil {
+				if !errors.Is(err, context.Canceled) {
+					log.V(1).Error(err, "Failed to close receive stream")
+					outErr = multierr.Append(outErr, err)
+				}
+			}
+		}()
+
+		sendWatchEvent := func(we ServerEvent) error {
+			log.V(3).Info("Sending watch event")
+			select {
+			case wh.serverEvents <- we:
+				log.V(3).Info("Sent watch event")
+				return nil
+			case <-ctx.Done():
+				log.V(3).Info("Failed to send watch event due to context cancellation")
+				return ctx.Err()
+			}
+		}
+
+		for {
+			if err := ctx.Err(); err != nil {
+				log.V(2).Error(err, "Exiting receive loop due to context cancellation")
+				return err
+			}
+
+			log.V(3).Info("Waiting for message")
+			msg, err := stream.Receive()
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					log.V(2).Info("Stream terminated by server")
+					return nil
+				}
+
+				if connect.CodeOf(err) == connect.CodeNotFound {
+					log.V(1).Error(err, "Label does not exist")
+					_ = sendWatchEvent(ServerEvent{Error: ErrBundleNotFound})
+					return ErrBundleNotFound
+				}
+
+				log.V(1).Error(err, "Error receiving message")
+				_ = sendWatchEvent(ServerEvent{Error: err})
+				return err
+			}
+
+			logResponsePayload(log, msg)
+
+			switch m := msg.Msg.(type) {
+			case *bundlev1.WatchBundleResponse_BundleUpdate:
+				log.V(2).Info("Received bundle update")
+				bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
+				if err != nil {
+					log.V(1).Error(err, "Failed to get bundle")
+					if err := sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: err}); err != nil {
+						log.V(2).Error(err, "Failed to send error")
+					}
+
+					return err
+				}
+
+				if err := sendWatchEvent(ServerEvent{Kind: ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
+					return err
+				}
+
+			case *bundlev1.WatchBundleResponse_BundleRemoved_:
+				log.V(1).Info("Bundle label removed")
+				if err := sendWatchEvent(ServerEvent{Kind: ServerEventBundleRemoved}); err != nil {
+					log.V(2).Error(err, "Failed to send bundle removed")
+				}
+
+				return ErrBundleRemoved
+			case *bundlev1.WatchBundleResponse_Reconnect_:
+				log.V(1).Info("Server requests reconnect")
+				backoff := defaultBackoff
+				if m.Reconnect != nil && m.Reconnect.Backoff != nil {
+					backoff = m.Reconnect.Backoff.AsDuration()
+				}
+
+				if err := sendWatchEvent(ServerEvent{Kind: ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
+					log.V(2).Error(err, "Failed to send reconnect")
+				}
+
+				return ErrReconnect{Backoff: backoff}
+			}
+		}
+	}
+}
+
+func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
+	return func(ctx context.Context) (outErr error) {
+		log := logger.WithName("send")
+		log.V(1).Info("Starting send stream")
+
+		var ticker *time.Ticker
+		var tickerChan <-chan time.Time
+
+		if c.conf.HeartbeatInterval > 0 {
+			ticker = time.NewTicker(c.conf.HeartbeatInterval)
+			tickerChan = ticker.C
+		} else {
+			log.V(1).Info("Regular heartbeats disabled")
+			tickerChan = make(chan time.Time)
+		}
+
+		defer func() {
+			log.V(1).Info("Closing send stream")
+			if ticker != nil {
+				ticker.Stop()
+			}
+
+			if err := stream.CloseRequest(); err != nil {
+				if !errors.Is(err, context.Canceled) {
+					log.V(1).Error(err, "Failed to close send stream")
+					outErr = multierr.Append(outErr, err)
+				}
+			}
+		}()
+
+		log.V(2).Info("Initiating bundle watch")
+		if err := stream.Send(&bundlev1.WatchBundleRequest{
+			PdpId: c.conf.PDPIdentifier,
+			Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
+				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.bundleLabel},
+			},
+		}); err != nil {
+			log.Error(err, "WatchBundle RPC failed")
+			return err
+		}
+
+		sendHeartbeat := func(activeBundleID string) error {
+			if err := stream.Send(&bundlev1.WatchBundleRequest{
+				PdpId: c.conf.PDPIdentifier,
+				Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
+					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{ActiveBundleId: activeBundleID},
+				},
+			}); err != nil {
+				log.V(1).Error(err, "Failed to send message")
+				return err
+			}
+
+			return nil
+		}
+
+		log.V(2).Info("Starting heartbeat loop")
+		activeBundleID := "unknown"
+		for {
+			select {
+			case <-ctx.Done():
+				log.V(2).Info("Terminating send stream due to context cancellation")
+				return ctx.Err()
+			case evt := <-wh.clientEvents:
+				switch evt.Kind {
+				case ClientEventBundleSwap:
+					if activeBundleID != evt.ActiveBundleID {
+						log.V(3).Info("Sending bundle change event")
+						activeBundleID = evt.ActiveBundleID
+						if err := sendHeartbeat(activeBundleID); err != nil {
+							return err
+						}
+					}
+				default:
+					log.V(2).Info("Ignoring unknown client event", "event", evt)
+				}
+			case <-tickerChan:
+				log.V(3).Info("Sending heartbeat")
+				if err := sendHeartbeat(activeBundleID); err != nil {
+					return err
+				}
+			}
+		}
+	}
+}
+
+func logResponsePayload(log logr.Logger, payload proto.Message) {
+	if lg := log.V(3); lg.Enabled() {
+		lg.Info("RPC response", "payload", protoWrapper{p: payload})
+	}
 }
 
 func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (outPath string, outErr error) {
@@ -341,93 +565,6 @@ func (c *Client) addToCache(cacheKey cache.ActionID, in io.Reader) (string, []by
 	}
 
 	return c.bundleCache.OutputFile(out), sum.Sum(nil), nil
-}
-
-func (c *Client) doWatchBundle(ctx context.Context, bundleLabel string, stream *connect.ServerStreamForClient[bundlev1.WatchBundleResponse], outChan chan WatchEvent) {
-	ctx, task := trace.NewTask(ctx, "doWatchBundle")
-	defer task.End()
-
-	trace.Logf(ctx, "", "label=%s", bundleLabel)
-
-	log := c.conf.Logger.WithValues("bundle", bundleLabel)
-	log.V(1).Info("Starting watch")
-
-	defer func() {
-		close(outChan)
-		if err := stream.Close(); err != nil {
-			log.V(2).Error(err, "Failed to close stream")
-		}
-	}()
-
-	sendWatchEvent := func(we WatchEvent) error {
-		log.V(2).Info("Sending watch event")
-		select {
-		case outChan <- we:
-			log.V(2).Info("Sent watch event")
-			return nil
-		case <-ctx.Done():
-			log.V(2).Info("Failed to send watch event due to context cancellation")
-			return ctx.Err()
-		}
-	}
-
-	for stream.Receive() {
-		msg := stream.Msg()
-		logResponsePayload(log, msg)
-
-		switch m := msg.Msg.(type) {
-		case *bundlev1.WatchBundleResponse_BundleUpdate:
-			log.V(2).Info("Received bundle update")
-			bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
-			if err != nil {
-				log.V(1).Error(err, "Failed to get bundle")
-				if err := sendWatchEvent(WatchEvent{Error: err}); err != nil {
-					log.V(1).Error(err, "Failed to send error")
-				}
-
-				log.V(1).Info("Terminating watch")
-				return
-			}
-
-			if err := sendWatchEvent(WatchEvent{BundlePath: bundlePath}); err != nil {
-				log.V(1).Error(err, "Terminating watch")
-				return
-			}
-
-		case *bundlev1.WatchBundleResponse_BundleRemoved_:
-			log.V(2).Info("Received bundle removed")
-			if err := sendWatchEvent(WatchEvent{}); err != nil {
-				log.V(1).Error(err, "Terminating watch")
-				return
-			}
-		case *bundlev1.WatchBundleResponse_Reconnect_:
-			log.V(1).Info("Server requests reconnect")
-			backoff := defaultBackoff
-			if m.Reconnect != nil && m.Reconnect.Backoff != nil {
-				backoff = m.Reconnect.Backoff.AsDuration()
-			}
-
-			if err := sendWatchEvent(WatchEvent{Error: ErrReconnect{Backoff: backoff}}); err != nil {
-				log.V(1).Error(err, "Failed to send reconnect")
-			}
-
-			log.V(1).Info("Terminating watch")
-			return
-		}
-	}
-
-	if err := stream.Err(); err != nil {
-		log.V(1).Error(err, "Watch terminated due to error")
-		_ = sendWatchEvent(WatchEvent{Error: err})
-	} else {
-		log.V(1).Info("Watch terminated")
-	}
-}
-
-func logResponsePayload(log logr.Logger, payload proto.Message) {
-	if lg := log.V(3); lg.Enabled() {
-		lg.Info("RPC response", "payload", protoWrapper{p: payload})
-	}
 }
 
 func (c *Client) updateLabelCache(bundleLabel string, bundleCacheKey cache.ActionID) error {

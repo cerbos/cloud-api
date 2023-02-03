@@ -72,13 +72,13 @@ func (_c *CerbosBundleServiceHandler_GetBundle_Call) Return(_a0 *connect.Respons
 	return _c
 }
 
-// WatchBundle provides a mock function with given fields: _a0, _a1, _a2
-func (_m *CerbosBundleServiceHandler) WatchBundle(_a0 context.Context, _a1 *connect.Request[bundlev1.WatchBundleRequest], _a2 *connect.ServerStream[bundlev1.WatchBundleResponse]) error {
-	ret := _m.Called(_a0, _a1, _a2)
+// WatchBundle provides a mock function with given fields: _a0, _a1
+func (_m *CerbosBundleServiceHandler) WatchBundle(_a0 context.Context, _a1 *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]) error {
+	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) error); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]) error); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -93,15 +93,14 @@ type CerbosBundleServiceHandler_WatchBundle_Call struct {
 
 // WatchBundle is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *connect.Request[bundlev1.WatchBundleRequest]
-//   - _a2 *connect.ServerStream[bundlev1.WatchBundleResponse]
-func (_e *CerbosBundleServiceHandler_Expecter) WatchBundle(_a0 interface{}, _a1 interface{}, _a2 interface{}) *CerbosBundleServiceHandler_WatchBundle_Call {
-	return &CerbosBundleServiceHandler_WatchBundle_Call{Call: _e.mock.On("WatchBundle", _a0, _a1, _a2)}
+//   - _a1 *connect.BidiStream[bundlev1.WatchBundleRequest,bundlev1.WatchBundleResponse]
+func (_e *CerbosBundleServiceHandler_Expecter) WatchBundle(_a0 interface{}, _a1 interface{}) *CerbosBundleServiceHandler_WatchBundle_Call {
+	return &CerbosBundleServiceHandler_WatchBundle_Call{Call: _e.mock.On("WatchBundle", _a0, _a1)}
 }
 
-func (_c *CerbosBundleServiceHandler_WatchBundle_Call) Run(run func(_a0 context.Context, _a1 *connect.Request[bundlev1.WatchBundleRequest], _a2 *connect.ServerStream[bundlev1.WatchBundleResponse])) *CerbosBundleServiceHandler_WatchBundle_Call {
+func (_c *CerbosBundleServiceHandler_WatchBundle_Call) Run(run func(_a0 context.Context, _a1 *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse])) *CerbosBundleServiceHandler_WatchBundle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[bundlev1.WatchBundleRequest]), args[2].(*connect.ServerStream[bundlev1.WatchBundleResponse]))
+		run(args[0].(context.Context), args[1].(*connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]))
 	})
 	return _c
 }

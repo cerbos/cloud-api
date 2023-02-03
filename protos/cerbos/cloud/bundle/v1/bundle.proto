@@ -52,8 +52,19 @@ message GetBundleResponse {
 }
 
 message WatchBundleRequest {
+  message WatchLabel {
+    string bundle_label = 1 [(validate.rules).string.min_len = 1];
+  }
+
+  message Heartbeat {
+    string active_bundle_id = 1 [(validate.rules).string.min_len = 1];
+  }
+
   cerbos.cloud.pdp.v1.Identifier pdp_id = 1 [(validate.rules).message.required = true];
-  string bundle_label = 2 [(validate.rules).string.min_len = 1];
+  oneof msg {
+    WatchLabel watch_label = 2;
+    Heartbeat heartbeat = 3;
+  }
 }
 
 message WatchBundleResponse {
@@ -76,5 +87,5 @@ service CerbosBundleService {
   option (google.api.api_visibility).restriction = "EXPERIMENTAL";
 
   rpc GetBundle(GetBundleRequest) returns (GetBundleResponse) {}
-  rpc WatchBundle(WatchBundleRequest) returns (stream WatchBundleResponse) {}
+  rpc WatchBundle(stream WatchBundleRequest) returns (stream WatchBundleResponse) {}
 }

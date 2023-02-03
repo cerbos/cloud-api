@@ -7,9 +7,14 @@ package bundle_test
 
 import (
 	"context"
+	"crypto/sha1" //nolint:gosec
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -23,6 +28,7 @@ import (
 	"github.com/Shopify/toxiproxy/v2"
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
 	"github.com/bufbuild/connect-go"
+	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
 	"github.com/cerbos/cloud-api/bundle"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
@@ -32,14 +38,22 @@ import (
 	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	"github.com/go-logr/logr/testr"
+	"github.com/google/go-cmp/cmp"
 	"github.com/minio/sha256-simd"
 	"github.com/rs/zerolog/log"
+	"github.com/sourcegraph/conc/pool"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
+
+var pdpIdentifer = &pdpv1.Identifier{
+	Instance: "instance",
+	Version:  "0.19.0",
+}
 
 func TestGetBundle(t *testing.T) {
 	t.Run("SingleSegment", func(t *testing.T) {
@@ -48,7 +62,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -91,7 +105,7 @@ func TestGetBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -132,7 +146,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -187,7 +201,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -298,7 +312,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -338,7 +352,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -384,7 +398,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -417,7 +431,7 @@ func TestGetBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -441,33 +455,13 @@ func TestGetBundle(t *testing.T) {
 		require.Error(t, err)
 	})
 
-	t.Run("RPCErrorRetries", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
-
-		client := mkClient(t, server.URL)
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(nil, connect.NewError(connect.CodeInternal, errors.New("internal error"))).
-			Times(3)
-
-		_, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
-		require.Equal(t, 0, counter.getTotal(), "Total download count does not match")
-	})
-
 	t.Run("AuthenticationFailure", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
 		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 
 		mockAPIKeySvc.EXPECT().
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -488,65 +482,41 @@ func getBundleReq(wantLabel string) func(*connect.Request[bundlev1.GetBundleRequ
 func TestWatchBundle(t *testing.T) {
 	t.Run("NormalStream", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+
+		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
+		bundleID1 := randomCommit()
+		bundleID2 := randomCommit()
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
 
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum1,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum1,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum2,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum2,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 10*time.Millisecond)).
-			Return(nil)
-
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent1, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.NoError(t, haveEvent1.Error, "Unexpected error in event")
-		require.NotEmpty(t, haveEvent1.BundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.BundlePath)
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum1,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum1,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+				},
+			},
+		})
+		haveEvent1 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
 		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
@@ -554,11 +524,24 @@ func TestWatchBundle(t *testing.T) {
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
 
-		haveEvent2, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.NoError(t, haveEvent2.Error, "Unexpected error in event")
-		require.NotEmpty(t, haveEvent2.BundlePath, "BundlePath is empty")
-		haveChecksum2 := checksum(t, haveEvent2.BundlePath)
+		require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
+		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID1))
+
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum2,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum2,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2.crbp", server.URL)},
+				},
+			},
+		})
+		haveEvent2 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent2.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent2.NewBundlePath, "BundlePath is empty")
+		haveChecksum2 := checksum(t, haveEvent2.NewBundlePath)
 		require.Equal(t, wantChecksum2, haveChecksum2, "Checksum does not match")
 		require.Equal(t, 2, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle2.crbp"), "Path hit count does not match")
@@ -566,218 +549,161 @@ func TestWatchBundle(t *testing.T) {
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
 
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		require.NoError(t, handle.ActiveBundleChanged(bundleID2), "Failed to acknowledge bundle swap")
+		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID2))
 	})
 
 	t.Run("BadDownloadURL", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_BLAH.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 10*time.Millisecond)).
-			Return(nil)
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_BLAH.crbp", server.URL)},
+				},
+			},
+		})
+
+		haveEvent := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
 		require.Error(t, haveEvent.Error, "Expected error in event")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1_BLAH.crbp"), "Path hit count does not match")
-
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
 	})
 
 	t.Run("BundleNotFound", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+
+		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Return(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
+		client := mkClient(t, server.URL, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithError(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
+
+		haveEvent := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
 		require.Error(t, haveEvent.Error, "Error expected")
-		require.Equal(t, connect.CodeNotFound, connect.CodeOf(haveEvent.Error), "Error code mismatch")
-
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		require.ErrorIs(t, haveEvent.Error, bundle.ErrBundleNotFound, "Unexpected error kind")
 	})
 
 	t.Run("Reconnect", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+
+		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum1,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum1,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-			{
-				Msg: &bundlev1.WatchBundleResponse_Reconnect_{
-					Reconnect: &bundlev1.WatchBundleResponse_Reconnect{
-						Backoff: durationpb.New(1 * time.Minute),
-					},
-				},
-			},
-		}
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 10*time.Millisecond)).
-			Return(nil)
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent1, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.NoError(t, haveEvent1.Error, "Unexpected error in event")
-		require.NotEmpty(t, haveEvent1.BundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.BundlePath)
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum1,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum1,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+				},
+			},
+		})
+
+		haveEvent1 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
 		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-		haveEvent2, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.Error(t, haveEvent2.Error, "Expected error in event")
-
-		wantErr := new(bundle.ErrReconnect)
-		require.ErrorAs(t, haveEvent2.Error, wantErr, "Error is not a reconnect error")
-		require.Equal(t, 1*time.Minute, wantErr.Backoff, "Backoff duration mismatch")
-
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		mockWatchSvc.respondWithReconnect(1 * time.Minute)
+		haveEvent2 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventReconnect, haveEvent2.Kind, "Unexpected event kind")
+		require.Equal(t, 1*time.Minute, haveEvent2.ReconnectBackoff)
 	})
 
 	t.Run("BundleRemoved", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+
+		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		wantResponses := []*bundlev1.WatchBundleResponse{
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
-					BundleUpdate: &bundlev1.BundleInfo{
-						Label:      "label",
-						BundleHash: wantChecksum1,
-						Segments: []*bundlev1.BundleInfo_Segment{
-							{
-								SegmentId:    1,
-								Checksum:     wantChecksum1,
-								DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-							},
-						},
-					},
-				},
-			},
-			{
-				Msg: &bundlev1.WatchBundleResponse_BundleRemoved_{
-					BundleRemoved: (*bundlev1.WatchBundleResponse_BundleRemoved)(nil),
-				},
-			},
-		}
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(setServerStream(wantResponses, 10*time.Millisecond)).
-			Return(nil)
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent1, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.NoError(t, haveEvent1.Error, "Unexpected error in event")
-		require.NotEmpty(t, haveEvent1.BundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.BundlePath)
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum1,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum1,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+				},
+			},
+		})
+
+		haveEvent1 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
 		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-		haveEvent2, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.NoError(t, haveEvent2.Error, "Unexpected error in event")
-		require.Empty(t, haveEvent2.BundlePath, "BundlePath is not empty")
+		mockWatchSvc.respondWithBundleRemoved()
 
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		haveEvent2 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventBundleRemoved, haveEvent2.Kind, "Unexpected event kind")
 	})
 
 	t.Run("AuthenticationFailure", func(t *testing.T) {
@@ -786,7 +712,7 @@ func TestWatchBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL)
+		client := mkClient(t, server.URL, server.Certificate())
 
 		mockAPIKeySvc.EXPECT().
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -798,9 +724,46 @@ func TestWatchBundle(t *testing.T) {
 	})
 }
 
+func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
+	t.Helper()
+
+	timer := time.NewTimer(5 * time.Second)
+	defer timer.Stop()
+
+	select {
+	case out = <-c:
+		return out
+	case <-timer.C:
+		t.Fatal("Timed out waiting for channel")
+		return out
+	}
+}
+
+func mkWBWatchLabelReq(label string) *bundlev1.WatchBundleRequest {
+	return &bundlev1.WatchBundleRequest{
+		PdpId: pdpIdentifer,
+		Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
+			WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{
+				BundleLabel: label,
+			},
+		},
+	}
+}
+
+func mkWBHeartbeatReq(bundleID string) *bundlev1.WatchBundleRequest {
+	return &bundlev1.WatchBundleRequest{
+		PdpId: pdpIdentifer,
+		Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
+			Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+				ActiveBundleId: bundleID,
+			},
+		},
+	}
+}
+
 func TestGetCachedBundle(t *testing.T) {
 	t.Run("NonExistentLabel", func(t *testing.T) {
-		client := mkClient(t, "https://localhost")
+		client := mkClient(t, "https://localhost", nil)
 		_, err := client.GetCachedBundle("blah")
 		require.Error(t, err)
 	})
@@ -815,151 +778,151 @@ func TestNetworkIssues(t *testing.T) {
 
 	t.Run("ServerDown", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(introduceNetworkIssue(t, proxy.Disable)).
-			Return(nil)
-
-		client := mkClient(t, "http://"+proxy.Listen)
+		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
+		require.NoError(t, proxy.Disable(), " Failed to apply toxic")
 
-		haveEvent, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.Error(t, haveEvent.Error, "Expected error in event")
-		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(haveEvent.Error))
-
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		_, err := client.WatchBundle(ctx, "label")
+		require.Error(t, err, "Expected RPC to fail")
+		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
 	})
 
 	t.Run("ServerReset", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client := mkClient(t, "http://"+proxy.Listen)
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(introduceNetworkIssue(t, func() error {
-				_, err := proxy.AddToxic("", "reset_peer", "", 1, toxiclient.Attributes{"timeout": 10})
-				return err
-			})).
-			Return(nil)
+		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		haveEvent, ok := <-eventStream
-		require.True(t, ok, "Event stream closed")
-		require.Error(t, haveEvent.Error, "Expected error in event")
-		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(haveEvent.Error))
+		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		_, ok = <-eventStream
-		require.False(t, ok, "Event stream not closed")
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+				},
+			},
+		})
+		haveEvent1 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+
+		_, err = proxy.AddToxic("", "reset_peer", "", 1, toxiclient.Attributes{"timeout": 10})
+		require.NoError(t, err, "Failed to add toxic")
+
+		require.NoError(t, handle.ActiveBundleChanged(randomCommit()), "Failed to notify bundle change")
+
+		haveErr := mustPopFromChan(t, handle.Errors())
+		require.Error(t, haveErr, "Expected error ")
+		require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(haveErr))
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+		mockWatchSvc := newMockBundleWatchService()
+		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client := mkClient(t, "http://"+proxy.Listen)
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			WatchBundle(mock.Anything, mock.MatchedBy(watchBundleReq("label")), mock.Anything).
-			Run(introduceNetworkIssue(t, func() error {
-				_, err := proxy.AddToxic("", "timeout", "", 1, toxiclient.Attributes{"timeout": 50})
-				return err
-			})).
-			Return(nil)
+		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
+		expectIssueAccessToken(mockAPIKeySvc)
 
-		eventStream, err := client.WatchBundle(ctx, "label")
+		handle, err := client.WatchBundle(ctx, "label")
 		require.NoError(t, err, "Failed to call RPC")
+		eventStream := handle.ServerEvents()
 
-		// TODO(cell): How to send back an error to the client in this case?
-		_, ok := <-eventStream
-		require.False(t, ok, "Event stream not closed")
-	})
-}
+		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-func watchBundleReq(wantLabel string) func(*connect.Request[bundlev1.WatchBundleRequest]) bool {
-	return func(c *connect.Request[bundlev1.WatchBundleRequest]) bool {
-		return c.Msg.GetBundleLabel() == wantLabel && c.Msg.GetPdpId().Instance == "instance"
-	}
-}
-
-func setServerStream(responses []*bundlev1.WatchBundleResponse, delay time.Duration) func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) {
-	return func(_ context.Context, _ *connect.Request[bundlev1.WatchBundleRequest], stream *connect.ServerStream[bundlev1.WatchBundleResponse]) {
-		for _, r := range responses {
-			time.Sleep(delay)
-			if err := stream.Send(r); err != nil {
-				panic(err)
-			}
-		}
-	}
-}
-
-func introduceNetworkIssue(t *testing.T, fn func() error) func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) {
-	t.Helper()
-
-	var once sync.Once
-
-	return func(context.Context, *connect.Request[bundlev1.WatchBundleRequest], *connect.ServerStream[bundlev1.WatchBundleResponse]) {
-		once.Do(func() {
-			require.NoError(t, fn(), "Failed to introduce network issue")
+		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
+		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
+			Label:      "label",
+			BundleHash: wantChecksum,
+			Segments: []*bundlev1.BundleInfo_Segment{
+				{
+					SegmentId:    1,
+					Checksum:     wantChecksum,
+					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+				},
+			},
 		})
-	}
+		haveEvent1 := mustPopFromChan(t, eventStream)
+		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+
+		_, err = proxy.AddToxic("", "timeout", "", 1, toxiclient.Attributes{"timeout": 50})
+		require.NoError(t, err, "Failed to add toxic")
+
+		require.NoError(t, handle.ActiveBundleChanged(randomCommit()), "Failed to notify bundle change")
+
+		haveErr := mustPopFromChan(t, handle.Errors())
+		require.Error(t, haveErr, "Expected error ")
+		require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(haveErr))
+	})
 }
 
 func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHandler, mockBundleSvc bundlev1connect.CerbosBundleServiceHandler) (*httptest.Server, *downloadCounter) {
 	t.Helper()
 
+	compress1KB := connect.WithCompressMinBytes(1024)
 	fileHandler := http.FileServer(http.Dir("testdata"))
-	apiKeyPath, apiKeySvcHandler := apikeyv1connect.NewApiKeyServiceHandler(mockAPIKeySvc)
-	bundlePath, bundleSvcHandler := bundlev1connect.NewCerbosBundleServiceHandler(mockBundleSvc, connect.WithInterceptors(authCheck{}))
+	apiKeyPath, apiKeySvcHandler := apikeyv1connect.NewApiKeyServiceHandler(mockAPIKeySvc, compress1KB)
+	bundlePath, bundleSvcHandler := bundlev1connect.NewCerbosBundleServiceHandler(mockBundleSvc, connect.WithInterceptors(authCheck{}), compress1KB)
 
 	counter := newDownloadCounter()
 
+	logRequests := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Logf("REQUEST: %s", r.URL)
+			h.ServeHTTP(w, r)
+		})
+	}
 	mux := http.NewServeMux()
-	mux.Handle(apiKeyPath, apiKeySvcHandler)
-	mux.Handle(bundlePath, bundleSvcHandler)
+	mux.Handle(apiKeyPath, logRequests(apiKeySvcHandler))
+	mux.Handle(bundlePath, logRequests(bundleSvcHandler))
 	mux.Handle("/files/", http.StripPrefix("/files/", counter.wrap(fileHandler)))
+	mux.Handle(grpcreflect.NewHandlerV1(
+		grpcreflect.NewStaticReflector(bundlev1connect.CerbosBundleServiceName),
+		compress1KB,
+	))
+	mux.Handle(grpcreflect.NewHandlerV1Alpha(
+		grpcreflect.NewStaticReflector(bundlev1connect.CerbosBundleServiceName),
+		compress1KB,
+	))
 
 	s := httptest.NewUnstartedServer(h2c.NewHandler(mux, &http2.Server{}))
 	s.EnableHTTP2 = true
-	s.Start()
+	s.StartTLS()
 
 	return s, counter
 }
@@ -1041,7 +1004,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string) *bundle.Client {
+func mkClient(t *testing.T, url string, cert *x509.Certificate) *bundle.Client {
 	t.Helper()
 
 	tmp := t.TempDir()
@@ -1051,23 +1014,173 @@ func mkClient(t *testing.T, url string) *bundle.Client {
 	tempDir := filepath.Join(tmp, "temp")
 	require.NoError(t, os.MkdirAll(tempDir, 0o774), "Failed to create %s", tempDir)
 
+	var tlsConf *tls.Config
+	if cert != nil {
+		certPool := x509.NewCertPool()
+		certPool.AddCert(cert)
+		tlsConf = &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			PreferServerCipherSuites: true,
+			CurvePreferences: []tls.CurveID{
+				tls.CurveP256,
+				tls.X25519,
+			},
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			},
+			NextProtos: []string{"h2"},
+			RootCAs:    certPool,
+		}
+	}
+
 	conf := bundle.ClientConf{
 		ClientID:         "client-id",
 		ClientSecret:     "client-secret",
 		ServerURL:        url,
-		PDPIdentifier:    &pdpv1.Identifier{Instance: "instance", Version: "0.19.0"},
+		PDPIdentifier:    pdpIdentifer,
 		RetryWaitMin:     10 * time.Millisecond,
 		RetryWaitMax:     30 * time.Millisecond,
 		RetryMaxAttempts: 2,
 		CacheDir:         cacheDir,
 		TempDir:          tempDir,
-		Logger:           testr.NewWithOptions(t, testr.Options{Verbosity: 2}),
+		Logger:           testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
+		TLS:              tlsConf,
 	}
 
 	client, err := bundle.NewClient(conf)
 	require.NoError(t, err, "Failed to create client")
 
 	return client
+}
+
+type haveWatchReq struct {
+	msg *bundlev1.WatchBundleRequest
+	err error
+}
+
+type wantWatchResp struct {
+	msg *bundlev1.WatchBundleResponse
+	err error
+}
+
+type mockBundleWatchService struct {
+	requests  chan haveWatchReq
+	responses chan wantWatchResp
+}
+
+func newMockBundleWatchService() *mockBundleWatchService {
+	return &mockBundleWatchService{
+		requests:  make(chan haveWatchReq, 10),
+		responses: make(chan wantWatchResp, 10),
+	}
+}
+
+func (m *mockBundleWatchService) WatchBundle(ctx context.Context, stream *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]) error {
+	// Wait for first message from client (start watch)
+	msg, err := stream.Receive()
+	m.requests <- haveWatchReq{msg: msg, err: err}
+	if err != nil {
+		return err
+	}
+
+	// Respond
+	resp := <-m.responses
+	if resp.err != nil {
+		return resp.err
+	}
+	if err := stream.Send(resp.msg); err != nil {
+		return err
+	}
+
+	// Now start bidi comms
+	p := pool.New().WithContext(ctx).WithCancelOnError().WithFirstError()
+	p.Go(func(ctx context.Context) (outErr error) {
+		for {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+
+			msg, err := stream.Receive()
+			m.requests <- haveWatchReq{msg: msg, err: err}
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					return nil
+				}
+				return fmt.Errorf("failed to receive message: %w", err)
+			}
+		}
+	})
+
+	p.Go(func(ctx context.Context) error {
+		for {
+			select {
+			case resp := <-m.responses:
+				if resp.err != nil {
+					return resp.err
+				}
+
+				if err := stream.Send(resp.msg); err != nil {
+					return fmt.Errorf("failed to send message: %w", err)
+				}
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+	})
+
+	return p.Wait()
+}
+
+func (m *mockBundleWatchService) respondWithBundleUpdate(binfo *bundlev1.BundleInfo) {
+	m.responses <- wantWatchResp{
+		msg: &bundlev1.WatchBundleResponse{
+			Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
+				BundleUpdate: binfo,
+			},
+		},
+	}
+}
+
+func (m *mockBundleWatchService) respondWithReconnect(backoff time.Duration) {
+	m.responses <- wantWatchResp{
+		msg: &bundlev1.WatchBundleResponse{
+			Msg: &bundlev1.WatchBundleResponse_Reconnect_{
+				Reconnect: &bundlev1.WatchBundleResponse_Reconnect{
+					Backoff: durationpb.New(backoff),
+				},
+			},
+		},
+	}
+}
+
+func (m *mockBundleWatchService) respondWithBundleRemoved() {
+	m.responses <- wantWatchResp{
+		msg: &bundlev1.WatchBundleResponse{
+			Msg: &bundlev1.WatchBundleResponse_BundleRemoved_{
+				BundleRemoved: &bundlev1.WatchBundleResponse_BundleRemoved{},
+			},
+		},
+	}
+}
+
+func (m *mockBundleWatchService) respondWithError(err error) {
+	m.responses <- wantWatchResp{err: err}
+}
+
+func (m *mockBundleWatchService) requireRequestReceived(t *testing.T, wantReq *bundlev1.WatchBundleRequest) {
+	t.Helper()
+	haveReq := mustPopFromChan(t, m.requests)
+	require.NoError(t, haveReq.err, "Server error during receive")
+	require.Empty(t, cmp.Diff(wantReq, haveReq.msg, protocmp.Transform()))
+}
+
+func (m *mockBundleWatchService) GetBundle(_ context.Context, _ *connect.Request[bundlev1.GetBundleRequest]) (*connect.Response[bundlev1.GetBundleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("unimplemented"))
 }
 
 type authCheck struct{}
@@ -1143,4 +1256,11 @@ func issueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRe
 	return func(req *connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
 		return req.Msg.ClientId == "client-id" && req.Msg.ClientSecret == "client-secret"
 	}
+}
+
+//nolint:gosec
+func randomCommit() string {
+	b := make([]byte, sha1.Size)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }

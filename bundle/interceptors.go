@@ -127,3 +127,11 @@ func (as authStreamingClientConn) Send(req any) error {
 
 	return as.StreamingClientConn.Send(req)
 }
+
+func (as authStreamingClientConn) Receive(req any) error {
+	if as.err != nil {
+		return as.err
+	}
+
+	return as.StreamingClientConn.Receive(req)
+}

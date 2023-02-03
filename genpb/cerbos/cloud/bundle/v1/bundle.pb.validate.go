@@ -790,15 +790,91 @@ func (m *WatchBundleRequest) validate(all bool) error {
 		}
 	}
 
-	if utf8.RuneCountInString(m.GetBundleLabel()) < 1 {
-		err := WatchBundleRequestValidationError{
-			field:  "BundleLabel",
-			reason: "value length must be at least 1 runes",
+	switch v := m.Msg.(type) {
+	case *WatchBundleRequest_WatchLabel_:
+		if v == nil {
+			err := WatchBundleRequestValidationError{
+				field:  "Msg",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
+
+		if all {
+			switch v := interface{}(m.GetWatchLabel()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WatchBundleRequestValidationError{
+						field:  "WatchLabel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WatchBundleRequestValidationError{
+						field:  "WatchLabel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetWatchLabel()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WatchBundleRequestValidationError{
+					field:  "WatchLabel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
 		}
-		errors = append(errors, err)
+
+	case *WatchBundleRequest_Heartbeat_:
+		if v == nil {
+			err := WatchBundleRequestValidationError{
+				field:  "Msg",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHeartbeat()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, WatchBundleRequestValidationError{
+						field:  "Heartbeat",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, WatchBundleRequestValidationError{
+						field:  "Heartbeat",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHeartbeat()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return WatchBundleRequestValidationError{
+					field:  "Heartbeat",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {
@@ -1290,6 +1366,234 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = BundleInfo_SegmentValidationError{}
+
+// Validate checks the field values on WatchBundleRequest_WatchLabel with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WatchBundleRequest_WatchLabel) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WatchBundleRequest_WatchLabel with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// WatchBundleRequest_WatchLabelMultiError, or nil if none found.
+func (m *WatchBundleRequest_WatchLabel) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WatchBundleRequest_WatchLabel) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetBundleLabel()) < 1 {
+		err := WatchBundleRequest_WatchLabelValidationError{
+			field:  "BundleLabel",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return WatchBundleRequest_WatchLabelMultiError(errors)
+	}
+
+	return nil
+}
+
+// WatchBundleRequest_WatchLabelMultiError is an error wrapping multiple
+// validation errors returned by WatchBundleRequest_WatchLabel.ValidateAll()
+// if the designated constraints aren't met.
+type WatchBundleRequest_WatchLabelMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WatchBundleRequest_WatchLabelMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WatchBundleRequest_WatchLabelMultiError) AllErrors() []error { return m }
+
+// WatchBundleRequest_WatchLabelValidationError is the validation error
+// returned by WatchBundleRequest_WatchLabel.Validate if the designated
+// constraints aren't met.
+type WatchBundleRequest_WatchLabelValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WatchBundleRequest_WatchLabelValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WatchBundleRequest_WatchLabelValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WatchBundleRequest_WatchLabelValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WatchBundleRequest_WatchLabelValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WatchBundleRequest_WatchLabelValidationError) ErrorName() string {
+	return "WatchBundleRequest_WatchLabelValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WatchBundleRequest_WatchLabelValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWatchBundleRequest_WatchLabel.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WatchBundleRequest_WatchLabelValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WatchBundleRequest_WatchLabelValidationError{}
+
+// Validate checks the field values on WatchBundleRequest_Heartbeat with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *WatchBundleRequest_Heartbeat) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WatchBundleRequest_Heartbeat with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// WatchBundleRequest_HeartbeatMultiError, or nil if none found.
+func (m *WatchBundleRequest_Heartbeat) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WatchBundleRequest_Heartbeat) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetActiveBundleId()) < 1 {
+		err := WatchBundleRequest_HeartbeatValidationError{
+			field:  "ActiveBundleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return WatchBundleRequest_HeartbeatMultiError(errors)
+	}
+
+	return nil
+}
+
+// WatchBundleRequest_HeartbeatMultiError is an error wrapping multiple
+// validation errors returned by WatchBundleRequest_Heartbeat.ValidateAll() if
+// the designated constraints aren't met.
+type WatchBundleRequest_HeartbeatMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WatchBundleRequest_HeartbeatMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WatchBundleRequest_HeartbeatMultiError) AllErrors() []error { return m }
+
+// WatchBundleRequest_HeartbeatValidationError is the validation error returned
+// by WatchBundleRequest_Heartbeat.Validate if the designated constraints
+// aren't met.
+type WatchBundleRequest_HeartbeatValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WatchBundleRequest_HeartbeatValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WatchBundleRequest_HeartbeatValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WatchBundleRequest_HeartbeatValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WatchBundleRequest_HeartbeatValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WatchBundleRequest_HeartbeatValidationError) ErrorName() string {
+	return "WatchBundleRequest_HeartbeatValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e WatchBundleRequest_HeartbeatValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWatchBundleRequest_Heartbeat.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WatchBundleRequest_HeartbeatValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WatchBundleRequest_HeartbeatValidationError{}
 
 // Validate checks the field values on WatchBundleResponse_Reconnect with the
 // rules defined in the proto definition for this message. If any rules are
