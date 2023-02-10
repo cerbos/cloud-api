@@ -7,6 +7,7 @@ package bundle_test
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha1" //nolint:gosec
 	"crypto/tls"
 	"crypto/x509"
@@ -14,7 +15,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -48,6 +48,7 @@ import (
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var pdpIdentifer = &pdpv1.Identifier{
@@ -755,6 +756,7 @@ func mkWBHeartbeatReq(bundleID string) *bundlev1.WatchBundleRequest {
 		PdpId: pdpIdentifer,
 		Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
 			Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+				Timestamp:      timestamppb.Now(),
 				ActiveBundleId: bundleID,
 			},
 		},
@@ -1176,7 +1178,8 @@ func (m *mockBundleWatchService) requireRequestReceived(t *testing.T, wantReq *b
 	t.Helper()
 	haveReq := mustPopFromChan(t, m.requests)
 	require.NoError(t, haveReq.err, "Server error during receive")
-	require.Empty(t, cmp.Diff(wantReq, haveReq.msg, protocmp.Transform()))
+	require.Empty(t,
+		cmp.Diff(wantReq, haveReq.msg, protocmp.Transform(), protocmp.IgnoreFields(&bundlev1.WatchBundleRequest_Heartbeat{}, "timestamp")))
 }
 
 func (m *mockBundleWatchService) GetBundle(_ context.Context, _ *connect.Request[bundlev1.GetBundleRequest]) (*connect.Response[bundlev1.GetBundleResponse], error) {
@@ -1258,7 +1261,6 @@ func issueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRe
 	}
 }
 
-//nolint:gosec
 func randomCommit() string {
 	b := make([]byte, sha1.Size)
 	_, _ = rand.Read(b)

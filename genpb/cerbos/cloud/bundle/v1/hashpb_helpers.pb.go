@@ -7,6 +7,7 @@ import (
 	v1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sort "sort"
 )
@@ -123,6 +124,12 @@ func cerbos_cloud_bundle_v1_Meta_hashpb_sum(m *Meta, hasher hash.Hash, ignore ma
 }
 
 func cerbos_cloud_bundle_v1_WatchBundleRequest_Heartbeat_hashpb_sum(m *WatchBundleRequest_Heartbeat, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.bundle.v1.WatchBundleRequest.Heartbeat.timestamp"]; !ok {
+		if m.Timestamp != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.Timestamp, hasher, ignore)
+		}
+
+	}
 	if _, ok := ignore["cerbos.cloud.bundle.v1.WatchBundleRequest.Heartbeat.active_bundle_id"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.ActiveBundleId))
 
@@ -218,6 +225,17 @@ func google_protobuf_Duration_hashpb_sum(m *durationpb.Duration, hasher hash.Has
 
 	}
 	if _, ok := ignore["google.protobuf.Duration.nanos"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.Nanos)))
+
+	}
+}
+
+func google_protobuf_Timestamp_hashpb_sum(m *timestamppb.Timestamp, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["google.protobuf.Timestamp.seconds"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.Seconds)))
+
+	}
+	if _, ok := ignore["google.protobuf.Timestamp.nanos"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.Nanos)))
 
 	}

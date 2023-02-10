@@ -28,6 +28,7 @@ import (
 	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -46,6 +47,7 @@ var (
 	errDownloadFailed       = errors.New("download failed")
 	errInvalidResponse      = errors.New("invalid response from server")
 	errNoSegmentDownloadURL = errors.New("no download URLs")
+	errStreamEnded          = errors.New("stream ended")
 )
 
 // ErrReconnect is the error returned when the server requests a reconnect.
@@ -107,8 +109,9 @@ func NewClient(conf ClientConf) (*Client, error) {
 	}
 
 	httpClient := mkHTTPClient(conf) // Bidi streams don't work with retryable HTTP client.
-	retryableHTTPClient := mkRetryableHTTPClient(conf, httpClient)
+	retryableHTTPClient := mkRetryableHTTPClient(conf)
 	options := []connect.ClientOption{
+		connect.WithCompressMinBytes(1024),
 		connect.WithInterceptors(
 			newTracingInterceptor(),
 			newUserAgentInterceptor(),
@@ -159,9 +162,9 @@ func mkHTTPClient(conf ClientConf) *http.Client {
 	}
 }
 
-func mkRetryableHTTPClient(conf ClientConf, client *http.Client) *http.Client {
+func mkRetryableHTTPClient(conf ClientConf) *http.Client {
 	httpClient := retryablehttp.NewClient()
-	httpClient.HTTPClient = client
+	httpClient.HTTPClient = mkHTTPClient(conf)
 	httpClient.RetryMax = conf.RetryMaxAttempts
 	httpClient.RetryWaitMin = conf.RetryWaitMin
 	httpClient.RetryWaitMax = conf.RetryWaitMax
@@ -196,6 +199,8 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 	stream := c.rpcClient.WatchBundle(ctx)
 	if err := stream.Send(nil); err != nil {
 		log.V(1).Error(err, "Failed to send request headers")
+		_ = stream.CloseRequest()
+		_ = stream.CloseResponse()
 		return nil, fmt.Errorf("failed to send request headers: %w", err)
 	}
 
@@ -217,58 +222,55 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 	return wh, nil
 }
 
+type recvMsg struct {
+	msg *bundlev1.WatchBundleResponse
+	err error
+}
+
 func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("recv")
-		log.V(1).Info("Starting receive stream")
+		log.V(1).Info("Starting response handler")
 
-		defer func() {
-			log.V(1).Info("Closing receive stream")
-			if err := stream.CloseResponse(); err != nil {
-				if !errors.Is(err, context.Canceled) {
-					log.V(1).Error(err, "Failed to close receive stream")
-					outErr = multierr.Append(outErr, err)
+		recvChan := make(chan recvMsg, 1)
+		go func() {
+			defer func() {
+				close(recvChan)
+				if err := stream.CloseResponse(); err != nil {
+					log.V(2).Error(err, "Error while closing response stream")
+				}
+			}()
+
+			for {
+				if err := ctx.Err(); err != nil {
+					return
+				}
+
+				log.V(3).Info("Waiting to receive message")
+				msg, err := stream.Receive()
+				log.V(3).Info("Received message")
+
+				recvChan <- recvMsg{msg: msg, err: err}
+				if err != nil {
+					log.V(3).Error(err, "Exiting receive loop")
+					return
 				}
 			}
 		}()
 
-		sendWatchEvent := func(we ServerEvent) error {
-			log.V(3).Info("Sending watch event")
+		publishWatchEvent := func(we ServerEvent) error {
+			log.V(3).Info("Publishing watch event")
 			select {
 			case wh.serverEvents <- we:
-				log.V(3).Info("Sent watch event")
+				log.V(3).Info("Published watch event")
 				return nil
 			case <-ctx.Done():
-				log.V(3).Info("Failed to send watch event due to context cancellation")
+				log.V(3).Info("Failed to publish watch event due to context cancellation")
 				return ctx.Err()
 			}
 		}
 
-		for {
-			if err := ctx.Err(); err != nil {
-				log.V(2).Error(err, "Exiting receive loop due to context cancellation")
-				return err
-			}
-
-			log.V(3).Info("Waiting for message")
-			msg, err := stream.Receive()
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					log.V(2).Info("Stream terminated by server")
-					return nil
-				}
-
-				if connect.CodeOf(err) == connect.CodeNotFound {
-					log.V(1).Error(err, "Label does not exist")
-					_ = sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrBundleNotFound})
-					return ErrBundleNotFound
-				}
-
-				log.V(1).Error(err, "Error receiving message")
-				_ = sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: err})
-				return err
-			}
-
+		processMsg := func(msg *bundlev1.WatchBundleResponse) error {
 			logResponsePayload(log, msg)
 
 			switch m := msg.Msg.(type) {
@@ -277,20 +279,20 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 				bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
 				if err != nil {
 					log.V(1).Error(err, "Failed to get bundle")
-					if err := sendWatchEvent(ServerEvent{Kind: ServerEventError, Error: err}); err != nil {
+					if err := publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: err}); err != nil {
 						log.V(2).Error(err, "Failed to send error")
 					}
 
 					return err
 				}
 
-				if err := sendWatchEvent(ServerEvent{Kind: ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
+				if err := publishWatchEvent(ServerEvent{Kind: ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
 					return err
 				}
 
 			case *bundlev1.WatchBundleResponse_BundleRemoved_:
 				log.V(1).Info("Bundle label removed")
-				if err := sendWatchEvent(ServerEvent{Kind: ServerEventBundleRemoved}); err != nil {
+				if err := publishWatchEvent(ServerEvent{Kind: ServerEventBundleRemoved}); err != nil {
 					log.V(2).Error(err, "Failed to send bundle removed")
 				}
 
@@ -301,11 +303,52 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 					backoff = m.Reconnect.Backoff.AsDuration()
 				}
 
-				if err := sendWatchEvent(ServerEvent{Kind: ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
+				if err := publishWatchEvent(ServerEvent{Kind: ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
 					log.V(2).Error(err, "Failed to send reconnect")
 				}
 
 				return ErrReconnect{Backoff: backoff}
+
+			default:
+				log.V(2).Info("Ignoring unknown message", "msg", protoWrapper{p: msg})
+			}
+
+			return nil
+		}
+
+		for {
+			select {
+			case r, ok := <-recvChan:
+				if r.err != nil {
+					if errors.Is(r.err, io.EOF) {
+						log.V(2).Info("Response stream terminated by server")
+						return r.err
+					}
+
+					if connect.CodeOf(r.err) == connect.CodeNotFound {
+						log.V(1).Error(r.err, "Label does not exist")
+						_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrBundleNotFound})
+						return ErrBundleNotFound
+					}
+
+					log.V(1).Error(r.err, "Error receiving message")
+					_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: r.err})
+					return r.err
+				}
+
+				if r.msg != nil {
+					if err := processMsg(r.msg); err != nil {
+						return err
+					}
+				}
+
+				if !ok {
+					log.V(2).Info("Receive loop ended")
+					return errStreamEnded
+				}
+			case <-ctx.Done():
+				log.V(2).Info("Exiting response handler due to context cancellation")
+				return ctx.Err()
 			}
 		}
 	}
@@ -314,7 +357,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("send")
-		log.V(1).Info("Starting send stream")
+		log.V(1).Info("Starting request handler")
 
 		var ticker *time.Ticker
 		var tickerChan <-chan time.Time
@@ -328,14 +371,14 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		defer func() {
-			log.V(1).Info("Closing send stream")
+			log.V(1).Info("Exiting request handler")
 			if ticker != nil {
 				ticker.Stop()
 			}
 
 			if err := stream.CloseRequest(); err != nil {
 				if !errors.Is(err, context.Canceled) {
-					log.V(1).Error(err, "Failed to close send stream")
+					log.V(1).Error(err, "Failed to close request stream")
 					outErr = multierr.Append(outErr, err)
 				}
 			}
@@ -353,13 +396,17 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		sendHeartbeat := func(activeBundleID string) error {
+			log.V(3).Info("Sending heartbeat", "active_bundle_id", activeBundleID)
 			if err := stream.Send(&bundlev1.WatchBundleRequest{
 				PdpId: c.conf.PDPIdentifier,
 				Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
-					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{ActiveBundleId: activeBundleID},
+					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+						Timestamp:      timestamppb.Now(),
+						ActiveBundleId: activeBundleID,
+					},
 				},
 			}); err != nil {
-				log.V(1).Error(err, "Failed to send message")
+				log.V(1).Error(err, "Failed to send heartbeat")
 				return err
 			}
 
@@ -371,7 +418,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		for {
 			select {
 			case <-ctx.Done():
-				log.V(2).Info("Terminating send stream due to context cancellation")
+				log.V(2).Info("Terminating request handler due to context cancellation")
 				return ctx.Err()
 			case evt := <-wh.clientEvents:
 				switch evt.Kind {
@@ -387,7 +434,6 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 					log.V(2).Info("Ignoring unknown client event", "event", evt)
 				}
 			case <-tickerChan:
-				log.V(3).Info("Sending heartbeat")
 				if err := sendHeartbeat(activeBundleID); err != nil {
 					return err
 				}

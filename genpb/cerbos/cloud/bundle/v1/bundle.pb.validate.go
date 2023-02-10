@@ -1503,6 +1503,48 @@ func (m *WatchBundleRequest_Heartbeat) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetTimestamp() == nil {
+		err := WatchBundleRequest_HeartbeatValidationError{
+			field:  "Timestamp",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if t := m.GetTimestamp(); t != nil {
+		ts, err := t.AsTime(), t.CheckValid()
+		if err != nil {
+			err = WatchBundleRequest_HeartbeatValidationError{
+				field:  "Timestamp",
+				reason: "value is not a valid timestamp",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			now := time.Now()
+			within := time.Duration(60*time.Second + 0*time.Nanosecond)
+
+			if ts.Sub(now.Add(within)) >= 0 || ts.Sub(now.Add(-within)) <= 0 {
+				err := WatchBundleRequest_HeartbeatValidationError{
+					field:  "Timestamp",
+					reason: "value must be within 1m0s of now",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if utf8.RuneCountInString(m.GetActiveBundleId()) < 1 {
 		err := WatchBundleRequest_HeartbeatValidationError{
 			field:  "ActiveBundleId",

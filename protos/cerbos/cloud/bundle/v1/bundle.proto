@@ -7,6 +7,7 @@ package cerbos.cloud.bundle.v1;
 import "cerbos/cloud/pdp/v1/pdp.proto";
 import "google/api/visibility.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
 option go_package = "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1;bundlev1";
@@ -57,7 +58,11 @@ message WatchBundleRequest {
   }
 
   message Heartbeat {
-    string active_bundle_id = 1 [(validate.rules).string.min_len = 1];
+    google.protobuf.Timestamp timestamp = 1 [(validate.rules).timestamp = {
+      required: true,
+      within: {seconds: 60}
+    }];
+    string active_bundle_id = 2 [(validate.rules).string.min_len = 1];
   }
 
   cerbos.cloud.pdp.v1.Identifier pdp_id = 1 [(validate.rules).message.required = true];
