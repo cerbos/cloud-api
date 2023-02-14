@@ -15,10 +15,11 @@ import (
 )
 
 var (
-	errEmptyServerURL      = errors.New("server URL must be defined")
-	errMissingClientID     = errors.New("missing client ID")
-	errMissingClientSecret = errors.New("missing client secret")
-	errMissingIdentifier   = errors.New("missing PDP identifier")
+	errEmptyServerURL            = errors.New("server URL must be defined")
+	errHeartbeatIntervalTooShort = errors.New("heartbeat interval is too short")
+	errMissingClientID           = errors.New("missing client ID")
+	errMissingClientSecret       = errors.New("missing client secret")
+	errMissingIdentifier         = errors.New("missing PDP identifier")
 )
 
 const (
@@ -26,6 +27,7 @@ const (
 	defaultRetryWaitMin      = 1 * time.Second //nolint:revive
 	defaultRetryWaitMax      = 5 * time.Minute
 	defaultRetryMaxAttempts  = 10
+	minHeartbeatInterval     = 30 * time.Second
 )
 
 type ClientConf struct {
@@ -72,6 +74,10 @@ func (cc ClientConf) Validate() (outErr error) {
 		if err := validateDir(cc.TempDir); err != nil {
 			outErr = multierr.Append(outErr, err)
 		}
+	}
+
+	if cc.HeartbeatInterval > 0 && cc.HeartbeatInterval < minHeartbeatInterval {
+		outErr = multierr.Append(outErr, errHeartbeatIntervalTooShort)
 	}
 
 	return outErr
