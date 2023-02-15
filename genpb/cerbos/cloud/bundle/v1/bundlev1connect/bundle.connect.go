@@ -28,7 +28,7 @@ const (
 // CerbosBundleServiceClient is a client for the cerbos.cloud.bundle.v1.CerbosBundleService service.
 type CerbosBundleServiceClient interface {
 	GetBundle(context.Context, *connect_go.Request[v1.GetBundleRequest]) (*connect_go.Response[v1.GetBundleResponse], error)
-	WatchBundle(context.Context, *connect_go.Request[v1.WatchBundleRequest]) (*connect_go.ServerStreamForClient[v1.WatchBundleResponse], error)
+	WatchBundle(context.Context) *connect_go.BidiStreamForClient[v1.WatchBundleRequest, v1.WatchBundleResponse]
 }
 
 // NewCerbosBundleServiceClient constructs a client for the
@@ -66,15 +66,15 @@ func (c *cerbosBundleServiceClient) GetBundle(ctx context.Context, req *connect_
 }
 
 // WatchBundle calls cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle.
-func (c *cerbosBundleServiceClient) WatchBundle(ctx context.Context, req *connect_go.Request[v1.WatchBundleRequest]) (*connect_go.ServerStreamForClient[v1.WatchBundleResponse], error) {
-	return c.watchBundle.CallServerStream(ctx, req)
+func (c *cerbosBundleServiceClient) WatchBundle(ctx context.Context) *connect_go.BidiStreamForClient[v1.WatchBundleRequest, v1.WatchBundleResponse] {
+	return c.watchBundle.CallBidiStream(ctx)
 }
 
 // CerbosBundleServiceHandler is an implementation of the cerbos.cloud.bundle.v1.CerbosBundleService
 // service.
 type CerbosBundleServiceHandler interface {
 	GetBundle(context.Context, *connect_go.Request[v1.GetBundleRequest]) (*connect_go.Response[v1.GetBundleResponse], error)
-	WatchBundle(context.Context, *connect_go.Request[v1.WatchBundleRequest], *connect_go.ServerStream[v1.WatchBundleResponse]) error
+	WatchBundle(context.Context, *connect_go.BidiStream[v1.WatchBundleRequest, v1.WatchBundleResponse]) error
 }
 
 // NewCerbosBundleServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -89,7 +89,7 @@ func NewCerbosBundleServiceHandler(svc CerbosBundleServiceHandler, opts ...conne
 		svc.GetBundle,
 		opts...,
 	))
-	mux.Handle("/cerbos.cloud.bundle.v1.CerbosBundleService/WatchBundle", connect_go.NewServerStreamHandler(
+	mux.Handle("/cerbos.cloud.bundle.v1.CerbosBundleService/WatchBundle", connect_go.NewBidiStreamHandler(
 		"/cerbos.cloud.bundle.v1.CerbosBundleService/WatchBundle",
 		svc.WatchBundle,
 		opts...,
@@ -104,6 +104,6 @@ func (UnimplementedCerbosBundleServiceHandler) GetBundle(context.Context, *conne
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("cerbos.cloud.bundle.v1.CerbosBundleService.GetBundle is not implemented"))
 }
 
-func (UnimplementedCerbosBundleServiceHandler) WatchBundle(context.Context, *connect_go.Request[v1.WatchBundleRequest], *connect_go.ServerStream[v1.WatchBundleResponse]) error {
+func (UnimplementedCerbosBundleServiceHandler) WatchBundle(context.Context, *connect_go.BidiStream[v1.WatchBundleRequest, v1.WatchBundleResponse]) error {
 	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("cerbos.cloud.bundle.v1.CerbosBundleService.WatchBundle is not implemented"))
 }

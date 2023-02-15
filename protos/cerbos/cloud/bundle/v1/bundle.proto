@@ -7,6 +7,7 @@ package cerbos.cloud.bundle.v1;
 import "cerbos/cloud/pdp/v1/pdp.proto";
 import "google/api/visibility.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
 option go_package = "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1;bundlev1";
@@ -52,8 +53,23 @@ message GetBundleResponse {
 }
 
 message WatchBundleRequest {
+  message WatchLabel {
+    string bundle_label = 1 [(validate.rules).string.min_len = 1];
+  }
+
+  message Heartbeat {
+    google.protobuf.Timestamp timestamp = 1 [(validate.rules).timestamp = {
+      required: true,
+      within: {seconds: 60}
+    }];
+    string active_bundle_id = 2 [(validate.rules).string.min_len = 1];
+  }
+
   cerbos.cloud.pdp.v1.Identifier pdp_id = 1 [(validate.rules).message.required = true];
-  string bundle_label = 2 [(validate.rules).string.min_len = 1];
+  oneof msg {
+    WatchLabel watch_label = 2;
+    Heartbeat heartbeat = 3;
+  }
 }
 
 message WatchBundleResponse {
@@ -76,5 +92,5 @@ service CerbosBundleService {
   option (google.api.api_visibility).restriction = "EXPERIMENTAL";
 
   rpc GetBundle(GetBundleRequest) returns (GetBundleResponse) {}
-  rpc WatchBundle(WatchBundleRequest) returns (stream WatchBundleResponse) {}
+  rpc WatchBundle(stream WatchBundleRequest) returns (stream WatchBundleResponse) {}
 }

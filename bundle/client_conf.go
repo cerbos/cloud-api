@@ -15,30 +15,34 @@ import (
 )
 
 var (
-	errEmptyServerURL      = errors.New("server URL must be defined")
-	errMissingClientID     = errors.New("missing client ID")
-	errMissingClientSecret = errors.New("missing client secret")
-	errMissingIdentifier   = errors.New("missing PDP identifier")
+	errEmptyServerURL            = errors.New("server URL must be defined")
+	errHeartbeatIntervalTooShort = errors.New("heartbeat interval is too short")
+	errMissingClientID           = errors.New("missing client ID")
+	errMissingClientSecret       = errors.New("missing client secret")
+	errMissingIdentifier         = errors.New("missing PDP identifier")
 )
 
 const (
-	defaultRetryWaitMin     = 1 * time.Second //nolint:revive
-	defaultRetryWaitMax     = 5 * time.Minute
-	defaultRetryMaxAttempts = 10
+	defaultHeartbeatInterval = 2 * time.Minute
+	defaultRetryWaitMin      = 1 * time.Second //nolint:revive
+	defaultRetryWaitMax      = 5 * time.Minute
+	defaultRetryMaxAttempts  = 10
+	minHeartbeatInterval     = 30 * time.Second
 )
 
 type ClientConf struct {
-	PDPIdentifier    *pdpv1.Identifier
-	TLS              *tls.Config
-	Logger           logr.Logger
-	ClientID         string
-	ClientSecret     string
-	ServerURL        string
-	CacheDir         string
-	TempDir          string
-	RetryWaitMin     time.Duration
-	RetryWaitMax     time.Duration
-	RetryMaxAttempts int
+	PDPIdentifier     *pdpv1.Identifier
+	TLS               *tls.Config
+	Logger            logr.Logger
+	ClientID          string
+	ClientSecret      string
+	ServerURL         string
+	CacheDir          string
+	TempDir           string
+	RetryWaitMin      time.Duration
+	RetryWaitMax      time.Duration
+	RetryMaxAttempts  int
+	HeartbeatInterval time.Duration
 }
 
 func (cc ClientConf) Validate() (outErr error) {
@@ -72,6 +76,10 @@ func (cc ClientConf) Validate() (outErr error) {
 		}
 	}
 
+	if cc.HeartbeatInterval > 0 && cc.HeartbeatInterval < minHeartbeatInterval {
+		outErr = multierr.Append(outErr, errHeartbeatIntervalTooShort)
+	}
+
 	return outErr
 }
 
@@ -86,6 +94,10 @@ func (cc *ClientConf) SetDefaults() {
 
 	if cc.RetryWaitMax == 0 {
 		cc.RetryWaitMax = defaultRetryWaitMax
+	}
+
+	if cc.HeartbeatInterval == 0 {
+		cc.HeartbeatInterval = defaultHeartbeatInterval
 	}
 }
 
