@@ -1,0 +1,23 @@
+// Copyright 2021-2023 Zenauth Ltd.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package cerbos.cloud.bootstrap.v1;
+
+import "cerbos/cloud/bundle/v1/bundle.proto";
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+option go_package = "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1;bootstrapv1";
+
+message PDPConfig {
+  message Meta {
+    google.protobuf.Timestamp created_at = 1 [(validate.rules).timestamp.required = true];
+    string label = 2 [(validate.rules).string.min_len = 1];
+    string commit_hash = 3 [(validate.rules).string.min_len = 1];
+  }
+
+  Meta meta = 1 [(validate.rules).message.required = true];
+  cerbos.cloud.bundle.v1.BundleInfo bundle_info = 2 [(validate.rules).message.required = true];
+}
