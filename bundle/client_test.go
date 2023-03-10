@@ -1044,7 +1044,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) *bundle.Client {
 	conf := bundle.ClientConf{
 		ClientID:         "client-id",
 		ClientSecret:     "client-secret",
-		ServerURL:        url,
+		APIEndpoint:      url,
 		PDPIdentifier:    pdpIdentifer,
 		RetryWaitMin:     10 * time.Millisecond,
 		RetryWaitMax:     30 * time.Millisecond,

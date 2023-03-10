@@ -30,9 +30,9 @@ type authClient struct {
 
 func newAuthClient(conf ClientConf, httpClient *http.Client, clientOptions ...connect.ClientOption) *authClient {
 	return &authClient{
-		apiKeyClient: apikeyv1connect.NewApiKeyServiceClient(httpClient, conf.ServerURL, clientOptions...),
-		clientID:     conf.ClientID,
-		clientSecret: conf.ClientSecret,
+		apiKeyClient: apikeyv1connect.NewApiKeyServiceClient(httpClient, conf.APIEndpoint, clientOptions...),
+		clientID:     conf.Credentials.ClientID,
+		clientSecret: conf.Credentials.ClientSecret,
 	}
 }
 

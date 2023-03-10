@@ -9,16 +9,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/cerbos/cloud-api/credentials"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	"github.com/go-logr/logr"
 	"go.uber.org/multierr"
 )
 
 var (
-	errEmptyServerURL            = errors.New("server URL must be defined")
+	errEmptyAPIEndpoint          = errors.New("api endpoint must be defined")
+	errEmptyBootstrapHost        = errors.New("bootstrap host must be defined")
 	errHeartbeatIntervalTooShort = errors.New("heartbeat interval is too short")
-	errMissingClientID           = errors.New("missing client ID")
-	errMissingClientSecret       = errors.New("missing client secret")
+	errMissingCredentials        = errors.New("missing credentials")
 	errMissingIdentifier         = errors.New("missing PDP identifier")
 )
 
@@ -34,9 +35,9 @@ type ClientConf struct {
 	PDPIdentifier     *pdpv1.Identifier
 	TLS               *tls.Config
 	Logger            logr.Logger
-	ClientID          string
-	ClientSecret      string
-	ServerURL         string
+	Credentials       *credentials.Credentials
+	APIEndpoint       string
+	BootstrapHost     string
 	CacheDir          string
 	TempDir           string
 	RetryWaitMin      time.Duration
@@ -46,16 +47,16 @@ type ClientConf struct {
 }
 
 func (cc ClientConf) Validate() (outErr error) {
-	if cc.ClientID == "" {
-		outErr = multierr.Append(outErr, errMissingClientID)
+	if cc.Credentials == nil {
+		outErr = multierr.Append(outErr, errMissingCredentials)
 	}
 
-	if cc.ClientSecret == "" {
-		outErr = multierr.Append(outErr, errMissingClientSecret)
+	if cc.APIEndpoint == "" {
+		outErr = multierr.Append(outErr, errEmptyAPIEndpoint)
 	}
 
-	if cc.ServerURL == "" {
-		outErr = multierr.Append(outErr, errEmptyServerURL)
+	if cc.BootstrapHost == "" {
+		outErr = multierr.Append(outErr, errEmptyBootstrapHost)
 	}
 
 	if cc.PDPIdentifier == nil {
