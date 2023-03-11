@@ -7,6 +7,7 @@
 package bundle_test
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha1" //nolint:gosec
@@ -31,8 +32,10 @@ import (
 	"github.com/bufbuild/connect-go"
 	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
 	"github.com/cerbos/cloud-api/bundle"
+	"github.com/cerbos/cloud-api/credentials"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
+	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
 	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
@@ -47,14 +50,91 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+const testPrivateKey = ""
+
 var pdpIdentifer = &pdpv1.Identifier{
 	Instance: "instance",
 	Version:  "0.19.0",
+}
+
+func TestBootstrapBundle(t *testing.T) {
+	mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+	mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+	server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+	t.Cleanup(server.Close)
+
+	client, creds := mkClient(t, server.URL, server.Certificate())
+
+	rootDir := filepath.Join("testdata", "bootstrap")
+	require.NoError(t, os.RemoveAll(rootDir), "Failed to remove bootstrap dir")
+
+	dataDir := filepath.Join(rootDir, "v1", creds.HashString(creds.WorkspaceID))
+	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
+
+	writeConf := func(t *testing.T, label string, data []byte) {
+		t.Helper()
+
+		confFile, err := os.Create(filepath.Join(dataDir, creds.HashString(label)))
+		require.NoError(t, err, "Failed to create bootstrap file")
+		t.Cleanup(func() { _ = confFile.Close() })
+
+		confWriter, err := creds.Encrypt(confFile)
+		require.NoError(t, err, "Failed to create encryption stream")
+		t.Cleanup(func() { _ = confWriter.Close() })
+
+		_, err = bytes.NewReader(data).WriteTo(confWriter)
+		require.NoError(t, err, "Failed to encrypt conf")
+
+		require.NoError(t, confWriter.Close(), "Failed to close encryption stream")
+		require.NoError(t, confFile.Close(), "Failed to close conf file")
+	}
+
+	t.Run("success", func(t *testing.T) {
+		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+		label := "label1"
+		conf := &bootstrapv1.PDPConfig{
+			Meta: &bootstrapv1.PDPConfig_Meta{
+				Label:      label,
+				CommitHash: "1ebe782f7b0cd6b78bec8e764f916afd285401db",
+				CreatedAt:  timestamppb.Now(),
+			},
+			BundleInfo: &bundlev1.BundleInfo{
+				Label:      label,
+				BundleHash: wantChecksum,
+				Segments: []*bundlev1.BundleInfo_Segment{
+					{
+						SegmentId: 1,
+						Checksum:  wantChecksum,
+						DownloadUrls: []string{
+							fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
+							fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
+						},
+					},
+				},
+			},
+		}
+
+		confJSON, err := protojson.Marshal(conf)
+		require.NoError(t, err, "Failed to marshal JSON")
+		writeConf(t, label, confJSON)
+
+		file, err := client.BootstrapBundle(context.Background(), label)
+		require.NoError(t, err)
+
+		haveChecksum := checksum(t, file)
+		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
+	})
+
+	t.Run("failure", func(t *testing.T) {
+		_, err := client.BootstrapBundle(context.Background(), "blah")
+		require.Error(t, err)
+	})
 }
 
 func TestGetBundle(t *testing.T) {
@@ -64,7 +144,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -107,7 +187,7 @@ func TestGetBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -148,7 +228,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -203,7 +283,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -314,7 +394,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -354,7 +434,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		expectIssueAccessToken(mockAPIKeySvc)
@@ -400,7 +480,7 @@ func TestGetBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -433,7 +513,7 @@ func TestGetBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -463,7 +543,7 @@ func TestGetBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		mockAPIKeySvc.EXPECT().
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -489,7 +569,7 @@ func TestWatchBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		bundleID1 := randomCommit()
 		bundleID2 := randomCommit()
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
@@ -561,7 +641,7 @@ func TestWatchBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		ctx, cancelFn := context.WithCancel(context.Background())
@@ -599,7 +679,7 @@ func TestWatchBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
@@ -625,7 +705,7 @@ func TestWatchBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		ctx, cancelFn := context.WithCancel(context.Background())
@@ -670,7 +750,7 @@ func TestWatchBundle(t *testing.T) {
 		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		ctx, cancelFn := context.WithCancel(context.Background())
@@ -714,7 +794,7 @@ func TestWatchBundle(t *testing.T) {
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
-		client := mkClient(t, server.URL, server.Certificate())
+		client, _ := mkClient(t, server.URL, server.Certificate())
 
 		mockAPIKeySvc.EXPECT().
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -766,7 +846,7 @@ func mkWBHeartbeatReq(bundleID string) *bundlev1.WatchBundleRequest {
 
 func TestGetCachedBundle(t *testing.T) {
 	t.Run("NonExistentLabel", func(t *testing.T) {
-		client := mkClient(t, "https://localhost", nil)
+		client, _ := mkClient(t, "https://localhost", nil)
 		_, err := client.GetCachedBundle("blah")
 		require.Error(t, err)
 	})
@@ -788,7 +868,7 @@ func TestNetworkIssues(t *testing.T) {
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
+		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
 
@@ -808,7 +888,7 @@ func TestNetworkIssues(t *testing.T) {
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
+		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
@@ -855,7 +935,7 @@ func TestNetworkIssues(t *testing.T) {
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client := mkClient(t, "https://"+proxy.Listen, server.Certificate())
+		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 
 		ctx, cancelFn := context.WithCancel(context.Background())
 		t.Cleanup(cancelFn)
@@ -914,6 +994,7 @@ func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHa
 	mux.Handle(apiKeyPath, logRequests(apiKeySvcHandler))
 	mux.Handle(bundlePath, logRequests(bundleSvcHandler))
 	mux.Handle("/files/", http.StripPrefix("/files/", counter.wrap(fileHandler)))
+	mux.Handle("/bootstrap/", counter.wrap(fileHandler))
 	mux.Handle(grpcreflect.NewHandlerV1(
 		grpcreflect.NewStaticReflector(bundlev1connect.CerbosBundleServiceName),
 		compress1KB,
@@ -1007,7 +1088,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string, cert *x509.Certificate) *bundle.Client {
+func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client, *credentials.Credentials) {
 	t.Helper()
 
 	tmp := t.TempDir()
@@ -1041,9 +1122,12 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) *bundle.Client {
 		}
 	}
 
+	creds, err := credentials.New("client-id", "client-secret", "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A")
+	require.NoError(t, err, "Failed to create credentials")
+
 	conf := bundle.ClientConf{
-		ClientID:         "client-id",
-		ClientSecret:     "client-secret",
+		Credentials:      creds,
+		BootstrapHost:    url,
 		APIEndpoint:      url,
 		PDPIdentifier:    pdpIdentifer,
 		RetryWaitMin:     10 * time.Millisecond,
@@ -1058,7 +1142,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) *bundle.Client {
 	client, err := bundle.NewClient(conf)
 	require.NoError(t, err, "Failed to create client")
 
-	return client
+	return client, creds
 }
 
 type haveWatchReq struct {

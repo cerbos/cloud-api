@@ -56,6 +56,10 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 	}, nil
 }
 
+func (c *Credentials) Encrypt(dst io.Writer) (io.WriteCloser, error) {
+	return age.Encrypt(dst, c.identity.Recipient())
+}
+
 func (c *Credentials) Decrypt(input io.Reader) (io.Reader, error) {
 	out, err := age.Decrypt(input, c.identity)
 	if err != nil {

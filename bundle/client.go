@@ -639,11 +639,6 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 		return "", fmt.Errorf("failed to construct download request: %w", err)
 	}
 
-	if err := c.authClient.SetAuthTokenHeader(ctx, req.Header); err != nil {
-		log.V(1).Error(err, "Failed to authenticate")
-		return "", err
-	}
-
 	log.V(1).Info("Sending download request")
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

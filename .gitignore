@@ -1,3 +1,5 @@
 # Editor files
 .idea/
 .vscode/
+
+bundle/testdata/bootstrap/**
