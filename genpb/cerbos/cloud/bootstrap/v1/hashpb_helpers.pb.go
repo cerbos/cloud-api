@@ -17,10 +17,6 @@ func cerbos_cloud_bootstrap_v1_PDPConfig_Meta_hashpb_sum(m *PDPConfig_Meta, hash
 		}
 
 	}
-	if _, ok := ignore["cerbos.cloud.bootstrap.v1.PDPConfig.Meta.label"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.Label))
-
-	}
 	if _, ok := ignore["cerbos.cloud.bootstrap.v1.PDPConfig.Meta.commit_hash"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.CommitHash))
 

@@ -247,17 +247,6 @@ func (m *PDPConfig_Meta) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetLabel()) < 1 {
-		err := PDPConfig_MetaValidationError{
-			field:  "Label",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if utf8.RuneCountInString(m.GetCommitHash()) < 1 {
 		err := PDPConfig_MetaValidationError{
 			field:  "CommitHash",

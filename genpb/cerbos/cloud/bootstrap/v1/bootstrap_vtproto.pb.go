@@ -56,13 +56,6 @@ func (m *PDPConfig_Meta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.CommitHash)
 		i = encodeVarint(dAtA, i, uint64(len(m.CommitHash)))
 		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Label) > 0 {
-		i -= len(m.Label)
-		copy(dAtA[i:], m.Label)
-		i = encodeVarint(dAtA, i, uint64(len(m.Label)))
-		i--
 		dAtA[i] = 0x12
 	}
 	if m.CreatedAt != nil {
@@ -182,10 +175,6 @@ func (m *PDPConfig_Meta) SizeVT() (n int) {
 		}
 		n += 1 + l + sov(uint64(l))
 	}
-	l = len(m.Label)
-	if l > 0 {
-		n += 1 + l + sov(uint64(l))
-	}
 	l = len(m.CommitHash)
 	if l > 0 {
 		n += 1 + l + sov(uint64(l))
@@ -298,38 +287,6 @@ func (m *PDPConfig_Meta) UnmarshalVT(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Label", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Label = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CommitHash", wireType)
 			}

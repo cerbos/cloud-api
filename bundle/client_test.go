@@ -101,7 +101,6 @@ func TestBootstrapBundle(t *testing.T) {
 		label := "label1"
 		conf := &bootstrapv1.PDPConfig{
 			Meta: &bootstrapv1.PDPConfig_Meta{
-				Label:      label,
 				CommitHash: "1ebe782f7b0cd6b78bec8e764f916afd285401db",
 				CreatedAt:  timestamppb.Now(),
 			},

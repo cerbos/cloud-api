@@ -18,7 +18,7 @@ import (
 
 var (
 	errEmptyAPIEndpoint          = errors.New("api endpoint must be defined")
-	errEmptyBootstrapHost        = errors.New("bootstrap host must be defined")
+	errEmptyBootstrapEndpoint    = errors.New("bootstrap endpoint must be defined")
 	errHeartbeatIntervalTooShort = errors.New("heartbeat interval is too short")
 	errMissingCredentials        = errors.New("missing credentials")
 	errMissingIdentifier         = errors.New("missing PDP identifier")
@@ -57,7 +57,7 @@ func (cc ClientConf) Validate() (outErr error) {
 	}
 
 	if cc.BootstrapEndpoint == "" {
-		outErr = multierr.Append(outErr, errEmptyBootstrapHost)
+		outErr = multierr.Append(outErr, errEmptyBootstrapEndpoint)
 	}
 
 	if cc.PDPIdentifier == nil {
