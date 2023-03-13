@@ -9,10 +9,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/cerbos/cloud-api/credentials"
-	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	"github.com/go-logr/logr"
 	"go.uber.org/multierr"
+
+	"github.com/cerbos/cloud-api/credentials"
+	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 )
 
 var (
@@ -37,7 +38,7 @@ type ClientConf struct {
 	Logger            logr.Logger
 	Credentials       *credentials.Credentials
 	APIEndpoint       string
-	BootstrapHost     string
+	BootstrapEndpoint string
 	CacheDir          string
 	TempDir           string
 	RetryWaitMin      time.Duration
@@ -55,7 +56,7 @@ func (cc ClientConf) Validate() (outErr error) {
 		outErr = multierr.Append(outErr, errEmptyAPIEndpoint)
 	}
 
-	if cc.BootstrapHost == "" {
+	if cc.BootstrapEndpoint == "" {
 		outErr = multierr.Append(outErr, errEmptyBootstrapHost)
 	}
 

@@ -13,6 +13,16 @@ linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
 
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/cerbos/cloud-api)
+      - blank
+      - dot
+    skip-generated: true
+    custom-order: true
+
   gofumpt:
     extra-rules: true
 
@@ -44,6 +54,7 @@ linters-settings:
 
 linters:
   enable:
+    - asasalint
     - asciicheck
     - bidichk
     - bodyclose
@@ -54,13 +65,14 @@ linters:
     - exportloopref
     - forbidigo
     - forcetypeassert
+    - gci
+    - gocheckcompilerdirectives
     - goconst
     - gocritic
     - godot
     - gofumpt
     - goimports
     - goheader
-    - gomoddirectives
     - gosec
     - govet
     - importas
@@ -74,9 +86,11 @@ linters:
     - prealloc
     - predeclared
     - promlinter
+    - reassign
     - revive
     - rowserrcheck
     - sqlclosecheck
+    - stylecheck
     - tagliatelle
     - tenv
     - thelper
@@ -85,32 +99,6 @@ linters:
     - unparam
     - wastedassign
     - whitespace
-  disable:
-    - cyclop
-    - depguard
-    - dogsled
-    - exhaustivestruct
-    - funlen
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - gocyclo
-    - godox
-    - goerr113
-    - gofmt
-    - golint
-    - gomnd
-    - gomodguard
-    - goprintffuncname
-    - interfacer
-    - lll
-    - maligned
-    - nlreturn
-    - paralleltest
-    - stylecheck
-    - testpackage
-    - wrapcheck
-    - wsl
 
 issues:
   max-same-issues: 30

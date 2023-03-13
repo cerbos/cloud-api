@@ -19,9 +19,6 @@ import (
 	"unicode"
 
 	"github.com/bufbuild/connect-go"
-	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
-	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/minio/sha256-simd"
@@ -32,6 +29,10 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
+	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 )
 
 const (
@@ -52,12 +53,13 @@ const (
 )
 
 var (
-	ErrBundleNotFound       = errors.New("bundle not found")
-	errChecksumMismatch     = errors.New("checksum mismatch")
-	errDownloadFailed       = errors.New("download failed")
-	errInvalidResponse      = errors.New("invalid response from server")
-	errNoSegmentDownloadURL = errors.New("no download URLs")
-	errStreamEnded          = errors.New("stream ended")
+	ErrBootstrapBundleNotFound = errors.New("bootstrap bundle not found")
+	ErrBundleNotFound          = errors.New("bundle not found")
+	errChecksumMismatch        = errors.New("checksum mismatch")
+	errDownloadFailed          = errors.New("download failed")
+	errInvalidResponse         = errors.New("invalid response from server")
+	errNoSegmentDownloadURL    = errors.New("no download URLs")
+	errStreamEnded             = errors.New("stream ended")
 )
 
 // ErrReconnect is the error returned when the server requests a reconnect.
@@ -189,7 +191,7 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 
 	wsID := c.conf.Credentials.HashString(c.conf.Credentials.WorkspaceID)
 	labelHash := c.conf.Credentials.HashString(bundleLabel)
-	bootstrapURL, err := url.JoinPath(c.conf.BootstrapHost, bootstrapPathPrefix, wsID, labelHash)
+	bootstrapURL, err := url.JoinPath(c.conf.BootstrapEndpoint, bootstrapPathPrefix, wsID, labelHash)
 	if err != nil {
 		return "", fmt.Errorf("failed to construct bootstrap URL: %w", err)
 	}
@@ -232,7 +234,12 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		log.V(1).Info("Download failed")
+		if resp.StatusCode == http.StatusNotFound {
+			log.V(1).Info("Bootstrap bundle not found")
+			return nil, ErrBootstrapBundleNotFound
+		}
+
+		log.V(1).Info("Failed to download bootstrap bundle")
 		return nil, errDownloadFailed
 	}
 
@@ -241,10 +248,10 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 		return nil, err
 	}
 
-	return c.parseBootstrapConf(ctx, confData)
+	return c.parseBootstrapConf(confData)
 }
 
-func (c *Client) parseBootstrapConf(ctx context.Context, input io.Reader) (*bootstrapv1.PDPConfig, error) {
+func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, error) {
 	confBytes, err := io.ReadAll(input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read decrypted bootstrap configuration: %w", err)
@@ -279,7 +286,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 	}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
-		return "", fmt.Errorf("rpc failed: %w", err)
+		return "", err
 	}
 
 	logResponsePayload(log, resp.Msg)

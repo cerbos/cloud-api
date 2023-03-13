@@ -7,8 +7,9 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/cerbos/cloud-api/credentials"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cerbos/cloud-api/credentials"
 
 	_ "embed"
 )

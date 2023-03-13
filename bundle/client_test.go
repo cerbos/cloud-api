@@ -31,16 +31,6 @@ import (
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
 	"github.com/bufbuild/connect-go"
 	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
-	"github.com/cerbos/cloud-api/bundle"
-	"github.com/cerbos/cloud-api/credentials"
-	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
-	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
-	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
-	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
-	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
-	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	"github.com/go-logr/logr/testr"
 	"github.com/google/go-cmp/cmp"
 	"github.com/minio/sha256-simd"
@@ -54,9 +44,20 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/cerbos/cloud-api/bundle"
+	"github.com/cerbos/cloud-api/credentials"
+	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
+	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
+	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
+	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
+	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 )
 
-const testPrivateKey = ""
+const testPrivateKey = "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A"
 
 var pdpIdentifer = &pdpv1.Identifier{
 	Instance: "instance",
@@ -551,7 +552,7 @@ func TestGetBundle(t *testing.T) {
 
 		_, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
-		require.Equal(t, connect.CodeUnauthenticated, connect.CodeOf(err))
+		require.ErrorIs(t, err, bundle.ErrAuthenticationFailed)
 	})
 }
 
@@ -802,7 +803,7 @@ func TestWatchBundle(t *testing.T) {
 
 		_, err := client.WatchBundle(context.Background(), "label")
 		require.Error(t, err)
-		require.Equal(t, connect.CodeUnauthenticated, connect.CodeOf(err))
+		require.ErrorIs(t, err, bundle.ErrAuthenticationFailed)
 	})
 }
 
@@ -1122,21 +1123,21 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A")
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
 	require.NoError(t, err, "Failed to create credentials")
 
 	conf := bundle.ClientConf{
-		Credentials:      creds,
-		BootstrapHost:    url,
-		APIEndpoint:      url,
-		PDPIdentifier:    pdpIdentifer,
-		RetryWaitMin:     10 * time.Millisecond,
-		RetryWaitMax:     30 * time.Millisecond,
-		RetryMaxAttempts: 2,
-		CacheDir:         cacheDir,
-		TempDir:          tempDir,
-		Logger:           testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
-		TLS:              tlsConf,
+		Credentials:       creds,
+		BootstrapEndpoint: url,
+		APIEndpoint:       url,
+		PDPIdentifier:     pdpIdentifer,
+		RetryWaitMin:      10 * time.Millisecond,
+		RetryWaitMax:      30 * time.Millisecond,
+		RetryMaxAttempts:  2,
+		CacheDir:          cacheDir,
+		TempDir:           tempDir,
+		Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
+		TLS:               tlsConf,
 	}
 
 	client, err := bundle.NewClient(conf)
