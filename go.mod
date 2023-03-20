@@ -16,10 +16,10 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.8.2
 	go.opentelemetry.io/otel v1.14.0
-	go.uber.org/multierr v1.9.0
+	go.uber.org/multierr v1.10.0
 	golang.org/x/net v0.8.0
-	google.golang.org/genproto v0.0.0-20230303212802-e74f57abe488
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
+	google.golang.org/protobuf v1.30.0
 )
 
 require (
@@ -45,7 +45,6 @@ require (
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
