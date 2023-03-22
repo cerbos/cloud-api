@@ -1,5 +1,7 @@
 include tools/tools.mk
 
+MOCK_QUIET ?= --quiet
+
 .PHONY: all
 all: generate deps lint test
 
@@ -33,10 +35,8 @@ generate-proto-code: proto-gen-deps
 
 .PHONY: generate-mocks
 generate-mocks: $(MOCKERY)
-	@ $(MOCKERY) --quiet --srcpkg=./genpb/cerbos/cloud/apikey/v1/apikeyv1connect --name=ApiKeyServiceHandler \
-		--packageprefix=mock --output=test/mocks --with-expecter --keeptree
-	@ $(MOCKERY) --quiet --srcpkg=./genpb/cerbos/cloud/bundle/v1/bundlev1connect --name=CerbosBundleServiceHandler \
-		--packageprefix=mock --output=test/mocks --with-expecter --keeptree
+	@ $(MOCKERY) $(MOCK_QUIET) --srcpkg=./genpb/cerbos/cloud/apikey/v1/apikeyv1connect --name=ApiKeyServiceHandler
+	@ $(MOCKERY) $(MOCK_QUIET) --srcpkg=./genpb/cerbos/cloud/bundle/v1/bundlev1connect --name=CerbosBundleServiceHandler
 
 .PHONY: compile
 compile:

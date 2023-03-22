@@ -1,0 +1,6 @@
+boilerplate-file: hack/copyright_header.txt
+keeptree: True
+output: test/mocks
+packageprefix: mock
+with-expecter: True
+

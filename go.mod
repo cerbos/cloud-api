@@ -3,6 +3,7 @@ module github.com/cerbos/cloud-api
 go 1.19
 
 require (
+	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.5.2
 	github.com/bufbuild/connect-grpcreflect-go v1.0.0
@@ -45,6 +46,7 @@ require (
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

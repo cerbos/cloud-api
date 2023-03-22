@@ -4,12 +4,14 @@ package bundle
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/bufbuild/connect-go"
+
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 )
@@ -18,6 +20,8 @@ const (
 	AuthTokenHeader = "x-cerbos-auth" //nolint:gosec
 	earlyExpiry     = 5 * time.Minute
 )
+
+var ErrAuthenticationFailed = errors.New("failed to authenticate: invalid credentials")
 
 type authClient struct {
 	accessToken  string
@@ -30,9 +34,9 @@ type authClient struct {
 
 func newAuthClient(conf ClientConf, httpClient *http.Client, clientOptions ...connect.ClientOption) *authClient {
 	return &authClient{
-		apiKeyClient: apikeyv1connect.NewApiKeyServiceClient(httpClient, conf.ServerURL, clientOptions...),
-		clientID:     conf.ClientID,
-		clientSecret: conf.ClientSecret,
+		apiKeyClient: apikeyv1connect.NewApiKeyServiceClient(httpClient, conf.APIEndpoint, clientOptions...),
+		clientID:     conf.Credentials.ClientID,
+		clientSecret: conf.Credentials.ClientSecret,
 	}
 }
 
@@ -67,6 +71,9 @@ func (a *authClient) authenticate(ctx context.Context) (string, error) {
 		ClientSecret: a.clientSecret,
 	}))
 	if err != nil {
+		if connect.CodeOf(err) == connect.CodeUnauthenticated {
+			return "", ErrAuthenticationFailed
+		}
 		return "", fmt.Errorf("failed to authenticate: %w", err)
 	}
 
