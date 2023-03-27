@@ -7,7 +7,7 @@ require (
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.5.2
 	github.com/bufbuild/connect-grpcreflect-go v1.0.0
-	github.com/envoyproxy/protoc-gen-validate v0.9.1
+	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/go-logr/logr v1.2.3
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-retryablehttp v0.7.2
@@ -19,7 +19,7 @@ require (
 	go.opentelemetry.io/otel v1.14.0
 	go.uber.org/multierr v1.10.0
 	golang.org/x/net v0.8.0
-	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
+	google.golang.org/genproto v0.0.0-20230323212658-478b75c54725
 	google.golang.org/protobuf v1.30.0
 )
 
@@ -29,7 +29,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
