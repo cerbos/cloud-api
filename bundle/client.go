@@ -317,8 +317,13 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 	wh.p.Go(c.watchStreamRecv(stream, wh, log))
 	wh.p.Go(c.watchStreamSend(stream, wh, log))
 	go func() {
-		err := wh.wait()
-		log.V(2).Error(err, "Watch streams terminated")
+		if err := wh.wait(); err != nil {
+			if !errors.Is(err, context.Canceled) {
+				log.V(2).Error(err, "Watch streams terminated")
+				return
+			}
+		}
+		log.V(2).Info("Watch streams terminated")
 	}()
 
 	return wh, nil
@@ -338,7 +343,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 		go func() {
 			defer func() {
 				close(recvChan)
-				if err := stream.CloseResponse(); err != nil {
+				if err := stream.CloseResponse(); err != nil && !errors.Is(err, context.Canceled) {
 					log.V(2).Error(err, "Error while closing response stream")
 				}
 			}()
@@ -354,7 +359,11 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 				recvChan <- recvMsg{msg: msg, err: err}
 				if err != nil {
-					log.V(3).Error(err, "Exiting receive loop")
+					if errors.Is(err, context.Canceled) {
+						log.V(3).Info("Exiting receive loop")
+					} else {
+						log.V(3).Error(err, "Exiting receive loop due to error")
+					}
 					return
 				}
 			}
