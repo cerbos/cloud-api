@@ -126,7 +126,7 @@ func NewClient(conf ClientConf) (*Client, error) {
 	options := []connect.ClientOption{
 		connect.WithCompressMinBytes(1024),
 		connect.WithInterceptors(
-			otelconnect.NewInterceptor(otelconnect.WithoutServerPeerAttributes()),
+			otelconnect.NewInterceptor(),
 			newUserAgentInterceptor(),
 		),
 	}
