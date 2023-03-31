@@ -10,26 +10,7 @@ import (
 	"runtime/debug"
 
 	"github.com/bufbuild/connect-go"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 )
-
-func newTracingInterceptor() connect.UnaryInterceptorFunc {
-	return connect.UnaryInterceptorFunc(func(next connect.UnaryFunc) connect.UnaryFunc {
-		return connect.UnaryFunc(func(ctx context.Context, ar connect.AnyRequest) (connect.AnyResponse, error) {
-			newCtx, span := otel.Tracer("cerbos.dev/cloud-api").Start(ctx, ar.Spec().Procedure)
-			defer span.End()
-
-			resp, err := next(newCtx, ar)
-			if err != nil {
-				span.RecordError(err)
-				span.SetStatus(codes.Error, connect.CodeOf(err).String())
-			}
-
-			return resp, err
-		})
-	})
-}
 
 type userAgentInterceptor struct {
 	userAgent string

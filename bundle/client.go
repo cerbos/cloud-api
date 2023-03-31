@@ -19,6 +19,7 @@ import (
 	"unicode"
 
 	"github.com/bufbuild/connect-go"
+	otelconnect "github.com/bufbuild/connect-opentelemetry-go"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/minio/sha256-simd"
@@ -125,7 +126,7 @@ func NewClient(conf ClientConf) (*Client, error) {
 	options := []connect.ClientOption{
 		connect.WithCompressMinBytes(1024),
 		connect.WithInterceptors(
-			newTracingInterceptor(),
+			otelconnect.NewInterceptor(),
 			newUserAgentInterceptor(),
 		),
 	}
