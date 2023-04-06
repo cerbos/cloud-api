@@ -319,12 +319,19 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 	wh.p.Go(c.watchStreamSend(stream, wh, log))
 	go func() {
 		if err := wh.wait(); err != nil {
-			if !errors.Is(err, context.Canceled) {
-				log.V(2).Error(err, "Watch streams terminated")
-				return
+			switch {
+			case errors.Is(err, context.Canceled):
+				log.V(2).Info("Watch stream terminated: context cancelled")
+			case errors.Is(err, ErrBundleNotFound):
+				log.V(2).Info("Watch stream terminated: bundle not found")
+			case errors.Is(err, ErrReconnect{}):
+				log.V(2).Info("Watch stream terminated: server requests reconnect")
+			default:
+				log.V(2).Error(err, "Watch stream terminated")
 			}
+			return
 		}
-		log.V(2).Info("Watch streams terminated")
+		log.V(2).Info("Watch stream terminated")
 	}()
 
 	return wh, nil
