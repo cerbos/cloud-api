@@ -324,7 +324,7 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 				log.V(2).Info("Watch stream terminated: context cancelled")
 			case errors.Is(err, ErrBundleNotFound):
 				log.V(2).Info("Watch stream terminated: bundle not found")
-			case errors.Is(err, ErrReconnect{}):
+			case errors.As(err, &ErrReconnect{}):
 				log.V(2).Info("Watch stream terminated: server requests reconnect")
 			default:
 				log.V(2).Error(err, "Watch stream terminated")
