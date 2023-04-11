@@ -1,9 +1,11 @@
 ---
-name: Snapshots
+name: Publish
 on:
   push:
     branches:
       - main
+    tags:
+      - v*
 jobs:
   publishProtos:
     name: Publish Protobufs

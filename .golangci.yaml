@@ -1,11 +1,11 @@
 ---
 run:
-  go: "1.19"
   timeout: 300s
   skip-dirs:
-    - api
-    - database/gendb
-    - tools
+    - "^genpb/"
+    - "^hack/"
+    - "^protos/"
+    - "^tools/"
   build-tags:
     - tests
 
