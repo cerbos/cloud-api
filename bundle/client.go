@@ -63,12 +63,12 @@ var (
 	errStreamEnded             = errors.New("stream ended")
 )
 
-// ErrReconnect is the error returned when the server requests a reconnect.
-type ErrReconnect struct {
+// ReconnectError is the error returned when the server requests a reconnect.
+type ReconnectError struct {
 	Backoff time.Duration
 }
 
-func (er ErrReconnect) Error() string {
+func (er ReconnectError) Error() string {
 	return fmt.Sprintf("reconnect in %s", er.Backoff)
 }
 
@@ -324,7 +324,7 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 				log.V(2).Info("Watch stream terminated: context cancelled")
 			case errors.Is(err, ErrBundleNotFound):
 				log.V(2).Info("Watch stream terminated: bundle not found")
-			case errors.As(err, &ErrReconnect{}):
+			case errors.As(err, &ReconnectError{}):
 				log.V(2).Info("Watch stream terminated: server requests reconnect")
 			default:
 				log.V(2).Error(err, "Watch stream terminated")
@@ -426,7 +426,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 					log.V(2).Error(err, "Failed to send reconnect")
 				}
 
-				return ErrReconnect{Backoff: backoff}
+				return ReconnectError{Backoff: backoff}
 
 			default:
 				log.V(2).Info("Ignoring unknown message", "msg", protoWrapper{p: msg})
