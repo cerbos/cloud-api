@@ -94,8 +94,8 @@ github.com/breml/errchkjson v0.3.1 h1:hlIeXuspTyt8Y/UmP5qy1JocGNR00KQHgfaNtRAjox
 github.com/breml/errchkjson v0.3.1/go.mod h1:XroxrzKjdiutFyW3nWhw34VGg7kiMsDQox73yWCGI2U=
 github.com/bufbuild/buf v1.17.0 h1:HqfVS5v81r1Q+vWm91V1uqdB77vO48uSjU1LAYC2DyE=
 github.com/bufbuild/buf v1.17.0/go.mod h1:V//7h3wKBA+VVE2cv8CUox57dt9Y6JQ6tCM6cF2ptF8=
-github.com/bufbuild/connect-go v1.6.0 h1:OCEB8JuEuvcY5lEKZCQE95CUscqkDtLnQceNhDgi92k=
-github.com/bufbuild/connect-go v1.6.0/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
+github.com/bufbuild/connect-go v1.7.0 h1:MGp82v7SCza+3RhsVhV7aMikwxvI3ZfD72YiGt8FYJo=
+github.com/bufbuild/connect-go v1.7.0/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
 github.com/bufbuild/protocompile v0.5.1 h1:mixz5lJX4Hiz4FpqFREJHIXLfaLBntfaJv1h+/jS+Qg=
 github.com/bufbuild/protocompile v0.5.1/go.mod h1:G5iLmavmF4NsYtpZFvE3B/zFch2GIY8+wjsYLR/lc40=
 github.com/butuzov/ireturn v0.1.1 h1:QvrO2QF2+/Cx1WA/vETCIYBKtRjc30vesdoPUNo1EbY=
@@ -642,8 +642,8 @@ github.com/ultraware/whitespace v0.0.5/go.mod h1:aVMh/gQve5Maj9hQ/hg+F75lr/X5A89
 github.com/uudashr/gocognit v1.0.6 h1:2Cgi6MweCsdB6kpcVQp7EW4U23iBFQWfTXiWlyp842Y=
 github.com/uudashr/gocognit v1.0.6/go.mod h1:nAIUuVBnYU7pcninia3BHOvQkpQCeO76Uscky5BOwcY=
 github.com/vbatts/tar-split v0.11.2 h1:Via6XqJr0hceW4wff3QRzD5gAk/tatMw/4ZA7cTlIME=
-github.com/vektra/mockery/v2 v2.25.0 h1:bIJfKXmWUBzNkxPhqmT73qK8v0f+qv9lwcQT1l95oKE=
-github.com/vektra/mockery/v2 v2.25.0/go.mod h1:Og8L6VjOvLNzqLpjC2K1Ko8JHwdYfT83CuQU8jll9+I=
+github.com/vektra/mockery/v2 v2.26.0 h1:M1n39oU5yGJnz7qc7+iwzAuOWF/pF59AhI+ybnWPrgI=
+github.com/vektra/mockery/v2 v2.26.0/go.mod h1:Og8L6VjOvLNzqLpjC2K1Ko8JHwdYfT83CuQU8jll9+I=
 github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM=
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
 github.com/yeya24/promlinter v0.2.0 h1:xFKDQ82orCU5jQujdaD8stOHiv8UN68BSdn2a8u8Y3o=

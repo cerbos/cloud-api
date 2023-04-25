@@ -4,11 +4,11 @@ go 1.19
 
 require (
 	github.com/bufbuild/buf v1.17.0
-	github.com/bufbuild/connect-go v1.6.0
+	github.com/bufbuild/connect-go v1.7.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/planetscale/vtprotobuf v0.4.0
-	github.com/vektra/mockery/v2 v2.25.0
+	github.com/vektra/mockery/v2 v2.26.0
 	google.golang.org/protobuf v1.30.0
 	gotest.tools/gotestsum v1.10.0
 )
