@@ -37,16 +37,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.20.x
           check-latest: true
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3.4.0
         with:
           version: latest
-          args: '--config=.golangci.yaml'
+          args: '--config=.golangci.yaml --fix'
+
+      - name: Check repo status
+        run: |-
+          make generate
+          REPO_STATUS="$(git status --porcelain)"
+          if [[ ! -z $REPO_STATUS ]]; then
+            echo "::error::Uncommitted changes detected"
+            echo "$REPO_STATUS"
+            git status -vv
+            exit 1
+          fi
 
   buf:
     name: Proto check
