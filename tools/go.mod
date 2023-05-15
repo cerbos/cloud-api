@@ -6,9 +6,9 @@ require (
 	github.com/bufbuild/buf v1.18.0
 	github.com/bufbuild/connect-go v1.7.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
-	github.com/envoyproxy/protoc-gen-validate v1.0.0
+	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/planetscale/vtprotobuf v0.4.0
-	github.com/vektra/mockery/v2 v2.26.1
+	github.com/vektra/mockery/v2 v2.27.1
 	google.golang.org/protobuf v1.30.0
 	gotest.tools/gotestsum v1.10.0
 )
@@ -17,7 +17,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/bufbuild/protocompile v0.5.1 // indirect
-	github.com/chigopher/pathlib v0.13.0 // indirect
+	github.com/chigopher/pathlib v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dnephin/pflag v1.0.7 // indirect
 	github.com/docker/cli v23.0.5+incompatible // indirect
