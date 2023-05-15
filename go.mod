@@ -8,7 +8,7 @@ require (
 	github.com/bufbuild/connect-go v1.7.0
 	github.com/bufbuild/connect-grpcreflect-go v1.0.0
 	github.com/bufbuild/connect-opentelemetry-go v0.2.0
-	github.com/envoyproxy/protoc-gen-validate v1.0.0
+	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-retryablehttp v0.7.2
