@@ -6,8 +6,8 @@ require (
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.7.0
-	github.com/bufbuild/connect-grpcreflect-go v1.0.0
-	github.com/bufbuild/connect-opentelemetry-go v0.2.0
+	github.com/bufbuild/connect-grpcreflect-go v1.1.0
+	github.com/bufbuild/connect-opentelemetry-go v0.3.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9
@@ -16,7 +16,7 @@ require (
 	github.com/rogpeppe/go-internal v1.10.0
 	github.com/rs/zerolog v1.29.1
 	github.com/sourcegraph/conc v0.3.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.10.0
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
@@ -45,9 +45,9 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	go.opentelemetry.io/otel v1.15.1 // indirect
-	go.opentelemetry.io/otel/metric v0.38.0 // indirect
-	go.opentelemetry.io/otel/trace v1.15.1 // indirect
+	go.opentelemetry.io/otel v1.16.0 // indirect
+	go.opentelemetry.io/otel/metric v1.16.0 // indirect
+	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
