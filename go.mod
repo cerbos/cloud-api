@@ -11,7 +11,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9
-	github.com/hashicorp/go-retryablehttp v0.7.2
+	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/minio/sha256-simd v1.0.1
 	github.com/rogpeppe/go-internal v1.10.0
 	github.com/rs/zerolog v1.29.1
