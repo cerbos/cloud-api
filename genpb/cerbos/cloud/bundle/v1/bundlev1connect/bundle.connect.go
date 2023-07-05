@@ -102,18 +102,26 @@ type CerbosBundleServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCerbosBundleServiceHandler(svc CerbosBundleServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
-	mux := http.NewServeMux()
-	mux.Handle(CerbosBundleServiceGetBundleProcedure, connect_go.NewUnaryHandler(
+	cerbosBundleServiceGetBundleHandler := connect_go.NewUnaryHandler(
 		CerbosBundleServiceGetBundleProcedure,
 		svc.GetBundle,
 		opts...,
-	))
-	mux.Handle(CerbosBundleServiceWatchBundleProcedure, connect_go.NewBidiStreamHandler(
+	)
+	cerbosBundleServiceWatchBundleHandler := connect_go.NewBidiStreamHandler(
 		CerbosBundleServiceWatchBundleProcedure,
 		svc.WatchBundle,
 		opts...,
-	))
-	return "/cerbos.cloud.bundle.v1.CerbosBundleService/", mux
+	)
+	return "/cerbos.cloud.bundle.v1.CerbosBundleService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case CerbosBundleServiceGetBundleProcedure:
+			cerbosBundleServiceGetBundleHandler.ServeHTTP(w, r)
+		case CerbosBundleServiceWatchBundleProcedure:
+			cerbosBundleServiceWatchBundleHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
 }
 
 // UnimplementedCerbosBundleServiceHandler returns CodeUnimplemented from all methods.
