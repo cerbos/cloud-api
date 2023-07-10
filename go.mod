@@ -7,7 +7,7 @@ require (
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.9.0
 	github.com/bufbuild/connect-grpcreflect-go v1.1.0
-	github.com/bufbuild/connect-opentelemetry-go v0.3.0
+	github.com/bufbuild/connect-opentelemetry-go v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9
@@ -18,8 +18,8 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0
-	golang.org/x/net v0.11.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
+	golang.org/x/net v0.12.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20230706204954-ccb25ca9f130
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -48,9 +48,9 @@ require (
 	go.opentelemetry.io/otel v1.16.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	go.opentelemetry.io/otel/trace v1.16.0 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
+	golang.org/x/crypto v0.11.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
