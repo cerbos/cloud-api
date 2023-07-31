@@ -46,8 +46,8 @@ github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5
 github.com/benbjohnson/clock v1.3.5 h1:VvXlSJBzZpA/zum6Sj74hxwYI2DIxRWuNIoXAzHZz5o=
 github.com/bufbuild/buf v1.25.0 h1:HFxKrR8wFcZwrBInN50K/oJX/WOtPVq24rHb/ArjfBA=
 github.com/bufbuild/buf v1.25.0/go.mod h1:GCKZ5bAP6Ht4MF7KcfaGVgBEXGumwAz2hXjjLVxx8ZU=
-github.com/bufbuild/connect-go v1.9.0 h1:JIgAeNuFpo+SUPfU19Yt5TcWlznsN5Bv10/gI/6Pjoc=
-github.com/bufbuild/connect-go v1.9.0/go.mod h1:CAIePUgkDR5pAFaylSMtNK45ANQjp9JvpluG20rhpV8=
+github.com/bufbuild/connect-go v1.10.0 h1:QAJ3G9A1OYQW2Jbk3DeoJbkCxuKArrvZgDt47mjdTbg=
+github.com/bufbuild/connect-go v1.10.0/go.mod h1:CAIePUgkDR5pAFaylSMtNK45ANQjp9JvpluG20rhpV8=
 github.com/bufbuild/connect-opentelemetry-go v0.4.0 h1:6JAn10SNqlQ/URhvRNGrIlczKw1wEXknBUUtmWqOiak=
 github.com/bufbuild/connect-opentelemetry-go v0.4.0/go.mod h1:nwPXYoDOoc2DGyKE/6pT1Q9MPSi2Et2e6BieMD0l6WU=
 github.com/bufbuild/protocompile v0.5.1 h1:mixz5lJX4Hiz4FpqFREJHIXLfaLBntfaJv1h+/jS+Qg=

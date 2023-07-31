@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/bufbuild/buf v1.25.0
-	github.com/bufbuild/connect-go v1.9.0
+	github.com/bufbuild/connect-go v1.10.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/planetscale/vtprotobuf v0.4.0
