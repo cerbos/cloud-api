@@ -19,8 +19,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/bufbuild/connect-go"
-	otelconnect "github.com/bufbuild/connect-opentelemetry-go"
+	"connectrpc.com/connect"
+	"connectrpc.com/otelconnect"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/minio/sha256-simd"

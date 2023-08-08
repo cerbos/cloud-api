@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/bufbuild/connect-go"
+	"connectrpc.com/connect"
 )
 
 type userAgentInterceptor struct {

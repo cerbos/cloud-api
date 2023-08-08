@@ -77,7 +77,7 @@ $(MOCKERY): $(TOOLS_BIN_DIR)
 	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) github.com/vektra/mockery/v2
 
 $(PROTOC_GEN_CONNECT_GO): $(TOOLS_BIN_DIR)
-	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go
+	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) connectrpc.com/connect/cmd/protoc-gen-connect-go
 
 $(PROTOC_GEN_GO): $(TOOLS_BIN_DIR)
 	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) google.golang.org/protobuf/cmd/protoc-gen-go

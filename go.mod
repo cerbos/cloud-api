@@ -3,11 +3,12 @@ module github.com/cerbos/cloud-api
 go 1.19
 
 require (
+	connectrpc.com/connect v1.11.0
+	connectrpc.com/grpcreflect v1.2.0
+	connectrpc.com/otelconnect v0.5.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.5.0
 	github.com/bufbuild/connect-go v1.10.0
-	github.com/bufbuild/connect-grpcreflect-go v1.1.0
-	github.com/bufbuild/connect-opentelemetry-go v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9

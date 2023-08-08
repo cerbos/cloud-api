@@ -3,8 +3,8 @@ module github.com/cerbos/cloud-api/tools
 go 1.19
 
 require (
+	connectrpc.com/connect v1.11.0
 	github.com/bufbuild/buf v1.25.1
-	github.com/bufbuild/connect-go v1.10.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/planetscale/vtprotobuf v0.4.0
@@ -16,6 +16,7 @@ require (
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/bufbuild/connect-go v1.10.0 // indirect
 	github.com/bufbuild/connect-opentelemetry-go v0.4.0 // indirect
 	github.com/bufbuild/protocompile v0.6.0 // indirect
 	github.com/chigopher/pathlib v1.0.0 // indirect
