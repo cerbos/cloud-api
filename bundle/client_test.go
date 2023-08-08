@@ -27,10 +27,10 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
+	"connectrpc.com/grpcreflect"
 	"github.com/Shopify/toxiproxy/v2"
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
-	"github.com/bufbuild/connect-go"
-	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
 	"github.com/go-logr/logr/testr"
 	"github.com/google/go-cmp/cmp"
 	"github.com/minio/sha256-simd"

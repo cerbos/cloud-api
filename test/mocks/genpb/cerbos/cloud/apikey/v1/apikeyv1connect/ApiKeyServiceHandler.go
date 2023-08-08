@@ -8,7 +8,7 @@ package mockapikeyv1connect
 import (
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 
-	connect "github.com/bufbuild/connect-go"
+	connect "connectrpc.com/connect"
 
 	context "context"
 

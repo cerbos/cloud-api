@@ -7,8 +7,8 @@
 package tools
 
 import (
+	_ "connectrpc.com/connect/cmd/protoc-gen-connect-go"
 	_ "github.com/bufbuild/buf/cmd/buf"
-	_ "github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go"
 	_ "github.com/cerbos/protoc-gen-go-hashpb"
 	_ "github.com/envoyproxy/protoc-gen-validate"
 	_ "github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto"
