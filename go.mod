@@ -8,7 +8,6 @@ require (
 	connectrpc.com/otelconnect v0.5.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.5.0
-	github.com/bufbuild/connect-go v1.10.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-logr/logr v1.2.4
 	github.com/google/go-cmp v0.5.9
@@ -20,7 +19,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.14.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5
+	google.golang.org/genproto/googleapis/api v0.0.0-20230807174057-1744710a1577
 	google.golang.org/protobuf v1.31.0
 )
 
