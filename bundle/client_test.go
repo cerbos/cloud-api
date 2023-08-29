@@ -1018,7 +1018,7 @@ func startToxiProxy(t *testing.T) *toxiclient.Client {
 	require.NoError(t, err, "Failed to get free listen address")
 
 	server := toxiproxy.NewServer(toxiproxy.NewMetricsContainer(nil), log.Logger)
-	go server.Listen(host, port)
+	go server.Listen(net.JoinHostPort(host, port)) //nolint:errcheck
 	runtime.Gosched()
 
 	require.Eventually(t, func() bool {
