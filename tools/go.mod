@@ -7,8 +7,8 @@ require (
 	github.com/bufbuild/buf v1.26.1
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
-	github.com/planetscale/vtprotobuf v0.4.0
-	github.com/vektra/mockery/v2 v2.33.1
+	github.com/planetscale/vtprotobuf v0.5.0
+	github.com/vektra/mockery/v2 v2.33.2
 	google.golang.org/protobuf v1.31.0
 	gotest.tools/gotestsum v1.10.1
 )
