@@ -8,14 +8,15 @@ require (
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/planetscale/vtprotobuf v0.5.0
-	github.com/vektra/mockery/v2 v2.33.2
+	github.com/vektra/mockery/v2 v2.33.3
 	google.golang.org/protobuf v1.31.0
-	gotest.tools/gotestsum v1.10.1
+	gotest.tools/gotestsum v1.11.0
 )
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/bitfield/gotestdox v0.2.1 // indirect
 	github.com/bufbuild/connect-go v1.10.0 // indirect
 	github.com/bufbuild/connect-opentelemetry-go v0.4.0 // indirect
 	github.com/bufbuild/protocompile v0.6.0 // indirect
@@ -50,7 +51,7 @@ require (
 	github.com/lyft/protoc-gen-star/v2 v2.0.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
@@ -61,7 +62,6 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
