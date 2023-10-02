@@ -304,8 +304,8 @@ github.com/tetratelabs/wazero v1.3.1/go.mod h1:wYx2gNRg8/WihJfSDxA1TIL8H+GkfLYm+
 github.com/urfave/cli v1.22.12/go.mod h1:sSBEIC79qR6OvcmsD4U3KABeOTxDqQtdDnaFuUN30b8=
 github.com/vbatts/tar-split v0.11.3 h1:hLFqsOLQ1SsppQNTMpkpPXClLDfC2A3Zgy9OUU+RVck=
 github.com/vbatts/tar-split v0.11.3/go.mod h1:9QlHN18E+fEH7RdG+QAJJcuya3rqT7eXSTY7wGrAokY=
-github.com/vektra/mockery/v2 v2.34.0 h1:guzK+ZqivTzSNqp3EwM/tKiRQlkMpkMQorYXpXZ2XAs=
-github.com/vektra/mockery/v2 v2.34.0/go.mod h1:9lREs4VEeQiUS3rizYQx1saxHu2JiIhThP0q9+fDegM=
+github.com/vektra/mockery/v2 v2.34.2 h1:sB9pOos4PXHxznWgj7T+LQQJr4rni7MJaWgsw6JaOFI=
+github.com/vektra/mockery/v2 v2.34.2/go.mod h1:9lREs4VEeQiUS3rizYQx1saxHu2JiIhThP0q9+fDegM=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
