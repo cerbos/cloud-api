@@ -6,7 +6,6 @@ require (
 	connectrpc.com/connect v1.11.1
 	github.com/bufbuild/buf v1.27.1
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
-	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/planetscale/vtprotobuf v0.5.0
 	github.com/vektra/mockery/v2 v2.36.0
 	google.golang.org/protobuf v1.31.0
@@ -49,7 +48,6 @@ require (
 	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/klauspost/compress v1.17.1 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/lyft/protoc-gen-star/v2 v2.0.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
@@ -84,7 +82,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
-	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect
