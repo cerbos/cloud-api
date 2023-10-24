@@ -19,7 +19,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.17.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20231012201019-e917dd12ba7a
+	google.golang.org/genproto/googleapis/api v0.0.0-20231016165738-49dd2c1f3d0b
 	google.golang.org/protobuf v1.31.0
 )
 
