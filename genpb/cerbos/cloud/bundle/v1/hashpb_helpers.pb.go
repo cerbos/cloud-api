@@ -9,6 +9,7 @@ import (
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
+	math "math"
 	sort "sort"
 )
 
@@ -119,6 +120,64 @@ func cerbos_cloud_bundle_v1_Meta_hashpb_sum(m *Meta, hasher hash.Hash, ignore ma
 	}
 	if _, ok := ignore["cerbos.cloud.bundle.v1.Meta.source"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.Source))
+
+	}
+}
+
+func cerbos_cloud_bundle_v1_Stats_hashpb_sum(m *Stats, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.bundle.v1.Stats.average_condition_count"]; !ok {
+		if len(m.AverageConditionCount) > 0 {
+			keys := make([]string, len(m.AverageConditionCount))
+			i := 0
+			for k := range m.AverageConditionCount {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				_, _ = hasher.Write(protowire.AppendFixed32(nil, math.Float32bits(m.AverageConditionCount[k])))
+
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.bundle.v1.Stats.average_rule_count"]; !ok {
+		if len(m.AverageRuleCount) > 0 {
+			keys := make([]string, len(m.AverageRuleCount))
+			i := 0
+			for k := range m.AverageRuleCount {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				_, _ = hasher.Write(protowire.AppendFixed32(nil, math.Float32bits(m.AverageRuleCount[k])))
+
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.bundle.v1.Stats.policy_count"]; !ok {
+		if len(m.PolicyCount) > 0 {
+			keys := make([]string, len(m.PolicyCount))
+			i := 0
+			for k := range m.PolicyCount {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.PolicyCount[k])))
+
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.bundle.v1.Stats.schema_count"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.SchemaCount)))
 
 	}
 }
