@@ -270,7 +270,7 @@ func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, er
 		return nil, fmt.Errorf("failed to unmarshal bootstrap proto: %w", err)
 	}
 
-	if err := out.ValidateAll(); err != nil {
+	if err := Validate(out); err != nil {
 		return out, fmt.Errorf("invalid bootstrap configuration: %w", err)
 	}
 

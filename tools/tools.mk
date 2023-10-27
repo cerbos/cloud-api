@@ -12,7 +12,6 @@ PROTOC_GEN_GO := $(TOOLS_BIN_DIR)/protoc-gen-go
 PROTOC_GEN_GO_GRPC := $(TOOLS_BIN_DIR)/protoc-gen-go-grpc
 PROTOC_GEN_GO_HASHPB := $(TOOLS_BIN_DIR)/protoc-gen-go-hashpb
 PROTOC_GEN_GO_VTPROTO := $(TOOLS_BIN_DIR)/protoc-gen-go-vtproto
-PROTOC_GEN_VALIDATE := $(TOOLS_BIN_DIR)/protoc-gen-validate
 
 GENPB_DIR := genpb
 PROTOS_DIR := protos
@@ -35,15 +34,6 @@ define BUF_GEN_TEMPLATE
 	  	"features=marshal+unmarshal+size"\
 	  ],\
       "path": "$(PROTOC_GEN_GO_VTPROTO)"\
-    },\
-    {\
-      "name": "validate",\
-      "opt": [\
-        "paths=source_relative",\
-        "lang=go"\
-      ],\
-      "out": "$(GENPB_DIR)",\
-      "path": "$(PROTOC_GEN_VALIDATE)"\
     },\
     {\
       "name": "connect-go",\
@@ -88,11 +78,8 @@ $(PROTOC_GEN_GO_HASHPB): $(TOOLS_BIN_DIR)
 $(PROTOC_GEN_GO_VTPROTO): $(TOOLS_BIN_DIR)
 	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto
 
-$(PROTOC_GEN_VALIDATE): $(TOOLS_BIN_DIR)
-	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) github.com/envoyproxy/protoc-gen-validate
-
 $(SQLC): $(TOOLS_BIN_DIR)
 	@ GOBIN=$(TOOLS_BIN_DIR) go install -modfile=$(TOOLS_MOD) github.com/kyleconroy/sqlc/cmd/sqlc
 
 .PHONY: proto-gen-deps
-proto-gen-deps: $(BUF) $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_VTPROTO) $(PROTOC_GEN_VALIDATE) $(PROTOC_GEN_GO_HASHPB) $(PROTOC_GEN_CONNECT_GO)
+proto-gen-deps: $(BUF) $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_VTPROTO) $(PROTOC_GEN_GO_HASHPB) $(PROTOC_GEN_CONNECT_GO)

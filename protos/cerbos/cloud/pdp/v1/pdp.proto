@@ -5,11 +5,11 @@ syntax = "proto3";
 
 package cerbos.cloud.pdp.v1;
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 
 option go_package = "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1;pdpv1";
 
 message Identifier {
-  string instance = 1 [(validate.rules).string.min_len = 1];
-  string version = 2 [(validate.rules).string.min_len = 1];
+  string instance = 1 [(buf.validate.field).string.min_len = 1];
+  string version = 2 [(buf.validate.field).string.min_len = 1];
 }

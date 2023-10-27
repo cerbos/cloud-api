@@ -63,7 +63,7 @@ func (cc ClientConf) Validate() (outErr error) {
 
 	if cc.PDPIdentifier == nil {
 		outErr = multierr.Append(outErr, errMissingIdentifier)
-	} else if err := cc.PDPIdentifier.ValidateAll(); err != nil {
+	} else if err := Validate(cc.PDPIdentifier); err != nil {
 		outErr = multierr.Append(outErr, fmt.Errorf("invalid PDP identifier: %w", err))
 	}
 
