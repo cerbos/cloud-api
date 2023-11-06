@@ -3,13 +3,13 @@ module github.com/cerbos/cloud-api
 go 1.19
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231017183020-0de7443d03cf.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231030212536-12f9cba37c9d.2
 	connectrpc.com/connect v1.12.0
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.6.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.7.0
-	github.com/bufbuild/protovalidate-go v0.3.4
+	github.com/bufbuild/protovalidate-go v0.4.0
 	github.com/go-logr/logr v1.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.4
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.17.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20231016165738-49dd2c1f3d0b
+	google.golang.org/genproto/googleapis/api v0.0.0-20231030173426-d783a09b4405
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -55,7 +55,7 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231012201019-e917dd12ba7a // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231016165738-49dd2c1f3d0b // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
