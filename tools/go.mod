@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	connectrpc.com/connect v1.12.0
-	github.com/bufbuild/buf v1.27.2
+	github.com/bufbuild/buf v1.28.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/planetscale/vtprotobuf v0.5.0
 	github.com/vektra/mockery/v2 v2.36.1
