@@ -3,13 +3,13 @@ module github.com/cerbos/cloud-api
 go 1.19
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231106192134-1baebb0a1518.2
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231115204500-e097f827e652.2
 	connectrpc.com/connect v1.12.0
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.6.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.7.0
-	github.com/bufbuild/protovalidate-go v0.4.2
+	github.com/bufbuild/protovalidate-go v0.4.3
 	github.com/go-logr/logr v1.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
@@ -19,8 +19,8 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0
-	golang.org/x/net v0.18.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20231120223509-83a465c0220f
+	golang.org/x/net v0.19.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20231127180814-3a041ad873d4
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -51,11 +51,11 @@ require (
 	go.opentelemetry.io/otel v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231106174013-bbf56f31fb17 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
