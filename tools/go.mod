@@ -8,7 +8,7 @@ require (
 	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
 	github.com/planetscale/vtprotobuf v0.5.0
 	github.com/vektra/mockery/v2 v2.38.0
-	google.golang.org/protobuf v1.31.1-0.20231124085615-9b87403568fd
+	google.golang.org/protobuf v1.31.1-0.20231128094519-2087447a6b4a
 	gotest.tools/gotestsum v1.11.0
 )
 
