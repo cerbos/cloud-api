@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231115204500-e097f827e652.2
-	connectrpc.com/connect v1.12.0
+	connectrpc.com/connect v1.13.0
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.6.0
 	filippo.io/age v1.1.1
