@@ -21,7 +21,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// ApiKeyServiceName is the fully-qualified name of the ApiKeyService service.
@@ -39,6 +39,12 @@ const (
 	// ApiKeyServiceIssueAccessTokenProcedure is the fully-qualified name of the ApiKeyService's
 	// IssueAccessToken RPC.
 	ApiKeyServiceIssueAccessTokenProcedure = "/cerbos.cloud.apikey.v1.ApiKeyService/IssueAccessToken"
+)
+
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	apiKeyServiceServiceDescriptor                = v1.File_cerbos_cloud_apikey_v1_apikey_proto.Services().ByName("ApiKeyService")
+	apiKeyServiceIssueAccessTokenMethodDescriptor = apiKeyServiceServiceDescriptor.Methods().ByName("IssueAccessToken")
 )
 
 // ApiKeyServiceClient is a client for the cerbos.cloud.apikey.v1.ApiKeyService service.
@@ -59,7 +65,8 @@ func NewApiKeyServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 		issueAccessToken: connect.NewClient[v1.IssueAccessTokenRequest, v1.IssueAccessTokenResponse](
 			httpClient,
 			baseURL+ApiKeyServiceIssueAccessTokenProcedure,
-			opts...,
+			connect.WithSchema(apiKeyServiceIssueAccessTokenMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
@@ -88,7 +95,8 @@ func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOp
 	apiKeyServiceIssueAccessTokenHandler := connect.NewUnaryHandler(
 		ApiKeyServiceIssueAccessTokenProcedure,
 		svc.IssueAccessToken,
-		opts...,
+		connect.WithSchema(apiKeyServiceIssueAccessTokenMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.apikey.v1.ApiKeyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {

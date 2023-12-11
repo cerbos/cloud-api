@@ -21,7 +21,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// CerbosBundleServiceName is the fully-qualified name of the CerbosBundleService service.
@@ -44,6 +44,13 @@ const (
 	CerbosBundleServiceWatchBundleProcedure = "/cerbos.cloud.bundle.v1.CerbosBundleService/WatchBundle"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	cerbosBundleServiceServiceDescriptor           = v1.File_cerbos_cloud_bundle_v1_bundle_proto.Services().ByName("CerbosBundleService")
+	cerbosBundleServiceGetBundleMethodDescriptor   = cerbosBundleServiceServiceDescriptor.Methods().ByName("GetBundle")
+	cerbosBundleServiceWatchBundleMethodDescriptor = cerbosBundleServiceServiceDescriptor.Methods().ByName("WatchBundle")
+)
+
 // CerbosBundleServiceClient is a client for the cerbos.cloud.bundle.v1.CerbosBundleService service.
 type CerbosBundleServiceClient interface {
 	GetBundle(context.Context, *connect.Request[v1.GetBundleRequest]) (*connect.Response[v1.GetBundleResponse], error)
@@ -63,12 +70,14 @@ func NewCerbosBundleServiceClient(httpClient connect.HTTPClient, baseURL string,
 		getBundle: connect.NewClient[v1.GetBundleRequest, v1.GetBundleResponse](
 			httpClient,
 			baseURL+CerbosBundleServiceGetBundleProcedure,
-			opts...,
+			connect.WithSchema(cerbosBundleServiceGetBundleMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 		watchBundle: connect.NewClient[v1.WatchBundleRequest, v1.WatchBundleResponse](
 			httpClient,
 			baseURL+CerbosBundleServiceWatchBundleProcedure,
-			opts...,
+			connect.WithSchema(cerbosBundleServiceWatchBundleMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
@@ -105,12 +114,14 @@ func NewCerbosBundleServiceHandler(svc CerbosBundleServiceHandler, opts ...conne
 	cerbosBundleServiceGetBundleHandler := connect.NewUnaryHandler(
 		CerbosBundleServiceGetBundleProcedure,
 		svc.GetBundle,
-		opts...,
+		connect.WithSchema(cerbosBundleServiceGetBundleMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	cerbosBundleServiceWatchBundleHandler := connect.NewBidiStreamHandler(
 		CerbosBundleServiceWatchBundleProcedure,
 		svc.WatchBundle,
-		opts...,
+		connect.WithSchema(cerbosBundleServiceWatchBundleMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.bundle.v1.CerbosBundleService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
