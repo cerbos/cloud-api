@@ -1,16 +1,18 @@
 module github.com/cerbos/cloud-api
 
-go 1.19
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231115204500-e097f827e652.2
-	connectrpc.com/connect v1.13.0
+	connectrpc.com/connect v1.14.0
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.6.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.7.0
 	github.com/bufbuild/protovalidate-go v0.4.3
-	github.com/go-logr/logr v1.3.0
+	github.com/go-logr/logr v1.4.1
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.5
 	github.com/minio/sha256-simd v1.0.1
@@ -21,7 +23,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.19.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
