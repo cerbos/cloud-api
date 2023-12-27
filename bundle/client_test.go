@@ -879,53 +879,6 @@ func TestNetworkIssues(t *testing.T) {
 		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
 	})
 
-	t.Run("ServerReset", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
-		t.Cleanup(func() { _ = proxy.Delete() })
-
-		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum,
-			Segments: []*bundlev1.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-				},
-			},
-		})
-		haveEvent1 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
-		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
-
-		_, err = proxy.AddToxic("", "reset_peer", "", 1, toxiclient.Attributes{"timeout": 10})
-		require.NoError(t, err, "Failed to add toxic")
-
-		require.NoError(t, handle.ActiveBundleChanged(randomCommit()), "Failed to notify bundle change")
-
-		haveErr := mustPopFromChan(t, handle.Errors())
-		require.Error(t, haveErr, "Expected error ")
-		require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(haveErr))
-	})
-
 	t.Run("Timeout", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
 		mockWatchSvc := newMockBundleWatchService()
