@@ -8,7 +8,7 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231115204500-e097f827e652.2
 	connectrpc.com/connect v1.14.0
 	connectrpc.com/grpcreflect v1.2.0
-	connectrpc.com/otelconnect v0.6.0
+	connectrpc.com/otelconnect v0.6.1-0.20231227182756-eb9596a6386d
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.7.0
 	github.com/bufbuild/protovalidate-go v0.4.3
