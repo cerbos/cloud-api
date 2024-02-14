@@ -4,10 +4,20 @@ deps:
   - remote: buf.build
     owner: bufbuild
     repository: protovalidate
-    commit: 0de7443d03cf41228f8a9790b12b417e
-    digest: shake256:3c0676a73cef06439c107cb9560627354815adbc254976f807d645de7e2c1bf19d0438d5d56d5bc92465377e0d9315951e986fc6ced2871e450534b2b8c953b0
+    commit: 3014d81c3a48461dbcc5b57536699f9e
+    digest: shake256:6b40454a0754bf624c8fc965f3576bd26bf72a480c554514672d2fac887f420c82d68cf50d40f5a77d8b6e96dda87e395aeedae84d513dde7c4bfd4d95f5657a
+  - remote: buf.build
+    owner: cerbos
+    repository: cerbos-api
+    commit: a452d54c80ed49ec979a85c8c3d4a496
+    digest: shake256:7e9edc817614fc1eabecb267aad9e39eb873c5b15437c00da6911b010f38d3b36b83a1f216b1ffbdc252ad4a1205223b6e90492dc47c25b364eb60a1e95d753a
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 28151c0d0a1641bf938a7672c500e01d
-    digest: shake256:49215edf8ef57f7863004539deff8834cfb2195113f0b890dd1f67815d9353e28e668019165b9d872395871eeafcbab3ccfdb2b5f11734d3cca95be9e8d139de
+    commit: 7e6f6e774e29406da95bd61cdcdbc8bc
+    digest: shake256:fe43dd2265ea0c07d76bd925eeba612667cf4c948d2ce53d6e367e1b4b3cb5fa69a51e6acb1a6a50d32f894f054a35e6c0406f6808a483f2752e10c866ffbf73
+  - remote: buf.build
+    owner: grpc-ecosystem
+    repository: grpc-gateway
+    commit: 3f42134f4c564983838425bc43c7a65f
+    digest: shake256:3d11d4c0fe5e05fda0131afefbce233940e27f0c31c5d4e385686aea58ccd30f72053f61af432fa83f1fc11cda57f5f18ca3da26a29064f73c5a0d076bba8d92
