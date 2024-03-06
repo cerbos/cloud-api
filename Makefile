@@ -37,6 +37,7 @@ generate-proto-code: proto-gen-deps
 generate-mocks: $(MOCKERY)
 	@ $(MOCKERY) $(MOCK_QUIET) --srcpkg=./genpb/cerbos/cloud/apikey/v1/apikeyv1connect --name=ApiKeyServiceHandler
 	@ $(MOCKERY) $(MOCK_QUIET) --srcpkg=./genpb/cerbos/cloud/bundle/v1/bundlev1connect --name=CerbosBundleServiceHandler
+	@ $(MOCKERY) $(MOCK_QUIET) --srcpkg=./genpb/cerbos/cloud/logs/v1/logsv1connect --name=CerbosLogsServiceHandler
 
 .PHONY: compile
 compile:
