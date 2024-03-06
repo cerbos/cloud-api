@@ -25,7 +25,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.21.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240228224816-df926f6c8641
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
