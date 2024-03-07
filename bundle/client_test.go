@@ -45,6 +45,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/credentials"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
@@ -61,7 +62,7 @@ const testPrivateKey = "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYU
 
 var pdpIdentifer = &pdpv1.Identifier{
 	Instance: "instance",
-	Version:  "0.19.0",
+	Version:  "0.34.0",
 }
 
 func TestBootstrapBundle(t *testing.T) {
@@ -551,7 +552,7 @@ func TestGetBundle(t *testing.T) {
 
 		_, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
-		require.ErrorIs(t, err, bundle.ErrAuthenticationFailed)
+		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})
 }
 
@@ -802,7 +803,7 @@ func TestWatchBundle(t *testing.T) {
 
 		_, err := client.WatchBundle(context.Background(), "label")
 		require.Error(t, err)
-		require.ErrorIs(t, err, bundle.ErrAuthenticationFailed)
+		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})
 }
 
@@ -1079,17 +1080,19 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 	require.NoError(t, err, "Failed to create credentials")
 
 	conf := bundle.ClientConf{
-		Credentials:       creds,
-		BootstrapEndpoint: url,
-		APIEndpoint:       url,
-		PDPIdentifier:     pdpIdentifer,
-		RetryWaitMin:      10 * time.Millisecond,
-		RetryWaitMax:      30 * time.Millisecond,
-		RetryMaxAttempts:  2,
-		CacheDir:          cacheDir,
-		TempDir:           tempDir,
-		Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
-		TLS:               tlsConf,
+		ClientConf: base.ClientConf{
+			Credentials:       creds,
+			BootstrapEndpoint: url,
+			APIEndpoint:       url,
+			PDPIdentifier:     pdpIdentifer,
+			RetryWaitMin:      10 * time.Millisecond,
+			RetryWaitMax:      30 * time.Millisecond,
+			RetryMaxAttempts:  2,
+			Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
+			TLS:               tlsConf,
+		},
+		CacheDir: cacheDir,
+		TempDir:  tempDir,
 	}
 
 	client, err := bundle.NewClient(conf)
@@ -1228,7 +1231,7 @@ type authCheck struct{}
 
 func (ac authCheck) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		if req.Header().Get(bundle.AuthTokenHeader) != "access-token" {
+		if req.Header().Get(base.AuthTokenHeader) != "access-token" {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 		return next(ctx, req)
@@ -1241,7 +1244,7 @@ func (ac authCheck) WrapStreamingClient(next connect.StreamingClientFunc) connec
 
 func (ac authCheck) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	return connect.StreamingHandlerFunc(func(ctx context.Context, conn connect.StreamingHandlerConn) error {
-		if conn.RequestHeader().Get(bundle.AuthTokenHeader) != "access-token" {
+		if conn.RequestHeader().Get(base.AuthTokenHeader) != "access-token" {
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 

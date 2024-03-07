@@ -6,7 +6,6 @@ package bundle
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -20,18 +19,15 @@ import (
 	"unicode"
 
 	"connectrpc.com/connect"
-	"connectrpc.com/otelconnect"
 	"github.com/go-logr/logr"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
-	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/cerbos/cloud-api/base"
 	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
 	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
@@ -105,15 +101,19 @@ type ClientEvent struct {
 }
 
 type Client struct {
-	authClient  *authClient
 	rpcClient   bundlev1connect.CerbosBundleServiceClient
-	httpClient  *http.Client
 	bundleCache *cache.Cache
 	conf        ClientConf
+	base.Client
 }
 
 func NewClient(conf ClientConf) (*Client, error) {
 	if err := conf.Validate(); err != nil {
+		return nil, err
+	}
+
+	baseClient, options, err := base.NewClient(conf.ClientConf)
+	if err != nil {
 		return nil, err
 	}
 
@@ -122,31 +122,14 @@ func NewClient(conf ClientConf) (*Client, error) {
 		return nil, err
 	}
 
-	otelConnect, err := otelconnect.NewInterceptor()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create otel interceptor: %w", err)
-	}
-
-	httpClient := mkHTTPClient(conf) // Bidi streams don't work with retryable HTTP client.
-	retryableHTTPClient := mkRetryableHTTPClient(conf)
-	options := []connect.ClientOption{
-		connect.WithCompressMinBytes(1024),
-		connect.WithInterceptors(
-			otelConnect,
-			newUserAgentInterceptor(),
-		),
-	}
-
-	authClient := newAuthClient(conf, retryableHTTPClient, options...)
-	options = append(options, connect.WithInterceptors(newAuthInterceptor(authClient)))
+	httpClient := base.MkHTTPClient(conf.ClientConf) // Bidi streams don't work with retryable HTTP client.
 	rpcClient := bundlev1connect.NewCerbosBundleServiceClient(httpClient, conf.APIEndpoint, options...)
 
 	return &Client{
+		Client:      baseClient,
 		bundleCache: bcache,
 		conf:        conf,
-		authClient:  authClient,
 		rpcClient:   rpcClient,
-		httpClient:  retryableHTTPClient,
 	}, nil
 }
 
@@ -173,25 +156,6 @@ func mkBundleCache(path string) (*cache.Cache, error) {
 	return c, nil
 }
 
-func mkHTTPClient(conf ClientConf) *http.Client {
-	return &http.Client{
-		Transport: &http2.Transport{
-			TLSClientConfig: conf.TLS.Clone(),
-		},
-	}
-}
-
-func mkRetryableHTTPClient(conf ClientConf) *http.Client {
-	httpClient := retryablehttp.NewClient()
-	httpClient.HTTPClient = mkHTTPClient(conf)
-	httpClient.RetryMax = conf.RetryMaxAttempts
-	httpClient.RetryWaitMin = conf.RetryWaitMin
-	httpClient.RetryWaitMax = conf.RetryWaitMax
-	httpClient.Logger = logWrapper{Logger: conf.Logger.WithName("transport")}
-
-	return httpClient.StandardClient()
-}
-
 func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
 	log := c.conf.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Getting bootstrap configuration")
@@ -213,7 +177,7 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 		log.Info("Bootstrap configuration downloaded", "created_at", meta.CreatedAt.AsTime(), "commit_hash", meta.CommitHash)
 	}
 
-	logResponsePayload(log, bootstrapConf)
+	base.LogResponsePayload(log, bootstrapConf)
 	return c.getBundleFile(logr.NewContext(ctx, log), bootstrapConf.BundleInfo)
 }
 
@@ -226,7 +190,7 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 	}
 
 	log.V(1).Info("Sending download request")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
 		return nil, fmt.Errorf("failed to send download request: %w", err)
@@ -296,7 +260,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 		return "", err
 	}
 
-	logResponsePayload(log, resp.Msg)
+	base.LogResponsePayload(log, resp.Msg)
 
 	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 }
@@ -396,7 +360,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		processMsg := func(msg *bundlev1.WatchBundleResponse) error {
-			logResponsePayload(log, msg)
+			base.LogResponsePayload(log, msg)
 
 			switch m := msg.Msg.(type) {
 			case *bundlev1.WatchBundleResponse_BundleUpdate:
@@ -435,7 +399,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 				return ReconnectError{Backoff: backoff}
 
 			default:
-				log.V(2).Info("Ignoring unknown message", "msg", protoWrapper{p: msg})
+				log.V(2).Info("Ignoring unknown message", "msg", base.NewProtoWrapper(msg))
 			}
 
 			return nil
@@ -567,12 +531,6 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func logResponsePayload(log logr.Logger, payload proto.Message) {
-	if lg := log.V(3); lg.Enabled() {
-		lg.Info("RPC response", "payload", protoWrapper{p: payload})
-	}
-}
-
 func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (outPath string, outErr error) {
 	log := logr.FromContextOrDiscard(ctx)
 
@@ -670,7 +628,7 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 	}
 
 	log.V(1).Info("Sending download request")
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
 		if r.size() > 1 && attempt < maxDownloadAttempts {
@@ -840,17 +798,4 @@ func (r *ring) next() string {
 
 func (r *ring) size() int {
 	return len(r.elements)
-}
-
-type protoWrapper struct {
-	p proto.Message
-}
-
-func (pw protoWrapper) MarshalLog() any {
-	bytes, err := protojson.Marshal(pw.p)
-	if err != nil {
-		return fmt.Sprintf("error marshaling response: %v", err)
-	}
-
-	return json.RawMessage(bytes)
 }
