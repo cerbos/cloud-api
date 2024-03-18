@@ -7,9 +7,9 @@ toolchain go1.22.0
 require (
 	connectrpc.com/connect v1.15.0
 	github.com/bufbuild/buf v1.30.0
-	github.com/cerbos/protoc-gen-go-hashpb v0.2.0
+	github.com/cerbos/protoc-gen-go-hashpb v0.3.1
 	github.com/planetscale/vtprotobuf v0.6.0
-	github.com/vektra/mockery/v2 v2.42.0
+	github.com/vektra/mockery/v2 v2.42.1
 	google.golang.org/protobuf v1.33.0
 	gotest.tools/gotestsum v1.11.0
 )
