@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.0
 
 require (
-	connectrpc.com/connect v1.15.0
+	connectrpc.com/connect v1.16.0
 	github.com/bufbuild/buf v1.30.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.1
 	github.com/planetscale/vtprotobuf v0.6.0
