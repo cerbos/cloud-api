@@ -9,7 +9,7 @@ require (
 	connectrpc.com/otelconnect v0.7.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.9.0
-	github.com/bufbuild/protovalidate-go v0.6.1
+	github.com/bufbuild/protovalidate-go v0.6.2
 	github.com/cerbos/cerbos/api/genpb v0.35.1
 	github.com/go-logr/logr v1.4.1
 	github.com/google/go-cmp v0.6.0
