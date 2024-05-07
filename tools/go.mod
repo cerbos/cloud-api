@@ -9,8 +9,8 @@ require (
 	github.com/bufbuild/buf v1.31.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.1
 	github.com/planetscale/vtprotobuf v0.6.0
-	github.com/vektra/mockery/v2 v2.42.3
-	google.golang.org/protobuf v1.33.0
+	github.com/vektra/mockery/v2 v2.43.0
+	google.golang.org/protobuf v1.34.1
 	gotest.tools/gotestsum v1.11.0
 )
 
