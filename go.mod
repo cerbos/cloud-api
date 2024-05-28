@@ -4,25 +4,25 @@ go 1.22.2
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.1-20240508200655-46a4cf4ba109.1
-	connectrpc.com/connect v1.16.1
+	connectrpc.com/connect v1.16.2
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.7.0
 	filippo.io/age v1.1.1
 	github.com/Shopify/toxiproxy/v2 v2.9.0
 	github.com/bufbuild/protovalidate-go v0.6.2
 	github.com/cerbos/cerbos/api/genpb v0.36.0
-	github.com/go-logr/logr v1.4.1
+	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/planetscale/vtprotobuf v0.6.0
 	github.com/rogpeppe/go-internal v1.12.0
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.25.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240509183442-62759503f434
+	google.golang.org/genproto/googleapis/api v0.0.0-20240521202816-d264139d666e
 	google.golang.org/protobuf v1.34.1
 )
 
@@ -54,7 +54,7 @@ require (
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240429193739-8cf5692501f6 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240515191416-fc5f0ca64291 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
