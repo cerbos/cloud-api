@@ -19,10 +19,10 @@ message BundleInfo {
     uint32 segment_id = 1 [(buf.validate.field).uint32.gt = 0];
     bytes checksum = 2 [(buf.validate.field).bytes.len = 32];
     repeated string download_urls = 3 [(buf.validate.field).repeated = {
-      unique: true,
-      min_items: 1,
-      items {
-        string {min_len: 1}
+      unique: true
+      min_items: 1
+      items: {
+        string: {min_len: 1}
       }
     }];
   }
