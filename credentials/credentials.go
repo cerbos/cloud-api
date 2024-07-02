@@ -33,8 +33,15 @@ type Credentials struct {
 }
 
 func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
-	if clientID == "" || clientSecret == "" || privateKey == "" {
+	if clientID == "" || clientSecret == "" {
 		return nil, ErrInvalidCredentials
+	}
+
+	if privateKey == "" {
+		return &Credentials{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+		}, nil
 	}
 
 	workspaceID, ageKey, ok := strings.Cut(strings.TrimPrefix(privateKey, cerbosKeyPrefix), "-")
@@ -57,10 +64,18 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 }
 
 func (c *Credentials) Encrypt(dst io.Writer) (io.WriteCloser, error) {
+	if c.identity == nil {
+		return nil, ErrInvalidPrivateKey
+	}
+
 	return age.Encrypt(dst, c.identity.Recipient())
 }
 
 func (c *Credentials) Decrypt(input io.Reader) (io.Reader, error) {
+	if c.identity == nil {
+		return nil, ErrInvalidPrivateKey
+	}
+
 	out, err := age.Decrypt(input, c.identity)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt: %w", err)
