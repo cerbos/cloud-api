@@ -1,6 +1,18 @@
 boilerplate-file: hack/copyright_header.txt
-keeptree: True
-output: test/mocks
-packageprefix: mock
+dir: test/mocks/{{trimPrefix .PackagePath "github.com/cerbos/cloud-api/"}}
+filename: "{{.InterfaceName}}.go"
+mockname: "{{.InterfaceName}}"
+outpkg: "mock{{.PackageName}}"
 with-expecter: True
+packages:
+  github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect:
+    interfaces:
+      ApiKeyServiceHandler:
 
+  github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect:
+    interfaces:
+      CerbosBundleServiceHandler:
+
+  github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect:
+    interfaces:
+      CerbosLogsServiceHandler:

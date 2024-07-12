@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - 'v*'
+      - "v*"
 jobs:
   test:
     name: Test
@@ -19,6 +19,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install just
+        uses: extractions/setup-just@v2
+
       - uses: actions/cache@v4
         with:
           path: |
@@ -30,7 +33,7 @@ jobs:
             generate-${{ runner.os }}-go-
 
       - name: Test
-        run: make test
+        run: just test
 
   golangci:
     name: Lint
@@ -48,11 +51,14 @@ jobs:
         uses: golangci/golangci-lint-action@v6.0.1
         with:
           version: latest
-          args: '--config=.golangci.yaml --fix'
+          args: "--config=.golangci.yaml --fix"
+
+      - name: Install just
+        uses: extractions/setup-just@v2
 
       - name: Check repo status
         run: |-
-          make generate
+          just generate
           REPO_STATUS="$(git status --porcelain)"
           if [[ ! -z $REPO_STATUS ]]; then
             echo "::error::Uncommitted changes detected"

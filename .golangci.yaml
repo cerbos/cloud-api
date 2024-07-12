@@ -1,11 +1,6 @@
 ---
 run:
   timeout: 300s
-  skip-dirs:
-    - "^genpb/"
-    - "^hack/"
-    - "^protos/"
-    - "^tools/"
   build-tags:
     - tests
 
@@ -41,7 +36,6 @@ linters-settings:
 
   nolintlint:
     allow-unused: false
-    allow-leading-space: false
     require-specific: true
 
   tagliatelle:
@@ -102,6 +96,12 @@ linters:
 
 issues:
   max-same-issues: 30
+
+  exclude-dirs:
+    - "^genpb/"
+    - "^hack/"
+    - "^protos/"
+    - "^tools/"
 
   exclude-rules:
     - path: _test\.go
