@@ -14,11 +14,13 @@ import (
 	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/cerbos/cloud-api/credentials"
 )
 
 type Client struct {
 	HTTPClient *http.Client
-	conf       ClientConf
+	ClientConf
 }
 
 func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error) {
@@ -41,12 +43,20 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	opts = append(opts, connect.WithInterceptors(newAuthInterceptor(authClient)))
 
 	return Client{
-		conf:       conf,
+		ClientConf: conf,
 		HTTPClient: retryableHTTPClient,
 	}, opts, nil
 }
 
-func MkHTTPClient(conf ClientConf) *http.Client {
+func (c Client) StdHTTPClient() *http.Client {
+	return mkHTTPClient(c.ClientConf)
+}
+
+func (c Client) HubCredentials() *credentials.Credentials {
+	return c.Credentials
+}
+
+func mkHTTPClient(conf ClientConf) *http.Client {
 	return &http.Client{
 		Transport: &http2.Transport{
 			TLSClientConfig: conf.TLS.Clone(),
@@ -56,7 +66,7 @@ func MkHTTPClient(conf ClientConf) *http.Client {
 
 func mkRetryableHTTPClient(conf ClientConf) *http.Client {
 	httpClient := retryablehttp.NewClient()
-	httpClient.HTTPClient = MkHTTPClient(conf)
+	httpClient.HTTPClient = mkHTTPClient(conf)
 	httpClient.RetryMax = conf.RetryMaxAttempts
 	httpClient.RetryWaitMin = conf.RetryWaitMin
 	httpClient.RetryWaitMax = conf.RetryWaitMax

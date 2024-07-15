@@ -8,21 +8,14 @@ import (
 	"os"
 
 	"go.uber.org/multierr"
-
-	"github.com/cerbos/cloud-api/base"
 )
 
 type ClientConf struct {
 	CacheDir string
 	TempDir  string
-	base.ClientConf
 }
 
 func (cc ClientConf) Validate() (outErr error) {
-	if err := cc.ClientConf.Validate(); err != nil {
-		outErr = multierr.Append(outErr, err)
-	}
-
 	if cc.CacheDir != "" {
 		if err := validateDir(cc.CacheDir); err != nil {
 			outErr = multierr.Append(outErr, err)

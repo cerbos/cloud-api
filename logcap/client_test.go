@@ -38,6 +38,7 @@ import (
 	logsv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	"github.com/cerbos/cloud-api/hub"
 	"github.com/cerbos/cloud-api/logcap"
 	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	mocklogsv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/logs/v1/logsv1connect"
@@ -220,21 +221,20 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) *logcap.Client {
 	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
 	require.NoError(t, err, "Failed to create credentials")
 
-	conf := logcap.ClientConf{
-		ClientConf: base.ClientConf{
-			Credentials:       creds,
-			BootstrapEndpoint: url,
-			APIEndpoint:       url,
-			PDPIdentifier:     pdpIdentifer,
-			RetryWaitMin:      10 * time.Millisecond,
-			RetryWaitMax:      30 * time.Millisecond,
-			RetryMaxAttempts:  2,
-			Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
-			TLS:               tlsConf,
-		},
-	}
+	h, err := hub.New(base.ClientConf{
+		Credentials:       creds,
+		BootstrapEndpoint: url,
+		APIEndpoint:       url,
+		PDPIdentifier:     pdpIdentifer,
+		RetryWaitMin:      10 * time.Millisecond,
+		RetryWaitMax:      30 * time.Millisecond,
+		RetryMaxAttempts:  2,
+		Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
+		TLS:               tlsConf,
+	})
+	require.NoError(t, err, "Failed to create hub instance")
 
-	client, err := logcap.NewClient(conf)
+	client, err := h.LogCapClient()
 	require.NoError(t, err, "Failed to create client")
 
 	return client

@@ -14,37 +14,26 @@ import (
 )
 
 type Client struct {
-	base.Client
 	rpcClient logsv1connect.CerbosLogsServiceClient
-	conf      ClientConf
+	base.Client
 }
 
-func NewClient(conf ClientConf) (*Client, error) {
-	if err := conf.Validate(); err != nil {
-		return nil, err
-	}
-
-	baseClient, options, err := base.NewClient(conf.ClientConf)
-	if err != nil {
-		return nil, err
-	}
-
-	httpClient := base.MkHTTPClient(conf.ClientConf) // Bidi streams don't work with retryable HTTP client.
-	rpcClient := logsv1connect.NewCerbosLogsServiceClient(httpClient, conf.APIEndpoint, options...)
+func NewClient(baseClient base.Client, options []connect.ClientOption) (*Client, error) {
+	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
+	rpcClient := logsv1connect.NewCerbosLogsServiceClient(httpClient, baseClient.APIEndpoint, options...)
 
 	return &Client{
 		Client:    baseClient,
-		conf:      conf,
 		rpcClient: rpcClient,
 	}, nil
 }
 
 func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) error {
-	log := c.conf.Logger
+	log := c.Logger
 	log.V(1).Info("Calling Ingest RPC")
 
 	resp, err := c.rpcClient.Ingest(ctx, connect.NewRequest(&logsv1.IngestRequest{
-		PdpId: c.conf.PDPIdentifier,
+		PdpId: c.PDPIdentifier,
 		Batch: batch,
 	}))
 	if err != nil {

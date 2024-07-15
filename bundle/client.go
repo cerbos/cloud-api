@@ -107,13 +107,8 @@ type Client struct {
 	base.Client
 }
 
-func NewClient(conf ClientConf) (*Client, error) {
+func NewClient(conf ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
 	if err := conf.Validate(); err != nil {
-		return nil, err
-	}
-
-	baseClient, options, err := base.NewClient(conf.ClientConf)
-	if err != nil {
 		return nil, err
 	}
 
@@ -122,8 +117,8 @@ func NewClient(conf ClientConf) (*Client, error) {
 		return nil, err
 	}
 
-	httpClient := base.MkHTTPClient(conf.ClientConf) // Bidi streams don't work with retryable HTTP client.
-	rpcClient := bundlev1connect.NewCerbosBundleServiceClient(httpClient, conf.APIEndpoint, options...)
+	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
+	rpcClient := bundlev1connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...)
 
 	return &Client{
 		Client:      baseClient,
@@ -157,12 +152,12 @@ func mkBundleCache(path string) (*cache.Cache, error) {
 }
 
 func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
-	log := c.conf.Logger.WithValues("bundle", bundleLabel)
+	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Getting bootstrap configuration")
 
-	wsID := c.conf.Credentials.HashString(c.conf.Credentials.WorkspaceID)
-	labelHash := c.conf.Credentials.HashString(bundleLabel)
-	bootstrapURL, err := url.JoinPath(c.conf.BootstrapEndpoint, bootstrapPathPrefix, wsID, labelHash)
+	wsID := c.Credentials.HashString(c.Credentials.WorkspaceID)
+	labelHash := c.Credentials.HashString(bundleLabel)
+	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapPathPrefix, wsID, labelHash)
 	if err != nil {
 		return "", fmt.Errorf("failed to construct bootstrap URL: %w", err)
 	}
@@ -214,7 +209,7 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 		return nil, errDownloadFailed
 	}
 
-	confData, err := c.conf.Credentials.Decrypt(io.LimitReader(resp.Body, maxBootstrapSize))
+	confData, err := c.Credentials.Decrypt(io.LimitReader(resp.Body, maxBootstrapSize))
 	if err != nil {
 		return nil, err
 	}
@@ -248,11 +243,11 @@ func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, er
 
 // GetBundle returns the path to the bundle with the given label.
 func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, error) {
-	log := c.conf.Logger.WithValues("bundle", bundleLabel)
+	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling GetBundle RPC")
 
 	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev1.GetBundleRequest{
-		PdpId:       c.conf.PDPIdentifier,
+		PdpId:       c.PDPIdentifier,
 		BundleLabel: bundleLabel,
 	}))
 	if err != nil {
@@ -266,7 +261,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 }
 
 func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHandle, error) {
-	log := c.conf.Logger.WithValues("bundle", bundleLabel)
+	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling WatchBundle RPC")
 
 	stream := c.rpcClient.WatchBundle(ctx)
@@ -451,8 +446,8 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		var ticker *time.Ticker
 		var tickerChan <-chan time.Time
 
-		if c.conf.HeartbeatInterval > 0 {
-			ticker = time.NewTicker(c.conf.HeartbeatInterval)
+		if c.HeartbeatInterval > 0 {
+			ticker = time.NewTicker(c.HeartbeatInterval)
 			tickerChan = ticker.C
 		} else {
 			log.V(1).Info("Regular heartbeats disabled")
@@ -475,7 +470,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 		log.V(2).Info("Initiating bundle watch")
 		if err := stream.Send(&bundlev1.WatchBundleRequest{
-			PdpId: c.conf.PDPIdentifier,
+			PdpId: c.PDPIdentifier,
 			Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
 				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.bundleLabel},
 			},
@@ -487,7 +482,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		sendHeartbeat := func(activeBundleID string) error {
 			log.V(3).Info("Sending heartbeat", "active_bundle_id", activeBundleID)
 			if err := stream.Send(&bundlev1.WatchBundleRequest{
-				PdpId: c.conf.PDPIdentifier,
+				PdpId: c.PDPIdentifier,
 				Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
 					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
 						Timestamp:      timestamppb.Now(),

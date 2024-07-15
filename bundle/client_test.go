@@ -54,6 +54,7 @@ import (
 	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	"github.com/cerbos/cloud-api/hub"
 	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
 )
@@ -1079,23 +1080,23 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
 	require.NoError(t, err, "Failed to create credentials")
 
-	conf := bundle.ClientConf{
-		ClientConf: base.ClientConf{
-			Credentials:       creds,
-			BootstrapEndpoint: url,
-			APIEndpoint:       url,
-			PDPIdentifier:     pdpIdentifer,
-			RetryWaitMin:      10 * time.Millisecond,
-			RetryWaitMax:      30 * time.Millisecond,
-			RetryMaxAttempts:  2,
-			Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
-			TLS:               tlsConf,
-		},
+	h, err := hub.New(base.ClientConf{
+		Credentials:       creds,
+		BootstrapEndpoint: url,
+		APIEndpoint:       url,
+		PDPIdentifier:     pdpIdentifer,
+		RetryWaitMin:      10 * time.Millisecond,
+		RetryWaitMax:      30 * time.Millisecond,
+		RetryMaxAttempts:  2,
+		Logger:            testr.NewWithOptions(t, testr.Options{Verbosity: 4}),
+		TLS:               tlsConf,
+	})
+	require.NoError(t, err, "Failed to initialize hub")
+
+	client, err := h.BundleClient(bundle.ClientConf{
 		CacheDir: cacheDir,
 		TempDir:  tempDir,
-	}
-
-	client, err := bundle.NewClient(conf)
+	})
 	require.NoError(t, err, "Failed to create client")
 
 	return client, creds
