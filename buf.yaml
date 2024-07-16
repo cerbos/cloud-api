@@ -1,0 +1,20 @@
+version: v2
+modules:
+  - path: protos
+    name: buf.build/cerbos/cloud-api
+deps:
+  - buf.build/bufbuild/protovalidate
+  - buf.build/cerbos/cerbos-api
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - DEFAULT
+  except:
+    - FIELD_NOT_REQUIRED
+    - PACKAGE_NO_IMPORT_CYCLE
+  disallow_comment_ignores: true
+breaking:
+  use:
+    - WIRE_JSON
+  except:
+    - FIELD_SAME_DEFAULT
