@@ -33,18 +33,10 @@ func cerbos_cloud_store_v1_GetPoliciesRequest_hashpb_sum(m *GetPoliciesRequest, 
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
 
 	}
-	if m.Filter != nil {
-		if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.filter"]; !ok {
-			switch t := m.Filter.(type) {
-			case *GetPoliciesRequest_Ids:
-				if t.Ids != nil {
-					cerbos_cloud_store_v1_PolicyIDList_hashpb_sum(t.Ids, hasher, ignore)
-				}
-
-			case *GetPoliciesRequest_Match:
-				if t.Match != nil {
-					cerbos_cloud_store_v1_PolicyIDMatcher_hashpb_sum(t.Match, hasher, ignore)
-				}
+	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.policy_keys"]; !ok {
+		if len(m.PolicyKeys) > 0 {
+			for _, v := range m.PolicyKeys {
+				_, _ = hasher.Write(protowire.AppendString(nil, v))
 
 			}
 		}
@@ -52,6 +44,10 @@ func cerbos_cloud_store_v1_GetPoliciesRequest_hashpb_sum(m *GetPoliciesRequest, 
 }
 
 func cerbos_cloud_store_v1_GetPoliciesResponse_hashpb_sum(m *GetPoliciesResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesResponse.store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersion())))
+
+	}
 	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesResponse.policies"]; !ok {
 		if len(m.Policies) > 0 {
 			keys := make([]string, len(m.Policies))
@@ -78,19 +74,54 @@ func cerbos_cloud_store_v1_ListPoliciesRequest_hashpb_sum(m *ListPoliciesRequest
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesRequest.match"]; !ok {
-		if m.GetMatch() != nil {
-			cerbos_cloud_store_v1_PolicyIDMatcher_hashpb_sum(m.GetMatch(), hasher, ignore)
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesRequest.filter"]; !ok {
+		if m.GetFilter() != nil {
+			cerbos_cloud_store_v1_PolicyFilter_hashpb_sum(m.GetFilter(), hasher, ignore)
+		}
+
+	}
+}
+
+func cerbos_cloud_store_v1_ListPoliciesResponse_Policy_hashpb_sum(m *ListPoliciesResponse_Policy, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.key"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetKey()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.kind"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetKind())))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.name"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetName()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetVersion()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetScope()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.Policy.created_at"]; !ok {
+		if m.GetCreatedAt() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetCreatedAt(), hasher, ignore)
 		}
 
 	}
 }
 
 func cerbos_cloud_store_v1_ListPoliciesResponse_hashpb_sum(m *ListPoliciesResponse, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.policy_ids"]; !ok {
-		if len(m.PolicyIds) > 0 {
-			for _, v := range m.PolicyIds {
-				_, _ = hasher.Write(protowire.AppendString(nil, v))
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersion())))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesResponse.policies"]; !ok {
+		if len(m.Policies) > 0 {
+			for _, v := range m.Policies {
+				if v != nil {
+					cerbos_cloud_store_v1_ListPoliciesResponse_Policy_hashpb_sum(v, hasher, ignore)
+				}
 
 			}
 		}
@@ -113,9 +144,22 @@ func cerbos_cloud_store_v1_ListStoresResponse_hashpb_sum(m *ListStoresResponse, 
 	}
 }
 
+func cerbos_cloud_store_v1_ModifyPoliciesRequest_Condition_hashpb_sum(m *ModifyPoliciesRequest_Condition, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.Condition.store_version_must_equal"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersionMustEqual())))
+
+	}
+}
+
 func cerbos_cloud_store_v1_ModifyPoliciesRequest_hashpb_sum(m *ModifyPoliciesRequest, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.store"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.condition"]; !ok {
+		if m.GetCondition() != nil {
+			cerbos_cloud_store_v1_ModifyPoliciesRequest_Condition_hashpb_sum(m.GetCondition(), hasher, ignore)
+		}
 
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.operations"]; !ok {
@@ -131,34 +175,37 @@ func cerbos_cloud_store_v1_ModifyPoliciesRequest_hashpb_sum(m *ModifyPoliciesReq
 }
 
 func cerbos_cloud_store_v1_ModifyPoliciesResponse_hashpb_sum(m *ModifyPoliciesResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesResponse.new_store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetNewStoreVersion())))
+
+	}
 }
 
-func cerbos_cloud_store_v1_PolicyIDList_hashpb_sum(m *PolicyIDList, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.PolicyIDList.policy_ids"]; !ok {
-		if len(m.PolicyIds) > 0 {
-			for _, v := range m.PolicyIds {
-				_, _ = hasher.Write(protowire.AppendString(nil, v))
+func cerbos_cloud_store_v1_PolicyFilter_hashpb_sum(m *PolicyFilter, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.PolicyFilter.kinds"]; !ok {
+		if len(m.Kinds) > 0 {
+			for _, v := range m.Kinds {
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(v)))
 
 			}
 		}
 	}
-}
-
-func cerbos_cloud_store_v1_PolicyIDMatcher_hashpb_sum(m *PolicyIDMatcher, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.PolicyIDMatcher.kind"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetKind())))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.PolicyIDMatcher.name"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetName()))
+	if _, ok := ignore["cerbos.cloud.store.v1.PolicyFilter.name"]; !ok {
+		if m.GetName() != nil {
+			cerbos_cloud_store_v1_StringMatch_hashpb_sum(m.GetName(), hasher, ignore)
+		}
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.PolicyIDMatcher.version"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetVersion()))
+	if _, ok := ignore["cerbos.cloud.store.v1.PolicyFilter.version"]; !ok {
+		if m.GetVersion() != nil {
+			cerbos_cloud_store_v1_StringMatch_hashpb_sum(m.GetVersion(), hasher, ignore)
+		}
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.PolicyIDMatcher.scope"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetScope()))
+	if _, ok := ignore["cerbos.cloud.store.v1.PolicyFilter.scope"]; !ok {
+		if m.GetScope() != nil {
+			cerbos_cloud_store_v1_StringMatch_hashpb_sum(m.GetScope(), hasher, ignore)
+		}
 
 	}
 }
@@ -198,6 +245,37 @@ func cerbos_cloud_store_v1_Store_hashpb_sum(m *Store, hasher hash.Hash, ignore m
 			google_protobuf_Timestamp_hashpb_sum(m.GetCreatedAt(), hasher, ignore)
 		}
 
+	}
+}
+
+func cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(m *StringMatch_InList, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.StringMatch.InList.values"]; !ok {
+		if len(m.Values) > 0 {
+			for _, v := range m.Values {
+				_, _ = hasher.Write(protowire.AppendString(nil, v))
+
+			}
+		}
+	}
+}
+
+func cerbos_cloud_store_v1_StringMatch_hashpb_sum(m *StringMatch, hasher hash.Hash, ignore map[string]struct{}) {
+	if m.Match != nil {
+		if _, ok := ignore["cerbos.cloud.store.v1.StringMatch.match"]; !ok {
+			switch t := m.Match.(type) {
+			case *StringMatch_Equals:
+				_, _ = hasher.Write(protowire.AppendString(nil, t.Equals))
+
+			case *StringMatch_Like:
+				_, _ = hasher.Write(protowire.AppendString(nil, t.Like))
+
+			case *StringMatch_In:
+				if t.In != nil {
+					cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(t.In, hasher, ignore)
+				}
+
+			}
+		}
 	}
 }
 

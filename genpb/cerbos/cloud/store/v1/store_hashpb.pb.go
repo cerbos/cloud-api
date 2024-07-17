@@ -10,17 +10,25 @@ import (
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *PolicyIDList) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+func (m *StringMatch) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
-		cerbos_cloud_store_v1_PolicyIDList_hashpb_sum(m, hasher, ignore)
+		cerbos_cloud_store_v1_StringMatch_hashpb_sum(m, hasher, ignore)
 	}
 }
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *PolicyIDMatcher) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+func (m *StringMatch_InList) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
-		cerbos_cloud_store_v1_PolicyIDMatcher_hashpb_sum(m, hasher, ignore)
+		cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *PolicyFilter) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_PolicyFilter_hashpb_sum(m, hasher, ignore)
 	}
 }
 
@@ -66,6 +74,14 @@ func (m *ListPoliciesResponse) HashPB(hasher hash.Hash, ignore map[string]struct
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListPoliciesResponse_Policy) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ListPoliciesResponse_Policy_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *GetPoliciesRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_GetPoliciesRequest_hashpb_sum(m, hasher, ignore)
@@ -93,5 +109,21 @@ func (m *PolicyOp) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 func (m *ModifyPoliciesRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_ModifyPoliciesRequest_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ModifyPoliciesRequest_Condition) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ModifyPoliciesRequest_Condition_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ModifyPoliciesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ModifyPoliciesResponse_hashpb_sum(m, hasher, ignore)
 	}
 }
