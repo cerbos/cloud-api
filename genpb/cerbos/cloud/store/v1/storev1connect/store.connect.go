@@ -92,18 +92,21 @@ func NewCerbosStoresServiceClient(httpClient connect.HTTPClient, baseURL string,
 			httpClient,
 			baseURL+CerbosStoresServiceListStoresProcedure,
 			connect.WithSchema(cerbosStoresServiceListStoresMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getPolicies: connect.NewClient[v1.GetPoliciesRequest, v1.GetPoliciesResponse](
 			httpClient,
 			baseURL+CerbosStoresServiceGetPoliciesProcedure,
 			connect.WithSchema(cerbosStoresServiceGetPoliciesMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		listPolicies: connect.NewClient[v1.ListPoliciesRequest, v1.ListPoliciesResponse](
 			httpClient,
 			baseURL+CerbosStoresServiceListPoliciesProcedure,
 			connect.WithSchema(cerbosStoresServiceListPoliciesMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		modifyPolicies: connect.NewClient[v1.ModifyPoliciesRequest, v1.ModifyPoliciesResponse](
@@ -175,18 +178,21 @@ func NewCerbosStoresServiceHandler(svc CerbosStoresServiceHandler, opts ...conne
 		CerbosStoresServiceListStoresProcedure,
 		svc.ListStores,
 		connect.WithSchema(cerbosStoresServiceListStoresMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosStoresServiceGetPoliciesHandler := connect.NewUnaryHandler(
 		CerbosStoresServiceGetPoliciesProcedure,
 		svc.GetPolicies,
 		connect.WithSchema(cerbosStoresServiceGetPoliciesMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosStoresServiceListPoliciesHandler := connect.NewUnaryHandler(
 		CerbosStoresServiceListPoliciesProcedure,
 		svc.ListPolicies,
 		connect.WithSchema(cerbosStoresServiceListPoliciesMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosStoresServiceModifyPoliciesHandler := connect.NewUnaryHandler(

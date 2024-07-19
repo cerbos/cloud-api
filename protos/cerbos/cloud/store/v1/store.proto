@@ -124,7 +124,7 @@ message PolicyOp {
 
 message ModifyPoliciesRequest {
   message Condition {
-    int64 store_version_must_equal = 1;
+    int64 store_version_must_equal = 1 [(buf.validate.field).int64.gte = 0];
   }
 
   string store = 1 [(buf.validate.field).string = {
@@ -143,8 +143,14 @@ service CerbosStoresService {
   option (google.api.api_visibility).restriction = "EXPERIMENTAL";
 
   rpc CreateStore(CreateStoreRequest) returns (CreateStoreResponse) {}
-  rpc ListStores(ListStoresRequest) returns (ListStoresResponse) {}
-  rpc GetPolicies(GetPoliciesRequest) returns (GetPoliciesResponse) {}
-  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {}
+  rpc ListStores(ListStoresRequest) returns (ListStoresResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc GetPolicies(GetPoliciesRequest) returns (GetPoliciesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
   rpc ModifyPolicies(ModifyPoliciesRequest) returns (ModifyPoliciesResponse) {}
 }
