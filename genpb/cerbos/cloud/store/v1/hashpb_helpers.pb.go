@@ -14,20 +14,6 @@ import (
 	sort "sort"
 )
 
-func cerbos_cloud_store_v1_CreateStoreRequest_hashpb_sum(m *CreateStoreRequest, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.CreateStoreRequest.name"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetName()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.CreateStoreRequest.description"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDescription()))
-
-	}
-}
-
-func cerbos_cloud_store_v1_CreateStoreResponse_hashpb_sum(m *CreateStoreResponse, hasher hash.Hash, ignore map[string]struct{}) {
-}
-
 func cerbos_cloud_store_v1_GetPoliciesRequest_hashpb_sum(m *GetPoliciesRequest, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.store"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
@@ -128,22 +114,6 @@ func cerbos_cloud_store_v1_ListPoliciesResponse_hashpb_sum(m *ListPoliciesRespon
 	}
 }
 
-func cerbos_cloud_store_v1_ListStoresRequest_hashpb_sum(m *ListStoresRequest, hasher hash.Hash, ignore map[string]struct{}) {
-}
-
-func cerbos_cloud_store_v1_ListStoresResponse_hashpb_sum(m *ListStoresResponse, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ListStoresResponse.stores"]; !ok {
-		if len(m.Stores) > 0 {
-			for _, v := range m.Stores {
-				if v != nil {
-					cerbos_cloud_store_v1_Store_hashpb_sum(v, hasher, ignore)
-				}
-
-			}
-		}
-	}
-}
-
 func cerbos_cloud_store_v1_ModifyPoliciesRequest_Condition_hashpb_sum(m *ModifyPoliciesRequest_Condition, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.Condition.store_version_must_equal"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersionMustEqual())))
@@ -224,27 +194,6 @@ func cerbos_cloud_store_v1_PolicyOp_hashpb_sum(m *PolicyOp, hasher hash.Hash, ig
 
 			}
 		}
-	}
-}
-
-func cerbos_cloud_store_v1_Store_hashpb_sum(m *Store, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.Store.name"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetName()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.Store.description"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDescription()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.Store.current_version"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, m.GetCurrentVersion()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.Store.created_at"]; !ok {
-		if m.GetCreatedAt() != nil {
-			google_protobuf_Timestamp_hashpb_sum(m.GetCreatedAt(), hasher, ignore)
-		}
-
 	}
 }
 

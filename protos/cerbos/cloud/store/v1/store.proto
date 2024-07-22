@@ -52,29 +52,6 @@ message PolicyFilter {
   StringMatch scope = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
-message Store {
-  string name = 1;
-  string description = 2;
-  uint64 current_version = 3;
-  google.protobuf.Timestamp created_at = 4;
-}
-
-message CreateStoreRequest {
-  string name = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string description = 2 [(google.api.field_behavior) = OPTIONAL];
-}
-
-message CreateStoreResponse {}
-
-message ListStoresRequest {}
-
-message ListStoresResponse {
-  repeated Store stores = 1;
-}
-
 message ListPoliciesRequest {
   string store = 1 [(buf.validate.field).string = {
     min_len: 1
@@ -139,17 +116,13 @@ message ModifyPoliciesResponse {
   int64 new_store_version = 1;
 }
 
-service CerbosStoresService {
+service CerbosStoreService {
   option (google.api.api_visibility).restriction = "EXPERIMENTAL";
 
-  rpc CreateStore(CreateStoreRequest) returns (CreateStoreResponse) {}
-  rpc ListStores(ListStoresRequest) returns (ListStoresResponse) {
+  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
   rpc GetPolicies(GetPoliciesRequest) returns (GetPoliciesResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-  }
-  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
   rpc ModifyPolicies(ModifyPoliciesRequest) returns (ModifyPoliciesResponse) {}
