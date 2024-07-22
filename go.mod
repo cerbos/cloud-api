@@ -3,7 +3,7 @@ module github.com/cerbos/cloud-api
 go 1.22.2
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240508200655-46a4cf4ba109.2
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240717164558-a6c49f84cc0f.2
 	connectrpc.com/connect v1.16.2
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.7.0
