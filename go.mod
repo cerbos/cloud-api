@@ -10,7 +10,7 @@ require (
 	filippo.io/age v1.2.0
 	github.com/Shopify/toxiproxy/v2 v2.9.0
 	github.com/bufbuild/protovalidate-go v0.6.3
-	github.com/cerbos/cerbos/api/genpb v0.37.0
+	github.com/cerbos/cerbos/api/genpb v0.37.1-0.20240723092349-83b39d30c03d
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.7

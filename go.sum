@@ -20,6 +20,8 @@ github.com/bufbuild/protovalidate-go v0.6.3 h1:wxQyzW035zM16Binbaz/nWAzS12dRIXhZ
 github.com/bufbuild/protovalidate-go v0.6.3/go.mod h1:J4PtwP9Z2YAGgB0+o+tTWEDtLtXvz/gfhFZD8pbzM/U=
 github.com/cerbos/cerbos/api/genpb v0.37.0 h1:dTtlElLVx3utwYEWT0b3b1cff3GGg/Q8nXFTFbfIdFY=
 github.com/cerbos/cerbos/api/genpb v0.37.0/go.mod h1:/oEYro8MlnD3cUwoKwUWB136sVj3hlm2Yoyuiue56d0=
+github.com/cerbos/cerbos/api/genpb v0.37.1-0.20240723092349-83b39d30c03d h1:NkvuxeSNzEQBHpVcvIc2ECAFALDX1jHBIQlCBKnvKuI=
+github.com/cerbos/cerbos/api/genpb v0.37.1-0.20240723092349-83b39d30c03d/go.mod h1:6O0yFWL0OPqwygGVRVd0+c2WlUEd3jnHzw4e51cwVV0=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/coreos/go-systemd/v22 v22.5.0/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
