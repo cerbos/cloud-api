@@ -10,7 +10,7 @@ require (
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.1
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/planetscale/vtprotobuf v0.6.0
-	github.com/vektra/mockery/v2 v2.43.2
+	github.com/vektra/mockery/v2 v2.44.1
 	google.golang.org/protobuf v1.34.2
 	gotest.tools/gotestsum v1.12.0
 )
