@@ -2,11 +2,11 @@ module github.com/cerbos/cloud-api/tools
 
 go 1.22
 
-toolchain go1.22.5
+toolchain go1.22.6
 
 require (
 	connectrpc.com/connect v1.16.2
-	github.com/bufbuild/buf v1.35.1
+	github.com/bufbuild/buf v1.36.0
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.1
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/planetscale/vtprotobuf v0.6.0
