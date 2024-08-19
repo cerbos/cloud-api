@@ -9,7 +9,7 @@ require (
 	connectrpc.com/otelconnect v0.7.1
 	filippo.io/age v1.2.0
 	github.com/Shopify/toxiproxy/v2 v2.9.0
-	github.com/bufbuild/protovalidate-go v0.6.3
+	github.com/bufbuild/protovalidate-go v0.6.4
 	github.com/cerbos/cerbos/api/genpb v0.38.1
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
@@ -22,7 +22,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.28.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240808171019-573a1156607a
+	google.golang.org/genproto/googleapis/api v0.0.0-20240814211410-ddb44dafa142
 	google.golang.org/protobuf v1.34.2
 )
 
@@ -33,7 +33,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/google/cel-go v0.20.1 // indirect
+	github.com/google/cel-go v0.21.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
