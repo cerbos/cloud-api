@@ -13,5 +13,6 @@ message Metadata {
   string version = 1;
   repeated string policies = 2;
   int64 build_timestamp = 3;
-  map<string, cerbos.policy.v1.SourceAttributes> source_attributes = 4;
+  string commit_hash = 4;
+  map<string, cerbos.policy.v1.SourceAttributes> source_attributes = 5;
 }

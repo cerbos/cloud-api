@@ -29,6 +29,10 @@ func cerbos_cloud_epdp_v1_Metadata_hashpb_sum(m *Metadata, hasher hash.Hash, ign
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetBuildTimestamp())))
 
 	}
+	if _, ok := ignore["cerbos.cloud.epdp.v1.Metadata.commit_hash"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetCommitHash()))
+
+	}
 	if _, ok := ignore["cerbos.cloud.epdp.v1.Metadata.source_attributes"]; !ok {
 		if len(m.SourceAttributes) > 0 {
 			keys := make([]string, len(m.SourceAttributes))
