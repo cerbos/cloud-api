@@ -56,7 +56,6 @@ linters:
     - durationcheck
     - errorlint
     - exhaustive
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - gci

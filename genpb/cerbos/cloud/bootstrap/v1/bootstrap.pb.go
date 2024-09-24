@@ -37,11 +37,9 @@ type PDPConfig struct {
 
 func (x *PDPConfig) Reset() {
 	*x = PDPConfig{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *PDPConfig) String() string {
@@ -52,7 +50,7 @@ func (*PDPConfig) ProtoMessage() {}
 
 func (x *PDPConfig) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -92,11 +90,9 @@ type PDPConfig_Meta struct {
 
 func (x *PDPConfig_Meta) Reset() {
 	*x = PDPConfig_Meta{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *PDPConfig_Meta) String() string {
@@ -107,7 +103,7 @@ func (*PDPConfig_Meta) ProtoMessage() {}
 
 func (x *PDPConfig_Meta) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -209,32 +205,6 @@ func init() { file_cerbos_cloud_bootstrap_v1_bootstrap_proto_init() }
 func file_cerbos_cloud_bootstrap_v1_bootstrap_proto_init() {
 	if File_cerbos_cloud_bootstrap_v1_bootstrap_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*PDPConfig); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bootstrap_v1_bootstrap_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*PDPConfig_Meta); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

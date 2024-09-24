@@ -43,11 +43,9 @@ type StringMatch struct {
 
 func (x *StringMatch) Reset() {
 	*x = StringMatch{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *StringMatch) String() string {
@@ -58,7 +56,7 @@ func (*StringMatch) ProtoMessage() {}
 
 func (x *StringMatch) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -136,11 +134,9 @@ type PolicyFilter struct {
 
 func (x *PolicyFilter) Reset() {
 	*x = PolicyFilter{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *PolicyFilter) String() string {
@@ -151,7 +147,7 @@ func (*PolicyFilter) ProtoMessage() {}
 
 func (x *PolicyFilter) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -205,11 +201,9 @@ type ListPoliciesRequest struct {
 
 func (x *ListPoliciesRequest) Reset() {
 	*x = ListPoliciesRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ListPoliciesRequest) String() string {
@@ -220,7 +214,7 @@ func (*ListPoliciesRequest) ProtoMessage() {}
 
 func (x *ListPoliciesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -260,11 +254,9 @@ type ListPoliciesResponse struct {
 
 func (x *ListPoliciesResponse) Reset() {
 	*x = ListPoliciesResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ListPoliciesResponse) String() string {
@@ -275,7 +267,7 @@ func (*ListPoliciesResponse) ProtoMessage() {}
 
 func (x *ListPoliciesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -315,11 +307,9 @@ type GetPoliciesRequest struct {
 
 func (x *GetPoliciesRequest) Reset() {
 	*x = GetPoliciesRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *GetPoliciesRequest) String() string {
@@ -330,7 +320,7 @@ func (*GetPoliciesRequest) ProtoMessage() {}
 
 func (x *GetPoliciesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -370,11 +360,9 @@ type GetPoliciesResponse struct {
 
 func (x *GetPoliciesResponse) Reset() {
 	*x = GetPoliciesResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *GetPoliciesResponse) String() string {
@@ -385,7 +373,7 @@ func (*GetPoliciesResponse) ProtoMessage() {}
 
 func (x *GetPoliciesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -428,11 +416,9 @@ type PolicyOp struct {
 
 func (x *PolicyOp) Reset() {
 	*x = PolicyOp{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *PolicyOp) String() string {
@@ -443,7 +429,7 @@ func (*PolicyOp) ProtoMessage() {}
 
 func (x *PolicyOp) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -507,11 +493,9 @@ type ModifyPoliciesRequest struct {
 
 func (x *ModifyPoliciesRequest) Reset() {
 	*x = ModifyPoliciesRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ModifyPoliciesRequest) String() string {
@@ -522,7 +506,7 @@ func (*ModifyPoliciesRequest) ProtoMessage() {}
 
 func (x *ModifyPoliciesRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -568,11 +552,9 @@ type ModifyPoliciesResponse struct {
 
 func (x *ModifyPoliciesResponse) Reset() {
 	*x = ModifyPoliciesResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ModifyPoliciesResponse) String() string {
@@ -583,7 +565,7 @@ func (*ModifyPoliciesResponse) ProtoMessage() {}
 
 func (x *ModifyPoliciesResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -615,11 +597,9 @@ type StringMatch_InList struct {
 
 func (x *StringMatch_InList) Reset() {
 	*x = StringMatch_InList{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *StringMatch_InList) String() string {
@@ -630,7 +610,7 @@ func (*StringMatch_InList) ProtoMessage() {}
 
 func (x *StringMatch_InList) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -667,11 +647,9 @@ type ListPoliciesResponse_Policy struct {
 
 func (x *ListPoliciesResponse_Policy) Reset() {
 	*x = ListPoliciesResponse_Policy{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[10]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ListPoliciesResponse_Policy) String() string {
@@ -682,7 +660,7 @@ func (*ListPoliciesResponse_Policy) ProtoMessage() {}
 
 func (x *ListPoliciesResponse_Policy) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[10]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -749,11 +727,9 @@ type ModifyPoliciesRequest_Condition struct {
 
 func (x *ModifyPoliciesRequest_Condition) Reset() {
 	*x = ModifyPoliciesRequest_Condition{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *ModifyPoliciesRequest_Condition) String() string {
@@ -764,7 +740,7 @@ func (*ModifyPoliciesRequest_Condition) ProtoMessage() {}
 
 func (x *ModifyPoliciesRequest_Condition) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -1006,152 +982,6 @@ func init() { file_cerbos_cloud_store_v1_store_proto_init() }
 func file_cerbos_cloud_store_v1_store_proto_init() {
 	if File_cerbos_cloud_store_v1_store_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*StringMatch); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*PolicyFilter); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*ListPoliciesRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*ListPoliciesResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*GetPoliciesRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*GetPoliciesResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*PolicyOp); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*ModifyPoliciesRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*ModifyPoliciesResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*StringMatch_InList); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*ListPoliciesResponse_Policy); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_store_v1_store_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*ModifyPoliciesRequest_Condition); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	file_cerbos_cloud_store_v1_store_proto_msgTypes[0].OneofWrappers = []any{
 		(*StringMatch_Equals)(nil),
