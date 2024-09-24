@@ -90,11 +90,9 @@ type IngestBatch struct {
 
 func (x *IngestBatch) Reset() {
 	*x = IngestBatch{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IngestBatch) String() string {
@@ -105,7 +103,7 @@ func (*IngestBatch) ProtoMessage() {}
 
 func (x *IngestBatch) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -145,11 +143,9 @@ type IngestRequest struct {
 
 func (x *IngestRequest) Reset() {
 	*x = IngestRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IngestRequest) String() string {
@@ -160,7 +156,7 @@ func (*IngestRequest) ProtoMessage() {}
 
 func (x *IngestRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -203,11 +199,9 @@ type IngestResponse struct {
 
 func (x *IngestResponse) Reset() {
 	*x = IngestResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IngestResponse) String() string {
@@ -218,7 +212,7 @@ func (*IngestResponse) ProtoMessage() {}
 
 func (x *IngestResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -286,11 +280,9 @@ type IngestBatch_Entry struct {
 
 func (x *IngestBatch_Entry) Reset() {
 	*x = IngestBatch_Entry{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IngestBatch_Entry) String() string {
@@ -301,7 +293,7 @@ func (*IngestBatch_Entry) ProtoMessage() {}
 
 func (x *IngestBatch_Entry) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -377,11 +369,9 @@ type IngestResponse_Backoff struct {
 
 func (x *IngestResponse_Backoff) Reset() {
 	*x = IngestResponse_Backoff{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IngestResponse_Backoff) String() string {
@@ -392,7 +382,7 @@ func (*IngestResponse_Backoff) ProtoMessage() {}
 
 func (x *IngestResponse_Backoff) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -558,68 +548,6 @@ func init() { file_cerbos_cloud_logs_v1_logs_proto_init() }
 func file_cerbos_cloud_logs_v1_logs_proto_init() {
 	if File_cerbos_cloud_logs_v1_logs_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_logs_v1_logs_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*IngestBatch); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_logs_v1_logs_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*IngestRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*IngestResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*IngestBatch_Entry); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*IngestResponse_Backoff); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2].OneofWrappers = []any{
 		(*IngestResponse_Success)(nil),

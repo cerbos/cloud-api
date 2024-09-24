@@ -37,11 +37,9 @@ type IssueAccessTokenRequest struct {
 
 func (x *IssueAccessTokenRequest) Reset() {
 	*x = IssueAccessTokenRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IssueAccessTokenRequest) String() string {
@@ -52,7 +50,7 @@ func (*IssueAccessTokenRequest) ProtoMessage() {}
 
 func (x *IssueAccessTokenRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -92,11 +90,9 @@ type IssueAccessTokenResponse struct {
 
 func (x *IssueAccessTokenResponse) Reset() {
 	*x = IssueAccessTokenResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *IssueAccessTokenResponse) String() string {
@@ -107,7 +103,7 @@ func (*IssueAccessTokenResponse) ProtoMessage() {}
 
 func (x *IssueAccessTokenResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -214,32 +210,6 @@ func init() { file_cerbos_cloud_apikey_v1_apikey_proto_init() }
 func file_cerbos_cloud_apikey_v1_apikey_proto_init() {
 	if File_cerbos_cloud_apikey_v1_apikey_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*IssueAccessTokenRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*IssueAccessTokenResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

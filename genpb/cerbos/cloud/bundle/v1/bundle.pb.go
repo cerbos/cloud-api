@@ -41,11 +41,9 @@ type BundleInfo struct {
 
 func (x *BundleInfo) Reset() {
 	*x = BundleInfo{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *BundleInfo) String() string {
@@ -56,7 +54,7 @@ func (*BundleInfo) ProtoMessage() {}
 
 func (x *BundleInfo) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -103,11 +101,9 @@ type Meta struct {
 
 func (x *Meta) Reset() {
 	*x = Meta{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *Meta) String() string {
@@ -118,7 +114,7 @@ func (*Meta) ProtoMessage() {}
 
 func (x *Meta) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -160,11 +156,9 @@ type Manifest struct {
 
 func (x *Manifest) Reset() {
 	*x = Manifest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *Manifest) String() string {
@@ -175,7 +169,7 @@ func (*Manifest) ProtoMessage() {}
 
 func (x *Manifest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -229,11 +223,9 @@ type GetBundleRequest struct {
 
 func (x *GetBundleRequest) Reset() {
 	*x = GetBundleRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *GetBundleRequest) String() string {
@@ -244,7 +236,7 @@ func (*GetBundleRequest) ProtoMessage() {}
 
 func (x *GetBundleRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -283,11 +275,9 @@ type GetBundleResponse struct {
 
 func (x *GetBundleResponse) Reset() {
 	*x = GetBundleResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *GetBundleResponse) String() string {
@@ -298,7 +288,7 @@ func (*GetBundleResponse) ProtoMessage() {}
 
 func (x *GetBundleResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -335,11 +325,9 @@ type WatchBundleRequest struct {
 
 func (x *WatchBundleRequest) Reset() {
 	*x = WatchBundleRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleRequest) String() string {
@@ -350,7 +338,7 @@ func (*WatchBundleRequest) ProtoMessage() {}
 
 func (x *WatchBundleRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -424,11 +412,9 @@ type WatchBundleResponse struct {
 
 func (x *WatchBundleResponse) Reset() {
 	*x = WatchBundleResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleResponse) String() string {
@@ -439,7 +425,7 @@ func (*WatchBundleResponse) ProtoMessage() {}
 
 func (x *WatchBundleResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -516,11 +502,9 @@ type BundleInfo_Segment struct {
 
 func (x *BundleInfo_Segment) Reset() {
 	*x = BundleInfo_Segment{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *BundleInfo_Segment) String() string {
@@ -531,7 +515,7 @@ func (*BundleInfo_Segment) ProtoMessage() {}
 
 func (x *BundleInfo_Segment) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -577,11 +561,9 @@ type WatchBundleRequest_WatchLabel struct {
 
 func (x *WatchBundleRequest_WatchLabel) Reset() {
 	*x = WatchBundleRequest_WatchLabel{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleRequest_WatchLabel) String() string {
@@ -592,7 +574,7 @@ func (*WatchBundleRequest_WatchLabel) ProtoMessage() {}
 
 func (x *WatchBundleRequest_WatchLabel) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -625,11 +607,9 @@ type WatchBundleRequest_Heartbeat struct {
 
 func (x *WatchBundleRequest_Heartbeat) Reset() {
 	*x = WatchBundleRequest_Heartbeat{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[10]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleRequest_Heartbeat) String() string {
@@ -640,7 +620,7 @@ func (*WatchBundleRequest_Heartbeat) ProtoMessage() {}
 
 func (x *WatchBundleRequest_Heartbeat) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[10]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -680,11 +660,9 @@ type WatchBundleResponse_Reconnect struct {
 
 func (x *WatchBundleResponse_Reconnect) Reset() {
 	*x = WatchBundleResponse_Reconnect{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[11]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleResponse_Reconnect) String() string {
@@ -695,7 +673,7 @@ func (*WatchBundleResponse_Reconnect) ProtoMessage() {}
 
 func (x *WatchBundleResponse_Reconnect) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[11]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -732,11 +710,9 @@ type WatchBundleResponse_BundleRemoved struct {
 
 func (x *WatchBundleResponse_BundleRemoved) Reset() {
 	*x = WatchBundleResponse_BundleRemoved{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *WatchBundleResponse_BundleRemoved) String() string {
@@ -747,7 +723,7 @@ func (*WatchBundleResponse_BundleRemoved) ProtoMessage() {}
 
 func (x *WatchBundleResponse_BundleRemoved) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -971,152 +947,6 @@ func init() { file_cerbos_cloud_bundle_v1_bundle_proto_init() }
 func file_cerbos_cloud_bundle_v1_bundle_proto_init() {
 	if File_cerbos_cloud_bundle_v1_bundle_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*BundleInfo); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*Meta); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*Manifest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*GetBundleRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*GetBundleResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*BundleInfo_Segment); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleRequest_WatchLabel); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleRequest_Heartbeat); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleResponse_Reconnect); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*WatchBundleResponse_BundleRemoved); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	file_cerbos_cloud_bundle_v1_bundle_proto_msgTypes[5].OneofWrappers = []any{
 		(*WatchBundleRequest_WatchLabel_)(nil),

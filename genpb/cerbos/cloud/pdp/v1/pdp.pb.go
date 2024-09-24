@@ -35,11 +35,9 @@ type Identifier struct {
 
 func (x *Identifier) Reset() {
 	*x = Identifier{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_cerbos_cloud_pdp_v1_pdp_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_cerbos_cloud_pdp_v1_pdp_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *Identifier) String() string {
@@ -50,7 +48,7 @@ func (*Identifier) ProtoMessage() {}
 
 func (x *Identifier) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_pdp_v1_pdp_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -127,20 +125,6 @@ func init() { file_cerbos_cloud_pdp_v1_pdp_proto_init() }
 func file_cerbos_cloud_pdp_v1_pdp_proto_init() {
 	if File_cerbos_cloud_pdp_v1_pdp_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_cerbos_cloud_pdp_v1_pdp_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*Identifier); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
