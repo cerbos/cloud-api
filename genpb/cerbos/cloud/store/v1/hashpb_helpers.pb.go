@@ -15,8 +15,8 @@ import (
 )
 
 func cerbos_cloud_store_v1_GetPoliciesRequest_hashpb_sum(m *GetPoliciesRequest, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.store"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
+	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.store_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStoreId()))
 
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.GetPoliciesRequest.policy_keys"]; !ok {
@@ -56,8 +56,8 @@ func cerbos_cloud_store_v1_GetPoliciesResponse_hashpb_sum(m *GetPoliciesResponse
 }
 
 func cerbos_cloud_store_v1_ListPoliciesRequest_hashpb_sum(m *ListPoliciesRequest, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesRequest.store"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
+	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesRequest.store_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStoreId()))
 
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.ListPoliciesRequest.filter"]; !ok {
@@ -122,8 +122,8 @@ func cerbos_cloud_store_v1_ModifyPoliciesRequest_Condition_hashpb_sum(m *ModifyP
 }
 
 func cerbos_cloud_store_v1_ModifyPoliciesRequest_hashpb_sum(m *ModifyPoliciesRequest, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.store"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStore()))
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.store_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStoreId()))
 
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.ModifyPoliciesRequest.condition"]; !ok {
