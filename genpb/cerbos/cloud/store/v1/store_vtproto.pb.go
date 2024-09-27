@@ -281,10 +281,10 @@ func (m *ListPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Store) > 0 {
-		i -= len(m.Store)
-		copy(dAtA[i:], m.Store)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Store)))
+	if len(m.StoreId) > 0 {
+		i -= len(m.StoreId)
+		copy(dAtA[i:], m.StoreId)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.StoreId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -456,10 +456,10 @@ func (m *GetPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 			dAtA[i] = 0x12
 		}
 	}
-	if len(m.Store) > 0 {
-		i -= len(m.Store)
-		copy(dAtA[i:], m.Store)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Store)))
+	if len(m.StoreId) > 0 {
+		i -= len(m.StoreId)
+		copy(dAtA[i:], m.StoreId)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.StoreId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -719,10 +719,10 @@ func (m *ModifyPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error)
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Store) > 0 {
-		i -= len(m.Store)
-		copy(dAtA[i:], m.Store)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Store)))
+	if len(m.StoreId) > 0 {
+		i -= len(m.StoreId)
+		copy(dAtA[i:], m.StoreId)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.StoreId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -865,7 +865,7 @@ func (m *ListPoliciesRequest) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Store)
+	l = len(m.StoreId)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -935,7 +935,7 @@ func (m *GetPoliciesRequest) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Store)
+	l = len(m.StoreId)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -1043,7 +1043,7 @@ func (m *ModifyPoliciesRequest) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Store)
+	l = len(m.StoreId)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -1572,7 +1572,7 @@ func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Store", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field StoreId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1600,7 +1600,7 @@ func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Store = string(dAtA[iNdEx:postIndex])
+			m.StoreId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -2029,7 +2029,7 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Store", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field StoreId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2057,7 +2057,7 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Store = string(dAtA[iNdEx:postIndex])
+			m.StoreId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -2561,7 +2561,7 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Store", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field StoreId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2589,7 +2589,7 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Store = string(dAtA[iNdEx:postIndex])
+			m.StoreId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {

@@ -50,10 +50,7 @@ message PolicyFilter {
 }
 
 message ListPoliciesRequest {
-  string store = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
+  string store_id = 1 [(buf.validate.field).string.len = 12];
   PolicyFilter filter = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -71,10 +68,7 @@ message ListPoliciesResponse {
 }
 
 message GetPoliciesRequest {
-  string store = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
+  string store_id = 1 [(buf.validate.field).string.len = 12];
   repeated string policy_keys = 2 [(buf.validate.field).repeated = {
     max_items: 50
     items: {
@@ -101,10 +95,7 @@ message ModifyPoliciesRequest {
     int64 store_version_must_equal = 1 [(buf.validate.field).int64.gte = 0];
   }
 
-  string store = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
+  string store_id = 1 [(buf.validate.field).string.len = 12];
   Condition condition = 2 [(google.api.field_behavior) = OPTIONAL];
   repeated PolicyOp operations = 3 [(buf.validate.field).repeated.min_items = 1];
 }
