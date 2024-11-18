@@ -5,7 +5,7 @@ go 1.22.8
 toolchain go1.23.3
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.1-20240920164238-5a7b106cbb87.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.35.2-20240920164238-5a7b106cbb87.1
 	connectrpc.com/connect v1.17.0
 	connectrpc.com/grpcreflect v1.2.0
 	connectrpc.com/otelconnect v0.7.1
@@ -24,8 +24,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.31.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/genproto/googleapis/api v0.0.0-20241113202542-65e8d215514f
+	google.golang.org/protobuf v1.35.2
 )
 
 require (
@@ -61,7 +61,7 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241104194629-dd2ea8efbc28 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
