@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"filippo.io/age"
-	sha256 "github.com/minio/sha256-simd"
+	"github.com/minio/sha256-simd"
 )
 
 const (

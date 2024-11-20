@@ -5,11 +5,12 @@ package bundle
 
 import (
 	"errors"
+	"time"
 
 	"github.com/sourcegraph/conc/pool"
 )
 
-var _ WatchHandle = (*watchHandleImpl)(nil)
+var _ WatchHandle = (*WatchHandleImpl)(nil)
 
 var errFailedToNotifyBundleChange = errors.New("failed to notify server about bundle change")
 
@@ -19,42 +20,73 @@ type WatchHandle interface {
 	ActiveBundleChanged(string) error
 }
 
-type watchHandleImpl struct {
-	serverEvents chan ServerEvent
-	clientEvents chan ClientEvent
-	errors       chan error
-	p            *pool.ContextPool
-	bundleLabel  string
+type WatchHandleImpl struct {
+	ServerEventsCh chan ServerEvent
+	ClientEventsCh chan ClientEvent
+	ErrorsCh       chan error
+	Pool           *pool.ContextPool
+	BundleLabel    string
 }
 
-func (wh *watchHandleImpl) ServerEvents() <-chan ServerEvent {
-	return wh.serverEvents
+func (wh *WatchHandleImpl) ServerEvents() <-chan ServerEvent {
+	return wh.ServerEventsCh
 }
 
-func (wh *watchHandleImpl) ActiveBundleChanged(id string) error {
+func (wh *WatchHandleImpl) ActiveBundleChanged(id string) error {
 	select {
-	case wh.clientEvents <- ClientEvent{Kind: ClientEventBundleSwap, ActiveBundleID: id}:
+	case wh.ClientEventsCh <- ClientEvent{Kind: ClientEventBundleSwap, ActiveBundleID: id}:
 		return nil
 	default:
 		return errFailedToNotifyBundleChange
 	}
 }
 
-func (wh *watchHandleImpl) Errors() <-chan error {
-	return wh.errors
+func (wh *WatchHandleImpl) Errors() <-chan error {
+	return wh.ErrorsCh
 }
 
-func (wh *watchHandleImpl) trySendError(err error) {
+func (wh *WatchHandleImpl) trySendError(err error) {
 	select {
-	case wh.errors <- err:
+	case wh.ErrorsCh <- err:
 	default:
 	}
 }
 
-func (wh *watchHandleImpl) wait() error {
-	err := wh.p.Wait()
+func (wh *WatchHandleImpl) Wait() error {
+	err := wh.Pool.Wait()
 	wh.trySendError(err)
-	close(wh.errors)
+	close(wh.ErrorsCh)
 
 	return err
+}
+
+// ServerEventKind represents events sent by the server through the watch stream.
+type ServerEventKind uint8
+
+const (
+	ServerEventUndefined ServerEventKind = iota
+	ServerEventError
+	ServerEventNewBundle
+	ServerEventBundleRemoved
+	ServerEventReconnect
+)
+
+type ServerEvent struct {
+	Error            error
+	NewBundlePath    string
+	ReconnectBackoff time.Duration
+	Kind             ServerEventKind
+}
+
+// ClientEventKind represents events sent by the client through the watch stream.
+type ClientEventKind uint8
+
+const (
+	ClientEventUndefined ClientEventKind = iota
+	ClientEventBundleSwap
+)
+
+type ClientEvent struct {
+	ActiveBundleID string
+	Kind           ClientEventKind
 }
