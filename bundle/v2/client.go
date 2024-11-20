@@ -1,26 +1,23 @@
 // Copyright 2021-2024 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-package bundle
+package v2
 
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"sort"
 	"time"
 	"unicode"
 
 	"connectrpc.com/connect"
 	"github.com/go-logr/logr"
-	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
@@ -28,136 +25,51 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
-	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
-	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
+	"github.com/cerbos/cloud-api/bundle"
+	"github.com/cerbos/cloud-api/bundle/clientcache"
+	"github.com/cerbos/cloud-api/credentials"
+	bootstrapv2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v2"
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
 
-const (
-	bootstrapPathPrefix = "bootstrap/v1"
-	defaultBackoff      = 5 * time.Minute
-	maxDownloadAttempts = 3
-
-	bufPeekSize      = 256
-	bufSize          = 10 * 1024   // 10 KiB
-	maxBootstrapSize = 1024 * 1024 // 1MiB
-)
-
-var jsonStart = []byte("{")
-
-const (
-	BundleIDUnknown  = "__unknown__"
-	BundleIDOrphaned = "__orphaned__"
-)
-
-var (
-	ErrBootstrapBundleNotFound = errors.New("bootstrap bundle not found")
-	ErrBundleNotFound          = errors.New("bundle not found")
-	errChecksumMismatch        = errors.New("checksum mismatch")
-	errDownloadFailed          = errors.New("download failed")
-	errInvalidResponse         = errors.New("invalid response from server")
-	errNoSegmentDownloadURL    = errors.New("no download URLs")
-	errStreamEnded             = errors.New("stream ended")
-)
-
-// ReconnectError is the error returned when the server requests a reconnect.
-type ReconnectError struct {
-	Backoff time.Duration
-}
-
-func (er ReconnectError) Error() string {
-	return fmt.Sprintf("reconnect in %s", er.Backoff)
-}
-
-// ServerEventKind represents events sent by the server through the watch stream.
-type ServerEventKind uint8
-
-const (
-	ServerEventUndefined ServerEventKind = iota
-	ServerEventError
-	ServerEventNewBundle
-	ServerEventBundleRemoved
-	ServerEventReconnect
-)
-
-type ServerEvent struct {
-	Error            error
-	NewBundlePath    string
-	ReconnectBackoff time.Duration
-	Kind             ServerEventKind
-}
-
-// ClientEventKind represents events sent by the client through the watch stream.
-type ClientEventKind uint8
-
-const (
-	ClientEventUndefined ClientEventKind = iota
-	ClientEventBundleSwap
-)
-
-type ClientEvent struct {
-	ActiveBundleID string
-	Kind           ClientEventKind
-}
+const bootstrapV2PathPrefix = "bootstrap/v2"
 
 type Client struct {
-	rpcClient   bundlev1connect.CerbosBundleServiceClient
-	bundleCache *cache.Cache
-	conf        ClientConf
+	rpcClient bundlev2connect.CerbosBundleServiceClient
+	cache     *clientcache.ClientCache
 	base.Client
 }
 
-func NewClient(conf ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
+func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
 	if err := conf.Validate(); err != nil {
 		return nil, err
 	}
 
-	bcache, err := mkBundleCache(conf.CacheDir)
+	c, err := clientcache.New(conf.CacheDir, conf.TempDir)
 	if err != nil {
 		return nil, err
 	}
 
 	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
-	rpcClient := bundlev1connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...)
-
 	return &Client{
-		Client:      baseClient,
-		bundleCache: bcache,
-		conf:        conf,
-		rpcClient:   rpcClient,
+		Client:    baseClient,
+		rpcClient: bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
+		cache:     c,
 	}, nil
-}
-
-func mkBundleCache(path string) (*cache.Cache, error) {
-	cacheDir := path
-	if cacheDir == "" {
-		userCacheDir, err := os.UserCacheDir()
-		if err != nil {
-			return nil, fmt.Errorf("failed to determine user cache directory: %w", err)
-		}
-
-		cacheDir = filepath.Join(userCacheDir, "cerbos", "cloud", "bundles")
-		//nolint:gomnd
-		if err := os.MkdirAll(cacheDir, 0o774); err != nil {
-			return nil, fmt.Errorf("failed to create cache directory %q: %w", cacheDir, err)
-		}
-	}
-
-	c, err := cache.Open(cacheDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open cache at %q: %w", cacheDir, err)
-	}
-
-	return c, nil
 }
 
 func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Getting bootstrap configuration")
 
-	wsID := c.Credentials.HashString(c.Credentials.WorkspaceID)
-	labelHash := c.Credentials.HashString(bundleLabel)
-	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapPathPrefix, wsID, labelHash)
+	bootstrapConfName := hex.EncodeToString(
+		credentials.HashStrings(
+			hex.EncodeToString(c.Credentials.BootstrapKey),
+			bundleLabel,
+		),
+	)
+	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bootstrapConfName)
 	if err != nil {
 		return "", fmt.Errorf("failed to construct bootstrap URL: %w", err)
 	}
@@ -176,7 +88,7 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 	return c.getBundleFile(logr.NewContext(ctx, log), bootstrapConf.BundleInfo)
 }
 
-func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootstrapv1.PDPConfig, error) {
+func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootstrapv2.PDPConfig, error) {
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", url)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
@@ -202,30 +114,32 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
 			log.V(1).Info("Bootstrap bundle not found")
-			return nil, ErrBootstrapBundleNotFound
+			return nil, bundle.ErrBootstrapBundleNotFound
 		}
 
 		log.V(1).Info("Failed to download bootstrap bundle")
-		return nil, errDownloadFailed
+		return nil, bundle.ErrDownloadFailed
 	}
 
-	confData, err := c.Credentials.Decrypt(io.LimitReader(resp.Body, maxBootstrapSize))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
 	if err != nil {
-		return nil, err
+		log.V(1).Error(err, "Failed to read bootstrap bundle bytes")
+		return nil, fmt.Errorf("failed to read bootstrap bundle bytes: %w", err)
 	}
 
-	return c.parseBootstrapConf(confData)
+	conf, err := c.Credentials.DecryptV2(body)
+	if err != nil {
+		log.V(1).Error(err, "Failed to decrypt bootstrap bundle")
+		return nil, fmt.Errorf("failed to decrypt bootstrap bundle: %w", err)
+	}
+
+	return c.parseBootstrapConf(conf)
 }
 
-func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, error) {
-	confBytes, err := io.ReadAll(input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read decrypted bootstrap configuration: %w", err)
-	}
-
-	trimmed := bytes.TrimLeftFunc(confBytes, unicode.IsSpace)
-	out := &bootstrapv1.PDPConfig{}
-	if bytes.HasPrefix(trimmed, jsonStart) {
+func (c *Client) parseBootstrapConf(conf []byte) (*bootstrapv2.PDPConfig, error) {
+	trimmed := bytes.TrimLeftFunc(conf, unicode.IsSpace)
+	out := &bootstrapv2.PDPConfig{}
+	if bytes.HasPrefix(trimmed, bundle.JSONStart) {
 		unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
 		if err := unmarshaler.Unmarshal(trimmed, out); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal bootstrap JSON: %w", err)
@@ -234,7 +148,7 @@ func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, er
 		return nil, fmt.Errorf("failed to unmarshal bootstrap proto: %w", err)
 	}
 
-	if err := Validate(out); err != nil {
+	if err := bundle.Validate(out); err != nil {
 		return out, fmt.Errorf("invalid bootstrap configuration: %w", err)
 	}
 
@@ -246,7 +160,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling GetBundle RPC")
 
-	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev1.GetBundleRequest{
+	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{
 		PdpId:       c.PDPIdentifier,
 		BundleLabel: bundleLabel,
 	}))
@@ -260,7 +174,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 }
 
-func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHandle, error) {
+func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.WatchHandle, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling WatchBundle RPC")
 
@@ -272,26 +186,26 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 		return nil, fmt.Errorf("failed to send request headers: %w", err)
 	}
 
-	wh := &watchHandleImpl{
-		serverEvents: make(chan ServerEvent, 1),
-		clientEvents: make(chan ClientEvent, 1),
-		errors:       make(chan error, 1),
-		bundleLabel:  bundleLabel,
-		p:            pool.New().WithContext(ctx).WithCancelOnError().WithFirstError(),
+	wh := &bundle.WatchHandleImpl{
+		ServerEventsCh: make(chan bundle.ServerEvent, 1),
+		ClientEventsCh: make(chan bundle.ClientEvent, 1),
+		ErrorsCh:       make(chan error, 1),
+		BundleLabel:    bundleLabel,
+		Pool:           pool.New().WithContext(ctx).WithCancelOnError().WithFirstError(),
 	}
 
-	wh.p.Go(c.watchStreamRecv(stream, wh, log))
-	wh.p.Go(c.watchStreamSend(stream, wh, log))
+	wh.Pool.Go(c.watchStreamRecv(stream, wh, log))
+	wh.Pool.Go(c.watchStreamSend(stream, wh, log))
 	go func() {
-		if err := wh.wait(); err != nil {
+		if err := wh.Wait(); err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
 				log.V(2).Info("Watch stream terminated: context timed out")
 			case errors.Is(err, context.Canceled):
 				log.V(2).Info("Watch stream terminated: context cancelled")
-			case errors.Is(err, ErrBundleNotFound):
+			case errors.Is(err, bundle.ErrBundleNotFound):
 				log.V(2).Info("Watch stream terminated: bundle not found")
-			case errors.As(err, &ReconnectError{}):
+			case errors.As(err, &bundle.ReconnectError{}):
 				log.V(2).Info("Watch stream terminated: server requests reconnect")
 			default:
 				log.V(2).Error(err, "Watch stream terminated")
@@ -305,11 +219,11 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 }
 
 type recvMsg struct {
-	msg *bundlev1.WatchBundleResponse
+	msg *bundlev2.WatchBundleResponse
 	err error
 }
 
-func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.WatchBundleRequest, bundlev2.WatchBundleResponse], wh *bundle.WatchHandleImpl, logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("recv")
 		log.V(1).Info("Starting response handler")
@@ -344,10 +258,10 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 			}
 		}()
 
-		publishWatchEvent := func(we ServerEvent) error {
+		publishWatchEvent := func(we bundle.ServerEvent) error {
 			log.V(3).Info("Publishing watch event")
 			select {
-			case wh.serverEvents <- we:
+			case wh.ServerEventsCh <- we:
 				log.V(3).Info("Published watch event")
 				return nil
 			case <-ctx.Done():
@@ -356,44 +270,44 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 			}
 		}
 
-		processMsg := func(msg *bundlev1.WatchBundleResponse) error {
+		processMsg := func(msg *bundlev2.WatchBundleResponse) error {
 			base.LogResponsePayload(log, msg)
 
 			switch m := msg.Msg.(type) {
-			case *bundlev1.WatchBundleResponse_BundleUpdate:
+			case *bundlev2.WatchBundleResponse_BundleUpdate:
 				log.V(2).Info("Received bundle update")
 				bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
 				if err != nil {
 					log.V(1).Error(err, "Failed to get bundle")
-					if err := publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: err}); err != nil {
+					if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: err}); err != nil {
 						log.V(2).Error(err, "Failed to send error")
 					}
 
 					return err
 				}
 
-				if err := publishWatchEvent(ServerEvent{Kind: ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
 					return err
 				}
 
-			case *bundlev1.WatchBundleResponse_BundleRemoved_:
+			case *bundlev2.WatchBundleResponse_BundleRemoved_:
 				log.V(1).Info("Bundle label removed")
-				if err := publishWatchEvent(ServerEvent{Kind: ServerEventBundleRemoved}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventBundleRemoved}); err != nil {
 					log.V(2).Error(err, "Failed to send bundle removed")
 				}
 
-			case *bundlev1.WatchBundleResponse_Reconnect_:
+			case *bundlev2.WatchBundleResponse_Reconnect_:
 				log.V(1).Info("Server requests reconnect")
-				backoff := defaultBackoff
+				backoff := bundle.DefaultBackoff
 				if m.Reconnect != nil && m.Reconnect.Backoff != nil {
 					backoff = m.Reconnect.Backoff.AsDuration()
 				}
 
-				if err := publishWatchEvent(ServerEvent{Kind: ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
 					log.V(2).Error(err, "Failed to send reconnect")
 				}
 
-				return ReconnectError{Backoff: backoff}
+				return bundle.ReconnectError{Backoff: backoff}
 
 			default:
 				log.V(2).Info("Ignoring unknown message", "msg", base.NewProtoWrapper(msg))
@@ -413,12 +327,12 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 					if connect.CodeOf(r.err) == connect.CodeNotFound {
 						log.V(1).Error(r.err, "Label does not exist")
-						_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrBundleNotFound})
-						return ErrBundleNotFound
+						_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: bundle.ErrBundleNotFound})
+						return bundle.ErrBundleNotFound
 					}
 
 					log.V(1).Error(r.err, "Error receiving message")
-					_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: r.err})
+					_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: r.err})
 					return r.err
 				}
 
@@ -430,7 +344,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 				if !ok {
 					log.V(2).Info("Receive loop ended")
-					return errStreamEnded
+					return bundle.ErrStreamEnded
 				}
 			case <-ctx.Done():
 				log.V(2).Info("Exiting response handler due to context cancellation")
@@ -440,7 +354,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *watchHandleImpl, logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.WatchBundleRequest, bundlev2.WatchBundleResponse], wh *bundle.WatchHandleImpl, logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("send")
 		log.V(1).Info("Starting request handler")
@@ -471,10 +385,10 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}()
 
 		log.V(2).Info("Initiating bundle watch")
-		if err := stream.Send(&bundlev1.WatchBundleRequest{
+		if err := stream.Send(&bundlev2.WatchBundleRequest{
 			PdpId: c.PDPIdentifier,
-			Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
-				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.bundleLabel},
+			Msg: &bundlev2.WatchBundleRequest_WatchLabel_{
+				WatchLabel: &bundlev2.WatchBundleRequest_WatchLabel{BundleLabel: wh.BundleLabel},
 			},
 		}); err != nil {
 			log.Error(err, "WatchBundle RPC failed")
@@ -483,10 +397,10 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 		sendHeartbeat := func(activeBundleID string) error {
 			log.V(3).Info("Sending heartbeat", "active_bundle_id", activeBundleID)
-			if err := stream.Send(&bundlev1.WatchBundleRequest{
+			if err := stream.Send(&bundlev2.WatchBundleRequest{
 				PdpId: c.PDPIdentifier,
-				Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
-					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+				Msg: &bundlev2.WatchBundleRequest_Heartbeat_{
+					Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 						Timestamp:      timestamppb.Now(),
 						ActiveBundleId: activeBundleID,
 					},
@@ -500,15 +414,15 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		log.V(2).Info("Starting heartbeat loop")
-		activeBundleID := BundleIDUnknown
+		activeBundleID := bundle.BundleIDUnknown
 		for {
 			select {
 			case <-ctx.Done():
 				log.V(2).Info("Terminating request handler due to context cancellation")
 				return ctx.Err()
-			case evt := <-wh.clientEvents:
+			case evt := <-wh.ClientEventsCh:
 				switch evt.Kind {
-				case ClientEventBundleSwap:
+				case bundle.ClientEventBundleSwap:
 					if activeBundleID != evt.ActiveBundleID {
 						log.V(3).Info("Sending bundle change event")
 						activeBundleID = evt.ActiveBundleID
@@ -528,28 +442,28 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (outPath string, outErr error) {
+func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) (outPath string, outErr error) {
 	log := logr.FromContextOrDiscard(ctx)
 
-	if len(binfo.BundleHash) != cache.HashSize {
-		err := fmt.Errorf("length of bundle hash %x does not match expected hash size", binfo.BundleHash)
-		log.Error(err, "Invalid bundle hash")
+	if len(binfo.OutputHash) != cache.HashSize {
+		err := fmt.Errorf("length of output hash %x does not match expected hash size", binfo.OutputHash)
+		log.Error(err, "Invalid output hash")
 		return "", err
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(binfo.BundleHash))
+	bdlCacheKey := *((*cache.ActionID)(binfo.OutputHash))
 	defer func() {
 		if outErr == nil && outPath != "" {
-			if err := c.updateLabelCache(binfo.Label, bdlCacheKey); err != nil {
+			if err := c.cache.UpdateLabelCache(binfo.Label, bdlCacheKey); err != nil {
 				log.V(1).Error(err, "Failed to update label mapping")
 			}
 		}
 	}()
 
-	entry, err := c.bundleCache.Get(bdlCacheKey)
+	entry, err := c.cache.Get(bdlCacheKey)
 	if err == nil {
 		log.V(1).Info("Bundle exists in cache")
-		return c.bundleCache.OutputFile(entry.OutputID), nil
+		return entry, nil
 	}
 
 	log.V(1).Info("Downloading bundle segments")
@@ -558,7 +472,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 	switch len(segments) {
 	case 0:
 		log.V(1).Info("No segments provided")
-		return "", errInvalidResponse
+		return "", bundle.ErrInvalidResponse
 	case 1:
 		return c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0])
 	default:
@@ -566,7 +480,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 		// TODO(cell): Check segment IDs are sequential (not missing any IDs)
 		// TODO(cell): Download in parallel if there are many segments
 
-		joiner := newSegmentJoiner(len(segments))
+		joiner := bundle.NewSegmentJoiner(len(segments))
 		for _, s := range segments {
 			logger := log.WithValues("segment", s.SegmentId)
 			logger.V(1).Info("Getting segment")
@@ -578,43 +492,43 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 				return "", err
 			}
 
-			if err := joiner.add(segFile); err != nil {
+			if err := joiner.Add(segFile); err != nil {
 				_ = joiner.Close()
 				logger.Error(err, "Failed to open bundle segment")
 				return "", err
 			}
 		}
 
-		file, _, err := c.addToCache(bdlCacheKey, joiner.join())
+		file, _, err := c.cache.Add(bdlCacheKey, joiner.Join())
 		return file, err
 	}
 }
 
-func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev1.BundleInfo_Segment) (string, error) {
+func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev2.BundleInfo_Segment) (string, error) {
 	log := logr.FromContextOrDiscard(ctx)
 
-	cacheKey := segmentCacheKey(segment.Checksum)
-	entry, err := c.bundleCache.Get(cacheKey)
+	cacheKey := clientcache.SegmentCacheKey(segment.Checksum)
+	entry, err := c.cache.Get(cacheKey)
 	if err == nil {
 		log.V(1).Info("Cache hit for segment")
-		return c.bundleCache.OutputFile(entry.OutputID), nil
+		return entry, nil
 	}
 
 	log.V(1).Info("Cache miss: downloading segment")
 	return c.downloadSegment(ctx, cacheKey, segment)
 }
 
-func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment) (string, error) {
+func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev2.BundleInfo_Segment) (string, error) {
 	if len(segment.DownloadUrls) == 0 {
-		return "", errNoSegmentDownloadURL
+		return "", bundle.ErrNoSegmentDownloadURL
 	}
 
-	r := newRing(segment.DownloadUrls)
+	r := bundle.NewRing(segment.DownloadUrls)
 	return c.doDownloadSegment(ctx, cacheKey, segment, r, 1)
 }
 
-func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment, r *ring, attempt int) (string, error) {
-	downloadURL := r.next()
+func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev2.BundleInfo_Segment, r *bundle.Ring, attempt int) (string, error) {
+	downloadURL := r.Next()
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", downloadURL, "attempt", attempt)
 	log.V(1).Info("Constructing download request")
 
@@ -628,7 +542,7 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
-		if r.size() > 1 && attempt < maxDownloadAttempts {
+		if r.Size() > 1 && attempt < bundle.MaxDownloadAttempts {
 			return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
 		}
 
@@ -645,154 +559,29 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 
 	switch {
 	case resp.StatusCode == http.StatusOK:
-		return c.addSegmentToCache(ctx, cacheKey, segment.Checksum, resp)
-	case resp.StatusCode >= 404 && r.size() > 1 && attempt < maxDownloadAttempts:
+		return c.cache.AddSegment(ctx, cacheKey, segment.Checksum, resp)
+	case resp.StatusCode >= 404 && r.Size() > 1 && attempt < bundle.MaxDownloadAttempts:
 		log.V(1).Info("Retrying download")
 		return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
 	default:
 		log.V(1).Info("Download failed")
-		return "", errDownloadFailed
+		return "", bundle.ErrDownloadFailed
 	}
-}
-
-func (c *Client) addSegmentToCache(_ context.Context, cacheKey cache.ActionID, checksum []byte, resp *http.Response) (string, error) {
-	file, cs, err := c.addToCache(cacheKey, resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	if !bytes.Equal(checksum, cs) {
-		return "", errChecksumMismatch
-	}
-
-	return file, nil
-}
-
-func (c *Client) addToCache(cacheKey cache.ActionID, in io.Reader) (string, []byte, error) {
-	outFile, err := os.CreateTemp(c.conf.TempDir, "cerbos-*")
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to create temporary file: %w", err)
-	}
-	defer func() {
-		_ = outFile.Close()
-		_ = os.Remove(outFile.Name())
-	}()
-
-	sum := sha256.New()
-	mw := io.MultiWriter(outFile, sum)
-	if _, err := io.Copy(mw, in); err != nil {
-		return "", nil, fmt.Errorf("failed to write data to disk: %w", err)
-	}
-
-	out, _, err := c.bundleCache.Put(cacheKey, outFile)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to add data to cache: %w", err)
-	}
-
-	return c.bundleCache.OutputFile(out), sum.Sum(nil), nil
-}
-
-func (c *Client) updateLabelCache(bundleLabel string, bundleCacheKey cache.ActionID) error {
-	lblCacheKey := labelCacheKey(bundleLabel)
-	return c.bundleCache.PutBytes(lblCacheKey, bundleCacheKey[:])
 }
 
 // GetCachedBundle returns the last cached entry for the given label if it exists.
 func (c *Client) GetCachedBundle(bundleLabel string) (string, error) {
-	lblCacheKey := labelCacheKey(bundleLabel)
-	entry, _, err := c.bundleCache.GetBytes(lblCacheKey)
+	lblCacheKey := clientcache.LabelCacheKey(bundleLabel)
+	entry, err := c.cache.GetBytes(lblCacheKey)
 	if err != nil {
 		return "", fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)
 	}
 
-	if len(entry) != cache.HashSize {
-		return "", errors.New("invalid cache entry for label")
-	}
-
 	bdlCacheKey := *((*cache.ActionID)(entry))
-	bdlEntry, err := c.bundleCache.Get(bdlCacheKey)
+	bdlEntry, err := c.cache.Get(bdlCacheKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to find bundle in cache: %w", err)
 	}
 
-	return c.bundleCache.OutputFile(bdlEntry.OutputID), nil
-}
-
-func segmentCacheKey(checksum []byte) cache.ActionID {
-	s := sha256.New()
-	_, _ = fmt.Fprint(s, "segment:")
-	_, _ = s.Write(checksum)
-	return *((*cache.ActionID)(s.Sum(nil)))
-}
-
-func labelCacheKey(label string) cache.ActionID {
-	s := sha256.New()
-	_, _ = fmt.Fprintf(s, "cerbos:cloud:bundle:label=%s", label)
-	return *((*cache.ActionID)(s.Sum(nil)))
-}
-
-type segmentJoiner struct {
-	readers []io.ReadCloser
-}
-
-func newSegmentJoiner(numSegments int) *segmentJoiner {
-	return &segmentJoiner{readers: make([]io.ReadCloser, 0, numSegments)}
-}
-
-func (sj *segmentJoiner) add(file string) error {
-	f, err := os.Open(file)
-	if err != nil {
-		return fmt.Errorf("failed to open %q: %w", file, err)
-	}
-
-	sj.readers = append(sj.readers, f)
-	return nil
-}
-
-func (sj *segmentJoiner) Close() (outErr error) {
-	for _, r := range sj.readers {
-		if err := r.Close(); err != nil {
-			outErr = multierr.Append(outErr, err)
-		}
-	}
-
-	return outErr
-}
-
-func (sj *segmentJoiner) join() io.ReadCloser {
-	readers := make([]io.Reader, len(sj.readers))
-	for i, r := range sj.readers {
-		readers[i] = r
-	}
-
-	mr := io.MultiReader(readers...)
-	return struct {
-		io.Reader
-		*segmentJoiner
-	}{
-		Reader:        mr,
-		segmentJoiner: sj,
-	}
-}
-
-type ring struct {
-	elements []string
-	idx      int
-}
-
-func newRing(elements []string) *ring {
-	return &ring{
-		elements: elements,
-		idx:      rand.Intn(len(elements)), //nolint:gosec
-	}
-}
-
-func (r *ring) next() string {
-	el := r.elements[r.idx]
-	r.idx = (r.idx + 1) % len(r.elements)
-	return el
-}
-
-func (r *ring) size() int {
-	return len(r.elements)
+	return bdlEntry, nil
 }

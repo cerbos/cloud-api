@@ -2,4 +2,4 @@
 .idea/
 .vscode/
 
-bundle/testdata/bootstrap/**
+**/testdata/bootstrap/**
