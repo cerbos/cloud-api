@@ -33,7 +33,7 @@ message BundleInfo {
   string label = 1 [(buf.validate.field).string.min_len = 1];
   bytes input_hash = 2 [(buf.validate.field).bytes.len = 32];
   bytes output_hash = 3 [(buf.validate.field).bytes.len = 32];
-  bytes encryption_key = 4 [(buf.validate.field).bytes.min_len = 1];
+  bytes encryption_key = 4;
   repeated Segment segments = 5 [(buf.validate.field).repeated.min_items = 1];
 }
 
