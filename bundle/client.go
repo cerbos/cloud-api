@@ -285,6 +285,8 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (WatchHand
 	go func() {
 		if err := wh.wait(); err != nil {
 			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.V(2).Info("Watch stream terminated: context timed out")
 			case errors.Is(err, context.Canceled):
 				log.V(2).Info("Watch stream terminated: context cancelled")
 			case errors.Is(err, ErrBundleNotFound):
