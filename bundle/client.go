@@ -334,7 +334,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 				recvChan <- recvMsg{msg: msg, err: err}
 				if err != nil {
-					if errors.Is(err, context.Canceled) {
+					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						log.V(3).Info("Exiting receive loop")
 					} else {
 						log.V(3).Error(err, "Exiting receive loop due to error")
