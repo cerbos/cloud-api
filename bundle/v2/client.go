@@ -17,7 +17,6 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/go-logr/logr"
-	"github.com/minio/sha256-simd"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
@@ -126,20 +125,13 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 		return nil, fmt.Errorf("failed to read bootstrap bundle bytes: %w", err)
 	}
 
-	conf, err := DecryptChaCha20Poly1305(HashedClientSecret(c.Credentials.ClientID, c.Credentials.ClientSecret), body)
+	conf, err := c.Credentials.DecryptV2(body)
 	if err != nil {
 		log.V(1).Error(err, "Failed to decrypt bootstrap bundle")
 		return nil, fmt.Errorf("failed to decrypt bootstrap bundle: %w", err)
 	}
 
 	return c.parseBootstrapConf(conf)
-}
-
-func HashedClientSecret(clientID, clientSecret string) []byte {
-	h := sha256.New()
-	h.Write([]byte(clientID))
-	h.Write([]byte(clientSecret))
-	return h.Sum(nil)
 }
 
 func (c *Client) parseBootstrapConf(conf []byte) (*bootstrapv2.PDPConfig, error) {

@@ -91,7 +91,7 @@ func TestBootstrapBundle(t *testing.T) {
 		require.NoError(t, err, "Failed to create bootstrap file")
 		t.Cleanup(func() { _ = confFile.Close() })
 
-		encryptedBytes, err := v2.EncryptChaCha20Poly1305(v2.HashedClientSecret(clientID, clientSecret), data)
+		encryptedBytes, err := creds.EncryptV2(data)
 		require.NoError(t, err, "Failed to create encrypted bytes")
 
 		_, err = bytes.NewReader(encryptedBytes).WriteTo(confFile)
@@ -1108,7 +1108,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v2.Client, *cr
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey, bundle.MaxBootstrapSize)
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{

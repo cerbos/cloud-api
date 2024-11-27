@@ -32,6 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
+	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/credentials"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
@@ -218,7 +219,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) *logcap.Client {
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey, bundle.MaxBootstrapSize)
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{

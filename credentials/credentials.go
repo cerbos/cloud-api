@@ -4,6 +4,8 @@
 package credentials
 
 import (
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -12,6 +14,7 @@ import (
 
 	"filippo.io/age"
 	"github.com/minio/sha256-simd"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 const (
@@ -27,40 +30,45 @@ var (
 type Credentials struct {
 	identity     *age.X25519Identity
 	recipient    string
+	aead         cipher.AEAD
 	WorkspaceID  string
 	ClientID     string
 	ClientSecret string
+	maxSize      int64
 }
 
-func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
+func New(clientID, clientSecret, privateKey string, maxSize int64) (*Credentials, error) {
 	if clientID == "" || clientSecret == "" {
 		return nil, ErrInvalidCredentials
 	}
 
-	if privateKey == "" {
-		return &Credentials{
-			ClientID:     clientID,
-			ClientSecret: clientSecret,
-		}, nil
+	c := &Credentials{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		maxSize:      maxSize,
 	}
 
-	workspaceID, ageKey, ok := strings.Cut(strings.TrimPrefix(privateKey, cerbosKeyPrefix), "-")
-	if !ok {
+	var err error
+	if c.aead, err = chacha20poly1305.NewX(c.HashStrings(clientID, clientSecret)); err != nil {
+		return nil, fmt.Errorf("failed to initialize cipher: %w", err)
+	}
+
+	if privateKey == "" {
+		return c, nil
+	}
+
+	var ageKey string
+	var ok bool
+	if c.WorkspaceID, ageKey, ok = strings.Cut(strings.TrimPrefix(privateKey, cerbosKeyPrefix), "-"); !ok {
 		return nil, ErrInvalidPrivateKey
 	}
 
-	identity, err := age.ParseX25519Identity(ageSecretKeyPrefix + ageKey)
-	if err != nil {
+	if c.identity, err = age.ParseX25519Identity(ageSecretKeyPrefix + ageKey); err != nil {
 		return nil, fmt.Errorf("failed to parse private key: %w", err)
 	}
 
-	return &Credentials{
-		identity:     identity,
-		recipient:    identity.Recipient().String(),
-		WorkspaceID:  workspaceID,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-	}, nil
+	c.recipient = c.identity.Recipient().String()
+	return c, nil
 }
 
 func (c *Credentials) Encrypt(dst io.Writer) (io.WriteCloser, error) {
@@ -84,9 +92,38 @@ func (c *Credentials) Decrypt(input io.Reader) (io.Reader, error) {
 	return out, nil
 }
 
+func (c *Credentials) EncryptV2(data []byte) ([]byte, error) {
+	nonce := make([]byte, c.aead.NonceSize(), c.aead.NonceSize()+len(data)+c.aead.Overhead())
+	if _, err := rand.Read(nonce); err != nil {
+		return nil, fmt.Errorf("failed to generate random nonce: %w", err)
+	}
+
+	encrypted := c.aead.Seal(nonce, nonce, data, nil)
+	return encrypted, nil
+}
+
+func (c *Credentials) DecryptV2(ciphertext []byte) ([]byte, error) {
+	nonce, message := ciphertext[:c.aead.NonceSize()], ciphertext[c.aead.NonceSize():]
+	decrypted, err := c.aead.Open(nil, nonce, message, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt: %w", err)
+	}
+
+	return decrypted, nil
+}
+
 func (c *Credentials) HashString(value string) string {
 	h := sha256.New()
 	_, _ = fmt.Fprintf(h, "%s:%s", c.recipient, value)
 
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (c *Credentials) HashStrings(data ...string) []byte {
+	h := sha256.New()
+	for _, d := range data {
+		h.Write([]byte(d))
+	}
+
+	return h.Sum(nil)
 }

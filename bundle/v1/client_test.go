@@ -1078,7 +1078,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v1.Client, *cr
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey, bundle.MaxBootstrapSize)
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{
