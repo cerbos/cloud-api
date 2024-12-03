@@ -197,6 +197,8 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 	go func() {
 		if err := wh.Wait(); err != nil {
 			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.V(2).Info("Watch stream terminated: context timed out")
 			case errors.Is(err, context.Canceled):
 				log.V(2).Info("Watch stream terminated: context cancelled")
 			case errors.Is(err, bundle.ErrBundleNotFound):
@@ -214,7 +216,7 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 	return wh, nil
 }
 
-type recvMsgV2 struct {
+type recvMsg struct {
 	msg *bundlev2.WatchBundleResponse
 	err error
 }
@@ -224,7 +226,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 		log := logger.WithName("recv")
 		log.V(1).Info("Starting response handler")
 
-		recvChan := make(chan recvMsgV2, 1)
+		recvChan := make(chan recvMsg, 1)
 		go func() {
 			defer func() {
 				close(recvChan)
@@ -242,9 +244,9 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 				msg, err := stream.Receive()
 				log.V(3).Info("Received message")
 
-				recvChan <- recvMsgV2{msg: msg, err: err}
+				recvChan <- recvMsg{msg: msg, err: err}
 				if err != nil {
-					if errors.Is(err, context.Canceled) {
+					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 						log.V(3).Info("Exiting receive loop")
 					} else {
 						log.V(3).Error(err, "Exiting receive loop due to error")
