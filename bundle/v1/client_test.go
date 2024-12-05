@@ -4,7 +4,7 @@
 //go:build tests
 // +build tests
 
-package bundle_test
+package v1_test
 
 import (
 	"bytes"
@@ -47,6 +47,7 @@ import (
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
+	v1 "github.com/cerbos/cloud-api/bundle/v1"
 	"github.com/cerbos/cloud-api/credentials"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
@@ -1043,7 +1044,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client, *credentials.Credentials) {
+func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v1.Client, *credentials.Credentials) {
 	t.Helper()
 
 	tmp := t.TempDir()
@@ -1077,7 +1078,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey, bundle.MaxBootstrapSize)
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{
