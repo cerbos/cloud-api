@@ -13,6 +13,10 @@ packages:
     interfaces:
       CerbosBundleServiceHandler:
 
+  github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect:
+    interfaces:
+      CerbosBundleServiceHandler:
+
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect:
     interfaces:
       CerbosLogsServiceHandler:

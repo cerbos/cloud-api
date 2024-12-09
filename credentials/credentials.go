@@ -4,6 +4,7 @@
 package credentials
 
 import (
+	"bytes"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -11,7 +12,9 @@ import (
 	"strings"
 
 	"filippo.io/age"
-	sha256 "github.com/minio/sha256-simd"
+	"github.com/minio/sha256-simd"
+
+	"github.com/cerbos/cloud-api/crypto"
 )
 
 const (
@@ -38,11 +41,7 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	h := sha256.New()
-	h.Write([]byte(clientID))
-	h.Write([]byte(clientSecret))
-	bootstrapKey := h.Sum(nil)
-
+	bootstrapKey := Hash([]byte(clientID), []byte(clientSecret))
 	if privateKey == "" {
 		return &Credentials{
 			ClientID:     clientID,
@@ -92,9 +91,28 @@ func (c *Credentials) Decrypt(input io.Reader) (io.Reader, error) {
 	return out, nil
 }
 
+func (c *Credentials) DecryptV2(encrypted io.Reader) ([]byte, error) {
+	decrypted := new(bytes.Buffer)
+	_, err := crypto.DecryptChaCha20Poly1305Stream(c.BootstrapKey, encrypted, decrypted)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt: %w", err)
+	}
+
+	return decrypted.Bytes(), nil
+}
+
 func (c *Credentials) HashString(value string) string {
 	h := sha256.New()
 	_, _ = fmt.Fprintf(h, "%s:%s", c.recipient, value)
 
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Hash(data ...[]byte) []byte {
+	h := sha256.New()
+	for _, d := range data {
+		h.Write(d)
+	}
+
+	return h.Sum(nil)
 }
