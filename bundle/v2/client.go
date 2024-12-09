@@ -64,9 +64,9 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 	log.V(1).Info("Getting bootstrap configuration")
 
 	bootstrapConfName := hex.EncodeToString(
-		credentials.HashStrings(
-			hex.EncodeToString(c.Credentials.BootstrapKey),
-			bundleLabel,
+		credentials.Hash(
+			c.Credentials.BootstrapKey,
+			[]byte(bundleLabel),
 		),
 	)
 	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bootstrapConfName)
@@ -121,13 +121,7 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 		return nil, bundle.ErrDownloadFailed
 	}
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
-	if err != nil {
-		log.V(1).Error(err, "Failed to read bootstrap bundle bytes")
-		return nil, fmt.Errorf("failed to read bootstrap bundle bytes: %w", err)
-	}
-
-	conf, err := c.Credentials.DecryptV2(body)
+	conf, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
 	if err != nil {
 		log.V(1).Error(err, "Failed to decrypt bootstrap bundle")
 		return nil, fmt.Errorf("failed to decrypt bootstrap bundle: %w", err)

@@ -38,7 +38,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -50,6 +49,7 @@ import (
 	"github.com/cerbos/cloud-api/bundle"
 	v2 "github.com/cerbos/cloud-api/bundle/v2"
 	"github.com/cerbos/cloud-api/credentials"
+	"github.com/cerbos/cloud-api/crypto/stream"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	bootstrapv2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v2"
@@ -88,9 +88,9 @@ func TestBootstrapBundle(t *testing.T) {
 		t.Helper()
 
 		bootstrapConfName := hex.EncodeToString(
-			credentials.HashStrings(
-				hex.EncodeToString(creds.BootstrapKey),
-				label,
+			credentials.Hash(
+				creds.BootstrapKey,
+				[]byte(label),
 			),
 		)
 		confFile, err := os.Create(filepath.Join(dataDir, bootstrapConfName))
@@ -1114,7 +1114,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v2.Client, *cr
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey, bundle.MaxBootstrapSize)
+	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{
@@ -1353,16 +1353,23 @@ func randomCommit() string {
 }
 
 func encrypt(clientID, clientSecret string, data []byte) ([]byte, error) {
-	aead, err := chacha20poly1305.NewX(credentials.HashStrings(clientID, clientSecret))
+	return encryptChaCha20Poly1305(credentials.Hash([]byte(clientID), []byte(clientSecret)), data)
+}
+
+func encryptChaCha20Poly1305(key, data []byte) ([]byte, error) {
+	out := new(bytes.Buffer)
+	encryptor, err := stream.NewWriter(key, out)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize cipher: %w", err)
+		return nil, fmt.Errorf("failed to create encryptor: %w", err)
 	}
 
-	nonce := make([]byte, aead.NonceSize(), aead.NonceSize()+len(data)+aead.Overhead())
-	if _, err := rand.Read(nonce); err != nil {
-		return nil, fmt.Errorf("failed to generate random nonce: %w", err)
+	if _, err := io.Copy(encryptor, bytes.NewReader(data)); err != nil {
+		return nil, fmt.Errorf("failed to encrypt: %w", err)
 	}
 
-	encrypted := aead.Seal(nonce, nonce, data, nil)
-	return encrypted, nil
+	if err := encryptor.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close encryptor: %w", err)
+	}
+
+	return out.Bytes(), nil
 }

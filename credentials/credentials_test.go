@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/credentials"
 
 	_ "embed"
@@ -25,7 +24,7 @@ func TestCredentials(t *testing.T) {
 	t.Run("with private key", func(t *testing.T) {
 		privateKey := "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A"
 
-		c, err := credentials.New(clientID, clientSecret, privateKey, bundle.MaxBootstrapSize)
+		c, err := credentials.New(clientID, clientSecret, privateKey)
 		require.NoError(t, err, "Failed to create credentials")
 		require.Equal(t, clientID, c.ClientID, "Client ID mismatch")
 		require.Equal(t, clientSecret, c.ClientSecret, "Client secret mismatch")
@@ -43,7 +42,7 @@ func TestCredentials(t *testing.T) {
 	})
 
 	t.Run("without private key", func(t *testing.T) {
-		c, err := credentials.New(clientID, clientSecret, "", bundle.MaxBootstrapSize)
+		c, err := credentials.New(clientID, clientSecret, "")
 		require.NoError(t, err, "Failed to create credentials")
 		require.Equal(t, clientID, c.ClientID, "Client ID mismatch")
 		require.Equal(t, clientSecret, c.ClientSecret, "Client secret mismatch")

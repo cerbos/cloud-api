@@ -4,7 +4,7 @@
 package credentials
 
 import (
-	"crypto/cipher"
+	"bytes"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -13,7 +13,8 @@ import (
 
 	"filippo.io/age"
 	"github.com/minio/sha256-simd"
-	"golang.org/x/crypto/chacha20poly1305"
+
+	"github.com/cerbos/cloud-api/crypto"
 )
 
 const (
@@ -28,49 +29,45 @@ var (
 
 type Credentials struct {
 	identity     *age.X25519Identity
-	aead         cipher.AEAD
 	recipient    string
 	WorkspaceID  string
 	ClientID     string
 	ClientSecret string
 	BootstrapKey []byte
-	maxSize      int64
 }
 
-func New(clientID, clientSecret, privateKey string, maxSize int64) (*Credentials, error) {
+func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 	if clientID == "" || clientSecret == "" {
 		return nil, ErrInvalidCredentials
 	}
 
-	bootstrapKey := HashStrings(clientID, clientSecret)
-	c := &Credentials{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		BootstrapKey: bootstrapKey,
-		maxSize:      maxSize,
-	}
-
-	var err error
-	if c.aead, err = chacha20poly1305.NewX(bootstrapKey); err != nil {
-		return nil, fmt.Errorf("failed to initialize cipher: %w", err)
-	}
-
+	bootstrapKey := Hash([]byte(clientID), []byte(clientSecret))
 	if privateKey == "" {
-		return c, nil
+		return &Credentials{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			BootstrapKey: bootstrapKey,
+		}, nil
 	}
 
-	var ageKey string
-	var ok bool
-	if c.WorkspaceID, ageKey, ok = strings.Cut(strings.TrimPrefix(privateKey, cerbosKeyPrefix), "-"); !ok {
+	workspaceID, ageKey, ok := strings.Cut(strings.TrimPrefix(privateKey, cerbosKeyPrefix), "-")
+	if !ok {
 		return nil, ErrInvalidPrivateKey
 	}
 
-	if c.identity, err = age.ParseX25519Identity(ageSecretKeyPrefix + ageKey); err != nil {
+	identity, err := age.ParseX25519Identity(ageSecretKeyPrefix + ageKey)
+	if err != nil {
 		return nil, fmt.Errorf("failed to parse private key: %w", err)
 	}
 
-	c.recipient = c.identity.Recipient().String()
-	return c, nil
+	return &Credentials{
+		identity:     identity,
+		recipient:    identity.Recipient().String(),
+		WorkspaceID:  workspaceID,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		BootstrapKey: bootstrapKey,
+	}, nil
 }
 
 func (c *Credentials) Encrypt(dst io.Writer) (io.WriteCloser, error) {
@@ -94,14 +91,14 @@ func (c *Credentials) Decrypt(input io.Reader) (io.Reader, error) {
 	return out, nil
 }
 
-func (c *Credentials) DecryptV2(ciphertext []byte) ([]byte, error) {
-	nonce, message := ciphertext[:c.aead.NonceSize()], ciphertext[c.aead.NonceSize():]
-	decrypted, err := c.aead.Open(nil, nonce, message, nil)
+func (c *Credentials) DecryptV2(encrypted io.Reader) ([]byte, error) {
+	decrypted := new(bytes.Buffer)
+	_, err := crypto.DecryptChaCha20Poly1305Stream(c.BootstrapKey, encrypted, decrypted)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt: %w", err)
 	}
 
-	return decrypted, nil
+	return decrypted.Bytes(), nil
 }
 
 func (c *Credentials) HashString(value string) string {
@@ -111,10 +108,10 @@ func (c *Credentials) HashString(value string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func HashStrings(data ...string) []byte {
+func Hash(data ...[]byte) []byte {
 	h := sha256.New()
 	for _, d := range data {
-		h.Write([]byte(d))
+		h.Write(d)
 	}
 
 	return h.Sum(nil)
