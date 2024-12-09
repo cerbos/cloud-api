@@ -30,6 +30,7 @@ type Credentials struct {
 	WorkspaceID  string
 	ClientID     string
 	ClientSecret string
+	BootstrapKey []byte
 }
 
 func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
@@ -37,10 +38,16 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 		return nil, ErrInvalidCredentials
 	}
 
+	h := sha256.New()
+	h.Write([]byte(clientID))
+	h.Write([]byte(clientSecret))
+	bootstrapKey := h.Sum(nil)
+
 	if privateKey == "" {
 		return &Credentials{
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
+			BootstrapKey: bootstrapKey,
 		}, nil
 	}
 
@@ -60,6 +67,7 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 		WorkspaceID:  workspaceID,
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
+		BootstrapKey: bootstrapKey,
 	}, nil
 }
 
