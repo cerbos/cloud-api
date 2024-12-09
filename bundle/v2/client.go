@@ -4,7 +4,6 @@
 package v2
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"errors"
@@ -14,21 +13,18 @@ import (
 	"net/url"
 	"sort"
 	"time"
-	"unicode"
 
 	"connectrpc.com/connect"
 	"github.com/go-logr/logr"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/bundle/clientcache"
 	"github.com/cerbos/cloud-api/credentials"
-	bootstrapv2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v2"
 	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
@@ -61,34 +57,31 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 
 func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
-	log.V(1).Info("Getting bootstrap configuration")
+	log.V(1).Info("Getting bootstrap bundle info")
 
-	bootstrapConfName := hex.EncodeToString(
+	bundleInfoName := hex.EncodeToString(
 		credentials.Hash(
 			c.Credentials.BootstrapKey,
 			[]byte(bundleLabel),
 		),
 	)
-	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bootstrapConfName)
+	bundleInfoURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bundleInfoName)
 	if err != nil {
-		return "", fmt.Errorf("failed to construct bootstrap URL: %w", err)
+		return "", fmt.Errorf("failed to construct bootstrap bundle info URL: %w", err)
 	}
 
-	bootstrapConf, err := c.downloadBootstrapConf(ctx, bootstrapURL)
+	bundleInfo, err := c.downloadBundleInfo(ctx, bundleInfoURL)
 	if err != nil {
-		log.Error(err, "Failed to download bootstrap configuration")
+		log.Error(err, "Failed to download bootstrap bundle info")
 		return "", err
 	}
 
-	if meta := bootstrapConf.Meta; meta != nil {
-		log.Info("Bootstrap configuration downloaded", "created_at", meta.CreatedAt.AsTime(), "commit_hash", meta.CommitHash)
-	}
-
-	base.LogResponsePayload(log, bootstrapConf)
-	return c.getBundleFile(logr.NewContext(ctx, log), bootstrapConf.BundleInfo)
+	log.Info("Bootstrap bundle info downloaded")
+	base.LogResponsePayload(log, bundleInfo)
+	return c.getBundleFile(logr.NewContext(ctx, log), bundleInfo)
 }
 
-func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootstrapv2.PDPConfig, error) {
+func (c *Client) downloadBundleInfo(ctx context.Context, url string) (*bundlev2.BundleInfo, error) {
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", url)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
@@ -113,37 +106,31 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
-			log.V(1).Info("Bootstrap bundle not found")
-			return nil, bundle.ErrBootstrapBundleNotFound
+			log.V(1).Info("Bootstrap bundle info not found")
+			return nil, bundle.ErrBootstrapBundleInfoNotFound
 		}
 
-		log.V(1).Info("Failed to download bootstrap bundle")
+		log.V(1).Info("Failed to download bootstrap bundle info")
 		return nil, bundle.ErrDownloadFailed
 	}
 
-	conf, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
+	bundleInfoBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
 	if err != nil {
-		log.V(1).Error(err, "Failed to decrypt bootstrap bundle")
-		return nil, fmt.Errorf("failed to decrypt bootstrap bundle: %w", err)
+		log.V(1).Error(err, "Failed to decrypt bootstrap bundle info")
+		return nil, fmt.Errorf("failed to decrypt bootstrap bundle info: %w", err)
 	}
 
-	return c.parseBootstrapConf(conf)
+	return c.parseBundleInfo(bundleInfoBytes)
 }
 
-func (c *Client) parseBootstrapConf(conf []byte) (*bootstrapv2.PDPConfig, error) {
-	trimmed := bytes.TrimLeftFunc(conf, unicode.IsSpace)
-	out := &bootstrapv2.PDPConfig{}
-	if bytes.HasPrefix(trimmed, bundle.JSONStart) {
-		unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-		if err := unmarshaler.Unmarshal(trimmed, out); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal bootstrap JSON: %w", err)
-		}
-	} else if err := out.UnmarshalVT(trimmed); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal bootstrap proto: %w", err)
+func (c *Client) parseBundleInfo(conf []byte) (*bundlev2.BundleInfo, error) {
+	out := &bundlev2.BundleInfo{}
+	if err := out.UnmarshalVT(conf); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal bootstrap bundle info proto: %w", err)
 	}
 
 	if err := bundle.Validate(out); err != nil {
-		return out, fmt.Errorf("invalid bootstrap configuration: %w", err)
+		return out, fmt.Errorf("invalid bootstrap bundle info: %w", err)
 	}
 
 	return out, nil

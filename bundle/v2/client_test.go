@@ -40,7 +40,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -52,7 +51,6 @@ import (
 	"github.com/cerbos/cloud-api/crypto/stream"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
-	bootstrapv2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v2"
 	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
@@ -84,56 +82,50 @@ func TestBootstrapBundle(t *testing.T) {
 	dataDir := filepath.Join(rootDir, "v2", clientID)
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
 
-	writeConf := func(t *testing.T, label string, data []byte) {
+	writeBundleInfo := func(t *testing.T, label string, data []byte) {
 		t.Helper()
 
-		bootstrapConfName := hex.EncodeToString(
+		bundleInfoName := hex.EncodeToString(
 			credentials.Hash(
 				creds.BootstrapKey,
 				[]byte(label),
 			),
 		)
-		confFile, err := os.Create(filepath.Join(dataDir, bootstrapConfName))
-		require.NoError(t, err, "Failed to create bootstrap file")
-		t.Cleanup(func() { _ = confFile.Close() })
+		bundleInfoFile, err := os.Create(filepath.Join(dataDir, bundleInfoName))
+		require.NoError(t, err, "Failed to create bootstrap bundle info file")
+		t.Cleanup(func() { _ = bundleInfoFile.Close() })
 
 		encryptedBytes, err := encrypt(clientID, clientSecret, data)
 		require.NoError(t, err, "Failed to create encrypted bytes")
 
-		_, err = bytes.NewReader(encryptedBytes).WriteTo(confFile)
-		require.NoError(t, err, "Failed to write encrypted conf to file")
-		require.NoError(t, confFile.Close(), "Failed to close conf file")
+		_, err = bytes.NewReader(encryptedBytes).WriteTo(bundleInfoFile)
+		require.NoError(t, err, "Failed to write encrypted bootstrap bundle info to file")
+		require.NoError(t, bundleInfoFile.Close(), "Failed to close bootstrap bundle info file")
 	}
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		label := "label1"
-		conf := &bootstrapv2.PDPConfig{
-			Meta: &bootstrapv2.PDPConfig_Meta{
-				CommitHash: "1ebe782f7b0cd6b78bec8e764f916afd285401db",
-				CreatedAt:  timestamppb.Now(),
-			},
-			BundleInfo: &bundlev2.BundleInfo{
-				Label:         label,
-				InputHash:     hash("input"),
-				OutputHash:    wantChecksum,
-				EncryptionKey: []byte("secret"),
-				Segments: []*bundlev2.BundleInfo_Segment{
-					{
-						SegmentId: 1,
-						Checksum:  wantChecksum,
-						DownloadUrls: []string{
-							fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
-							fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
-						},
+		bundleInfo := &bundlev2.BundleInfo{
+			Label:         label,
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
+				{
+					SegmentId: 1,
+					Checksum:  wantChecksum,
+					DownloadUrls: []string{
+						fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
+						fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
 					},
 				},
 			},
 		}
 
-		confJSON, err := protojson.Marshal(conf)
-		require.NoError(t, err, "Failed to marshal JSON")
-		writeConf(t, label, confJSON)
+		bundleInfoBytes, err := bundleInfo.MarshalVT()
+		require.NoError(t, err, "Failed to marshal")
+		writeBundleInfo(t, label, bundleInfoBytes)
 
 		file, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)
