@@ -39,6 +39,8 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 	}
 
 	h := sha256.New()
+	h.Write([]byte(clientID))
+	h.Write([]byte(":"))
 	h.Write([]byte(clientSecret))
 	bootstrapKey := h.Sum(nil)
 
