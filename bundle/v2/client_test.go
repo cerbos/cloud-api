@@ -82,7 +82,7 @@ func TestBootstrapBundle(t *testing.T) {
 	dataDir := filepath.Join(rootDir, "v2", clientID)
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
 
-	writeBundleInfo := func(t *testing.T, label string, data []byte) {
+	writeGetBundleResponse := func(t *testing.T, label string, data []byte) {
 		t.Helper()
 
 		bundleInfoName := hex.EncodeToString(
@@ -91,41 +91,43 @@ func TestBootstrapBundle(t *testing.T) {
 				[]byte(label),
 			),
 		)
-		bundleInfoFile, err := os.Create(filepath.Join(dataDir, bundleInfoName))
-		require.NoError(t, err, "Failed to create bootstrap bundle info file")
-		t.Cleanup(func() { _ = bundleInfoFile.Close() })
+		getBundleResponseFile, err := os.Create(filepath.Join(dataDir, bundleInfoName))
+		require.NoError(t, err, "Failed to create get bundle response file")
+		t.Cleanup(func() { _ = getBundleResponseFile.Close() })
 
 		encryptedBytes, err := encrypt(clientID, clientSecret, data)
 		require.NoError(t, err, "Failed to create encrypted bytes")
 
-		_, err = bytes.NewReader(encryptedBytes).WriteTo(bundleInfoFile)
-		require.NoError(t, err, "Failed to write encrypted bootstrap bundle info to file")
-		require.NoError(t, bundleInfoFile.Close(), "Failed to close bootstrap bundle info file")
+		_, err = bytes.NewReader(encryptedBytes).WriteTo(getBundleResponseFile)
+		require.NoError(t, err, "Failed to write encrypted get bundle response to file")
+		require.NoError(t, getBundleResponseFile.Close(), "Failed to close get bundle response file")
 	}
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		label := "label1"
-		bundleInfo := &bundlev2.BundleInfo{
-			Label:         label,
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId: 1,
-					Checksum:  wantChecksum,
-					DownloadUrls: []string{
-						fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
-						fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
+		getBundleResp := &bundlev2.GetBundleResponse{
+			BundleInfo: &bundlev2.BundleInfo{
+				Label:         label,
+				InputHash:     hash("input"),
+				OutputHash:    wantChecksum,
+				EncryptionKey: []byte("secret"),
+				Segments: []*bundlev2.BundleInfo_Segment{
+					{
+						SegmentId: 1,
+						Checksum:  wantChecksum,
+						DownloadUrls: []string{
+							fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
+							fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
+						},
 					},
 				},
 			},
 		}
 
-		bundleInfoBytes, err := bundleInfo.MarshalVT()
+		getBundleRespBytes, err := getBundleResp.MarshalVT()
 		require.NoError(t, err, "Failed to marshal")
-		writeBundleInfo(t, label, bundleInfoBytes)
+		writeGetBundleResponse(t, label, getBundleRespBytes)
 
 		file, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)

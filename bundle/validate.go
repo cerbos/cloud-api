@@ -24,7 +24,7 @@ func Validate[T proto.Message](obj T) error {
 		validator, err := protovalidate.New(
 			protovalidate.WithMessages(
 				&bootstrapv1.PDPConfig{},
-				&bundlev2.BundleInfo{},
+				&bundlev2.GetBundleResponse{},
 			),
 		)
 		if err != nil {

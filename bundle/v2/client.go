@@ -114,26 +114,26 @@ func (c *Client) downloadBundleInfo(ctx context.Context, url string) (*bundlev2.
 		return nil, bundle.ErrDownloadFailed
 	}
 
-	bundleInfoBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
+	getBundleResponseBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
 	if err != nil {
-		log.V(1).Error(err, "Failed to decrypt bootstrap bundle info")
-		return nil, fmt.Errorf("failed to decrypt bootstrap bundle info: %w", err)
+		log.V(1).Error(err, "Failed to decrypt GetBundleResponse")
+		return nil, fmt.Errorf("failed to decrypt GetBundleResponse: %w", err)
 	}
 
-	return c.parseBundleInfo(bundleInfoBytes)
+	return c.parseBundleInfo(getBundleResponseBytes)
 }
 
-func (c *Client) parseBundleInfo(conf []byte) (*bundlev2.BundleInfo, error) {
-	out := &bundlev2.BundleInfo{}
-	if err := out.UnmarshalVT(conf); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal bootstrap bundle info proto: %w", err)
+func (c *Client) parseBundleInfo(getBundleResponseBytes []byte) (*bundlev2.BundleInfo, error) {
+	out := &bundlev2.GetBundleResponse{}
+	if err := out.UnmarshalVT(getBundleResponseBytes); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal GetBundleResponse proto: %w", err)
 	}
 
 	if err := bundle.Validate(out); err != nil {
-		return out, fmt.Errorf("invalid bootstrap bundle info: %w", err)
+		return nil, fmt.Errorf("invalid GetBundleResponse: %w", err)
 	}
 
-	return out, nil
+	return out.BundleInfo, nil
 }
 
 // GetBundle returns the path to the bundle with the given label.
