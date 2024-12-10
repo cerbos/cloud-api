@@ -82,31 +82,31 @@ func TestBootstrapBundle(t *testing.T) {
 	dataDir := filepath.Join(rootDir, "v2", clientID)
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
 
-	writeGetBundleResponse := func(t *testing.T, label string, data []byte) {
+	writeBundleResponse := func(t *testing.T, label string, data []byte) {
 		t.Helper()
 
-		bundleInfoName := hex.EncodeToString(
+		bundleResponseName := hex.EncodeToString(
 			credentials.Hash(
 				creds.BootstrapKey,
 				[]byte(label),
 			),
 		)
-		getBundleResponseFile, err := os.Create(filepath.Join(dataDir, bundleInfoName))
-		require.NoError(t, err, "Failed to create get bundle response file")
-		t.Cleanup(func() { _ = getBundleResponseFile.Close() })
+		bundleResponseFile, err := os.Create(filepath.Join(dataDir, bundleResponseName))
+		require.NoError(t, err, "Failed to create bootstrap bundle response file")
+		t.Cleanup(func() { _ = bundleResponseFile.Close() })
 
 		encryptedBytes, err := encrypt(clientID, clientSecret, data)
 		require.NoError(t, err, "Failed to create encrypted bytes")
 
-		_, err = bytes.NewReader(encryptedBytes).WriteTo(getBundleResponseFile)
-		require.NoError(t, err, "Failed to write encrypted get bundle response to file")
-		require.NoError(t, getBundleResponseFile.Close(), "Failed to close get bundle response file")
+		_, err = bytes.NewReader(encryptedBytes).WriteTo(bundleResponseFile)
+		require.NoError(t, err, "Failed to write encrypted bootstrap bundle response to file")
+		require.NoError(t, bundleResponseFile.Close(), "Failed to close bootstrap bundle response file")
 	}
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		label := "label1"
-		getBundleResp := &bundlev2.GetBundleResponse{
+		bundleResp := &bundlev2.GetBundleResponse{
 			BundleInfo: &bundlev2.BundleInfo{
 				Label:         label,
 				InputHash:     hash("input"),
@@ -125,9 +125,9 @@ func TestBootstrapBundle(t *testing.T) {
 			},
 		}
 
-		getBundleRespBytes, err := getBundleResp.MarshalVT()
+		bundleRespBytes, err := bundleResp.MarshalVT()
 		require.NoError(t, err, "Failed to marshal")
-		writeGetBundleResponse(t, label, getBundleRespBytes)
+		writeBundleResponse(t, label, bundleRespBytes)
 
 		file, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)

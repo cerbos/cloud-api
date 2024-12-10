@@ -57,31 +57,31 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 
 func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
-	log.V(1).Info("Getting bootstrap bundle info")
+	log.V(1).Info("Getting bootstrap bundle response")
 
-	bundleInfoName := hex.EncodeToString(
+	bundleResponseName := hex.EncodeToString(
 		credentials.Hash(
 			c.Credentials.BootstrapKey,
 			[]byte(bundleLabel),
 		),
 	)
-	bundleInfoURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bundleInfoName)
+	bundleResponseURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bundleResponseName)
 	if err != nil {
-		return "", fmt.Errorf("failed to construct bootstrap bundle info URL: %w", err)
+		return "", fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
 	}
 
-	bundleInfo, err := c.downloadBundleInfo(ctx, bundleInfoURL)
+	bundleResponse, err := c.getBundleResponseViaCDN(ctx, bundleResponseURL)
 	if err != nil {
-		log.Error(err, "Failed to download bootstrap bundle info")
+		log.Error(err, "Failed to download bootstrap bundle response")
 		return "", err
 	}
 
-	log.Info("Bootstrap bundle info downloaded")
-	base.LogResponsePayload(log, bundleInfo)
-	return c.getBundleFile(logr.NewContext(ctx, log), bundleInfo)
+	log.Info("Bootstrap bundle response downloaded")
+	base.LogResponsePayload(log, bundleResponse)
+	return c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
 }
 
-func (c *Client) downloadBundleInfo(ctx context.Context, url string) (*bundlev2.BundleInfo, error) {
+func (c *Client) getBundleResponseViaCDN(ctx context.Context, url string) (*bundlev2.GetBundleResponse, error) {
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", url)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
@@ -106,34 +106,34 @@ func (c *Client) downloadBundleInfo(ctx context.Context, url string) (*bundlev2.
 
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
-			log.V(1).Info("Bootstrap bundle info not found")
-			return nil, bundle.ErrBootstrapBundleInfoNotFound
+			log.V(1).Info("Bootstrap bundle response not found")
+			return nil, bundle.ErrBootstrapBundleResponseNotFound
 		}
 
-		log.V(1).Info("Failed to download bootstrap bundle info")
+		log.V(1).Info("Failed to download bootstrap bundle response")
 		return nil, bundle.ErrDownloadFailed
 	}
 
-	getBundleResponseBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
+	bundleResponseBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
 	if err != nil {
-		log.V(1).Error(err, "Failed to decrypt GetBundleResponse")
-		return nil, fmt.Errorf("failed to decrypt GetBundleResponse: %w", err)
+		log.V(1).Error(err, "Failed to decrypt bootstrap bundle response")
+		return nil, fmt.Errorf("failed to decrypt bootstrap bundle response: %w", err)
 	}
 
-	return c.parseBundleInfo(getBundleResponseBytes)
+	return c.parseBundleResponse(bundleResponseBytes)
 }
 
-func (c *Client) parseBundleInfo(getBundleResponseBytes []byte) (*bundlev2.BundleInfo, error) {
+func (c *Client) parseBundleResponse(bundleResponseBytes []byte) (*bundlev2.GetBundleResponse, error) {
 	out := &bundlev2.GetBundleResponse{}
-	if err := out.UnmarshalVT(getBundleResponseBytes); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal GetBundleResponse proto: %w", err)
+	if err := out.UnmarshalVT(bundleResponseBytes); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal bootstrap bundle response proto: %w", err)
 	}
 
 	if err := bundle.Validate(out); err != nil {
-		return nil, fmt.Errorf("invalid GetBundleResponse: %w", err)
+		return nil, fmt.Errorf("invalid bootstrap bundle response: %w", err)
 	}
 
-	return out.BundleInfo, nil
+	return out, nil
 }
 
 // GetBundle returns the path to the bundle with the given label.
