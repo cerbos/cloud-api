@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 )
 
 var (
@@ -23,6 +24,7 @@ func Validate[T proto.Message](obj T) error {
 		validator, err := protovalidate.New(
 			protovalidate.WithMessages(
 				&bootstrapv1.PDPConfig{},
+				&bundlev2.GetBundleResponse{},
 			),
 		)
 		if err != nil {

@@ -4,7 +4,7 @@
 //go:build tests
 // +build tests
 
-package bundle_test
+package v2_test
 
 import (
 	"bytes"
@@ -40,23 +40,23 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
+	v2 "github.com/cerbos/cloud-api/bundle/v2"
 	"github.com/cerbos/cloud-api/credentials"
+	"github.com/cerbos/cloud-api/crypto/stream"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
-	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
-	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	"github.com/cerbos/cloud-api/hub"
 	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
-	mockbundlev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
+	mockbundlev2connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
 
 const testPrivateKey = "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A"
@@ -68,7 +68,7 @@ var pdpIdentifer = &pdpv1.Identifier{
 
 func TestBootstrapBundle(t *testing.T) {
 	mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-	mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+	mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 	server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 	t.Cleanup(server.Close)
 
@@ -77,39 +77,42 @@ func TestBootstrapBundle(t *testing.T) {
 	rootDir := filepath.Join("testdata", "bootstrap")
 	require.NoError(t, os.RemoveAll(rootDir), "Failed to remove bootstrap dir")
 
-	dataDir := filepath.Join(rootDir, "v1", creds.HashString(creds.WorkspaceID))
+	clientID := creds.ClientID
+	clientSecret := creds.ClientSecret
+	dataDir := filepath.Join(rootDir, "v2", clientID)
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
 
-	writeConf := func(t *testing.T, label string, data []byte) {
+	writeBundleResponse := func(t *testing.T, label string, data []byte) {
 		t.Helper()
 
-		confFile, err := os.Create(filepath.Join(dataDir, creds.HashString(label)))
-		require.NoError(t, err, "Failed to create bootstrap file")
-		t.Cleanup(func() { _ = confFile.Close() })
+		bundleResponseName := hex.EncodeToString(
+			credentials.Hash(
+				creds.BootstrapKey,
+				[]byte(label),
+			),
+		)
+		bundleResponseFile, err := os.Create(filepath.Join(dataDir, bundleResponseName))
+		require.NoError(t, err, "Failed to create bootstrap bundle response file")
+		t.Cleanup(func() { _ = bundleResponseFile.Close() })
 
-		confWriter, err := creds.Encrypt(confFile)
-		require.NoError(t, err, "Failed to create encryption stream")
-		t.Cleanup(func() { _ = confWriter.Close() })
+		encryptedBytes, err := encrypt(clientID, clientSecret, data)
+		require.NoError(t, err, "Failed to create encrypted bytes")
 
-		_, err = bytes.NewReader(data).WriteTo(confWriter)
-		require.NoError(t, err, "Failed to encrypt conf")
-
-		require.NoError(t, confWriter.Close(), "Failed to close encryption stream")
-		require.NoError(t, confFile.Close(), "Failed to close conf file")
+		_, err = bytes.NewReader(encryptedBytes).WriteTo(bundleResponseFile)
+		require.NoError(t, err, "Failed to write encrypted bootstrap bundle response to file")
+		require.NoError(t, bundleResponseFile.Close(), "Failed to close bootstrap bundle response file")
 	}
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		label := "label1"
-		conf := &bootstrapv1.PDPConfig{
-			Meta: &bootstrapv1.PDPConfig_Meta{
-				CommitHash: "1ebe782f7b0cd6b78bec8e764f916afd285401db",
-				CreatedAt:  timestamppb.Now(),
-			},
-			BundleInfo: &bundlev1.BundleInfo{
-				Label:      label,
-				BundleHash: wantChecksum,
-				Segments: []*bundlev1.BundleInfo_Segment{
+		bundleResp := &bundlev2.GetBundleResponse{
+			BundleInfo: &bundlev2.BundleInfo{
+				Label:         label,
+				InputHash:     hash("input"),
+				OutputHash:    wantChecksum,
+				EncryptionKey: []byte("secret"),
+				Segments: []*bundlev2.BundleInfo_Segment{
 					{
 						SegmentId: 1,
 						Checksum:  wantChecksum,
@@ -122,9 +125,9 @@ func TestBootstrapBundle(t *testing.T) {
 			},
 		}
 
-		confJSON, err := protojson.Marshal(conf)
-		require.NoError(t, err, "Failed to marshal JSON")
-		writeConf(t, label, confJSON)
+		bundleRespBytes, err := bundleResp.MarshalVT()
+		require.NoError(t, err, "Failed to marshal")
+		writeBundleResponse(t, label, bundleRespBytes)
 
 		file, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)
@@ -142,7 +145,7 @@ func TestBootstrapBundle(t *testing.T) {
 func TestGetBundle(t *testing.T) {
 	t.Run("SingleSegment", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -153,11 +156,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     wantChecksum,
@@ -185,7 +190,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("MultipleDownloadURLs", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -196,11 +201,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId: 1,
 							Checksum:  wantChecksum,
@@ -226,7 +233,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("MultipleSegments", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -237,11 +244,11 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
 					Label:      "label",
-					BundleHash: wantChecksum,
-					Segments: []*bundlev1.BundleInfo_Segment{
+					OutputHash: wantChecksum,
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
@@ -281,7 +288,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -293,11 +300,13 @@ func TestGetBundle(t *testing.T) {
 		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum1,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum1,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
@@ -333,11 +342,13 @@ func TestGetBundle(t *testing.T) {
 		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum2,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum2,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_00")),
@@ -392,7 +403,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("BundleNotAvailableForDownload", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -403,11 +414,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId: 1,
 							Checksum:  wantChecksum,
@@ -432,7 +445,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("SegmentNotAvailableForDownload", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -443,11 +456,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: wantChecksum,
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    wantChecksum,
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
@@ -478,7 +493,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("ChecksumMismatch", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -488,11 +503,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: checksum(t, filepath.Join("testdata", "bundle1.crbp")),
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    checksum(t, filepath.Join("testdata", "bundle1.crbp")),
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
@@ -511,7 +528,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("InvalidBundleHash", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -521,11 +538,13 @@ func TestGetBundle(t *testing.T) {
 
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev1.GetBundleResponse{
-				BundleInfo: &bundlev1.BundleInfo{
-					Label:      "label",
-					BundleHash: []byte{0xba, 0xd1},
-					Segments: []*bundlev1.BundleInfo_Segment{
+			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+				BundleInfo: &bundlev2.BundleInfo{
+					Label:         "label",
+					InputHash:     hash("input"),
+					OutputHash:    []byte{0xba, 0xd1},
+					EncryptionKey: []byte("secret"),
+					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
 							Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
@@ -541,7 +560,7 @@ func TestGetBundle(t *testing.T) {
 
 	t.Run("AuthenticationFailure", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -557,8 +576,8 @@ func TestGetBundle(t *testing.T) {
 	})
 }
 
-func getBundleReq(wantLabel string) func(*connect.Request[bundlev1.GetBundleRequest]) bool {
-	return func(c *connect.Request[bundlev1.GetBundleRequest]) bool {
+func getBundleReq(wantLabel string) func(*connect.Request[bundlev2.GetBundleRequest]) bool {
+	return func(c *connect.Request[bundlev2.GetBundleRequest]) bool {
 		return c.Msg.GetBundleLabel() == wantLabel && c.Msg.GetPdpId().Instance == "instance"
 	}
 }
@@ -586,10 +605,12 @@ func TestWatchBundle(t *testing.T) {
 		eventStream := handle.ServerEvents()
 
 		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum1,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum1,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum1,
@@ -611,10 +632,12 @@ func TestWatchBundle(t *testing.T) {
 		require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
 		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID1))
 
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum2,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum2,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum2,
@@ -655,10 +678,12 @@ func TestWatchBundle(t *testing.T) {
 		eventStream := handle.ServerEvents()
 
 		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum,
@@ -719,10 +744,12 @@ func TestWatchBundle(t *testing.T) {
 		eventStream := handle.ServerEvents()
 
 		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum1,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum1,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum1,
@@ -764,10 +791,12 @@ func TestWatchBundle(t *testing.T) {
 		eventStream := handle.ServerEvents()
 
 		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum1,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum1,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum1,
@@ -792,7 +821,7 @@ func TestWatchBundle(t *testing.T) {
 
 	t.Run("AuthenticationFailure", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev1connect.NewCerbosBundleServiceHandler(t)
+		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
 		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 		t.Cleanup(server.Close)
 
@@ -823,22 +852,22 @@ func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
 	}
 }
 
-func mkWBWatchLabelReq(label string) *bundlev1.WatchBundleRequest {
-	return &bundlev1.WatchBundleRequest{
+func mkWBWatchLabelReq(label string) *bundlev2.WatchBundleRequest {
+	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
-		Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
-			WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{
+		Msg: &bundlev2.WatchBundleRequest_WatchLabel_{
+			WatchLabel: &bundlev2.WatchBundleRequest_WatchLabel{
 				BundleLabel: label,
 			},
 		},
 	}
 }
 
-func mkWBHeartbeatReq(bundleID string) *bundlev1.WatchBundleRequest {
-	return &bundlev1.WatchBundleRequest{
+func mkWBHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
+	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
-		Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
-			Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+		Msg: &bundlev2.WatchBundleRequest_Heartbeat_{
+			Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 				Timestamp:      timestamppb.Now(),
 				ActiveBundleId: bundleID,
 			},
@@ -903,10 +932,12 @@ func TestNetworkIssues(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev1.BundleInfo{
-			Label:      "label",
-			BundleHash: wantChecksum,
-			Segments: []*bundlev1.BundleInfo_Segment{
+		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
+			Label:         "label",
+			InputHash:     hash("input"),
+			OutputHash:    wantChecksum,
+			EncryptionKey: []byte("secret"),
+			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
 					Checksum:     wantChecksum,
@@ -929,13 +960,13 @@ func TestNetworkIssues(t *testing.T) {
 	})
 }
 
-func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHandler, mockBundleSvc bundlev1connect.CerbosBundleServiceHandler) (*httptest.Server, *downloadCounter) {
+func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHandler, mockBundleSvc bundlev2connect.CerbosBundleServiceHandler) (*httptest.Server, *downloadCounter) {
 	t.Helper()
 
 	compress1KB := connect.WithCompressMinBytes(1024)
 	fileHandler := http.FileServer(http.Dir("testdata"))
 	apiKeyPath, apiKeySvcHandler := apikeyv1connect.NewApiKeyServiceHandler(mockAPIKeySvc, compress1KB)
-	bundlePath, bundleSvcHandler := bundlev1connect.NewCerbosBundleServiceHandler(mockBundleSvc, connect.WithInterceptors(authCheck{}), compress1KB)
+	bundlePath, bundleSvcHandler := bundlev2connect.NewCerbosBundleServiceHandler(mockBundleSvc, connect.WithInterceptors(authCheck{}), compress1KB)
 
 	counter := newDownloadCounter()
 
@@ -951,11 +982,11 @@ func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHa
 	mux.Handle("/files/", http.StripPrefix("/files/", counter.wrap(fileHandler)))
 	mux.Handle("/bootstrap/", counter.wrap(fileHandler))
 	mux.Handle(grpcreflect.NewHandlerV1(
-		grpcreflect.NewStaticReflector(bundlev1connect.CerbosBundleServiceName),
+		grpcreflect.NewStaticReflector(bundlev2connect.CerbosBundleServiceName),
 		compress1KB,
 	))
 	mux.Handle(grpcreflect.NewHandlerV1Alpha(
-		grpcreflect.NewStaticReflector(bundlev1connect.CerbosBundleServiceName),
+		grpcreflect.NewStaticReflector(bundlev2connect.CerbosBundleServiceName),
 		compress1KB,
 	))
 
@@ -1043,7 +1074,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client, *credentials.Credentials) {
+func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v2.Client, *credentials.Credentials) {
 	t.Helper()
 
 	tmp := t.TempDir()
@@ -1093,7 +1124,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 	})
 	require.NoError(t, err, "Failed to initialize hub")
 
-	client, err := h.BundleClient(bundle.ClientConf{
+	client, err := h.BundleClientV2(bundle.ClientConf{
 		CacheDir: cacheDir,
 		TempDir:  tempDir,
 	})
@@ -1103,12 +1134,12 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 }
 
 type haveWatchReq struct {
-	msg *bundlev1.WatchBundleRequest
+	msg *bundlev2.WatchBundleRequest
 	err error
 }
 
 type wantWatchResp struct {
-	msg *bundlev1.WatchBundleResponse
+	msg *bundlev2.WatchBundleResponse
 	err error
 }
 
@@ -1124,7 +1155,7 @@ func newMockBundleWatchService() *mockBundleWatchService {
 	}
 }
 
-func (m *mockBundleWatchService) WatchBundle(ctx context.Context, stream *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]) error {
+func (m *mockBundleWatchService) WatchBundle(ctx context.Context, stream *connect.BidiStream[bundlev2.WatchBundleRequest, bundlev2.WatchBundleResponse]) error {
 	// Wait for first message from client (start watch)
 	msg, err := stream.Receive()
 	m.requests <- haveWatchReq{msg: msg, err: err}
@@ -1180,10 +1211,10 @@ func (m *mockBundleWatchService) WatchBundle(ctx context.Context, stream *connec
 	return p.Wait()
 }
 
-func (m *mockBundleWatchService) respondWithBundleUpdate(binfo *bundlev1.BundleInfo) {
+func (m *mockBundleWatchService) respondWithBundleUpdate(binfo *bundlev2.BundleInfo) {
 	m.responses <- wantWatchResp{
-		msg: &bundlev1.WatchBundleResponse{
-			Msg: &bundlev1.WatchBundleResponse_BundleUpdate{
+		msg: &bundlev2.WatchBundleResponse{
+			Msg: &bundlev2.WatchBundleResponse_BundleUpdate{
 				BundleUpdate: binfo,
 			},
 		},
@@ -1192,9 +1223,9 @@ func (m *mockBundleWatchService) respondWithBundleUpdate(binfo *bundlev1.BundleI
 
 func (m *mockBundleWatchService) respondWithReconnect(backoff time.Duration) {
 	m.responses <- wantWatchResp{
-		msg: &bundlev1.WatchBundleResponse{
-			Msg: &bundlev1.WatchBundleResponse_Reconnect_{
-				Reconnect: &bundlev1.WatchBundleResponse_Reconnect{
+		msg: &bundlev2.WatchBundleResponse{
+			Msg: &bundlev2.WatchBundleResponse_Reconnect_{
+				Reconnect: &bundlev2.WatchBundleResponse_Reconnect{
 					Backoff: durationpb.New(backoff),
 				},
 			},
@@ -1204,9 +1235,9 @@ func (m *mockBundleWatchService) respondWithReconnect(backoff time.Duration) {
 
 func (m *mockBundleWatchService) respondWithBundleRemoved() {
 	m.responses <- wantWatchResp{
-		msg: &bundlev1.WatchBundleResponse{
-			Msg: &bundlev1.WatchBundleResponse_BundleRemoved_{
-				BundleRemoved: &bundlev1.WatchBundleResponse_BundleRemoved{},
+		msg: &bundlev2.WatchBundleResponse{
+			Msg: &bundlev2.WatchBundleResponse_BundleRemoved_{
+				BundleRemoved: &bundlev2.WatchBundleResponse_BundleRemoved{},
 			},
 		},
 	}
@@ -1216,15 +1247,15 @@ func (m *mockBundleWatchService) respondWithError(err error) {
 	m.responses <- wantWatchResp{err: err}
 }
 
-func (m *mockBundleWatchService) requireRequestReceived(t *testing.T, wantReq *bundlev1.WatchBundleRequest) {
+func (m *mockBundleWatchService) requireRequestReceived(t *testing.T, wantReq *bundlev2.WatchBundleRequest) {
 	t.Helper()
 	haveReq := mustPopFromChan(t, m.requests)
 	require.NoError(t, haveReq.err, "Server error during receive")
 	require.Empty(t,
-		cmp.Diff(wantReq, haveReq.msg, protocmp.Transform(), protocmp.IgnoreFields(&bundlev1.WatchBundleRequest_Heartbeat{}, "timestamp")))
+		cmp.Diff(wantReq, haveReq.msg, protocmp.Transform(), protocmp.IgnoreFields(&bundlev2.WatchBundleRequest_Heartbeat{}, "timestamp")))
 }
 
-func (m *mockBundleWatchService) GetBundle(_ context.Context, _ *connect.Request[bundlev1.GetBundleRequest]) (*connect.Response[bundlev1.GetBundleResponse], error) {
+func (m *mockBundleWatchService) GetBundle(_ context.Context, _ *connect.Request[bundlev2.GetBundleRequest]) (*connect.Response[bundlev2.GetBundleResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("unimplemented"))
 }
 
@@ -1288,6 +1319,12 @@ func (dc *downloadCounter) pathHits(path string) int {
 	return dc.paths[path]
 }
 
+func hash(data string) []byte {
+	h := sha256.New()
+	h.Write([]byte(data))
+	return h.Sum(nil)
+}
+
 func expectIssueAccessToken(mockAPIKeySvc *mockapikeyv1connect.ApiKeyServiceHandler) {
 	mockAPIKeySvc.EXPECT().
 		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -1307,4 +1344,26 @@ func randomCommit() string {
 	b := make([]byte, sha1.Size)
 	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
+}
+
+func encrypt(clientID, clientSecret string, data []byte) ([]byte, error) {
+	return encryptChaCha20Poly1305(credentials.Hash([]byte(clientID), []byte(clientSecret)), data)
+}
+
+func encryptChaCha20Poly1305(key, data []byte) ([]byte, error) {
+	out := new(bytes.Buffer)
+	encryptor, err := stream.NewWriter(key, out)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create encryptor: %w", err)
+	}
+
+	if _, err := io.Copy(encryptor, bytes.NewReader(data)); err != nil {
+		return nil, fmt.Errorf("failed to encrypt: %w", err)
+	}
+
+	if err := encryptor.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close encryptor: %w", err)
+	}
+
+	return out.Bytes(), nil
 }
