@@ -55,7 +55,7 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 	}, nil
 }
 
-func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
+func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, []byte, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Getting bootstrap bundle response")
 
@@ -67,18 +67,24 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 	)
 	bundleResponseURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapV2PathPrefix, c.Credentials.ClientID, bundleResponseName)
 	if err != nil {
-		return "", fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
+		return "", nil, fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
 	}
 
 	bundleResponse, err := c.getBundleResponseViaCDN(ctx, bundleResponseURL)
 	if err != nil {
 		log.Error(err, "Failed to download bootstrap bundle response")
-		return "", err
+		return "", nil, err
 	}
 
 	log.Info("Bootstrap bundle response downloaded")
 	base.LogResponsePayload(log, bundleResponse)
-	return c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
+
+	path, err := c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return path, bundleResponse.BundleInfo.EncryptionKey, nil
 }
 
 func (c *Client) getBundleResponseViaCDN(ctx context.Context, url string) (*bundlev2.GetBundleResponse, error) {
