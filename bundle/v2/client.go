@@ -143,7 +143,7 @@ func (c *Client) parseBundleResponse(bundleResponseBytes []byte) (*bundlev2.GetB
 }
 
 // GetBundle returns the path to the bundle with the given label.
-func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, error) {
+func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, []byte, error) {
 	log := c.Logger.WithValues("bundle", bundleLabel)
 	log.V(1).Info("Calling GetBundle RPC")
 
@@ -153,12 +153,17 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, err
 	}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
-		return "", err
+		return "", nil, err
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
 
-	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
+	path, err := c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return path, resp.Msg.BundleInfo.EncryptionKey, nil
 }
 
 func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.WatchHandle, error) {

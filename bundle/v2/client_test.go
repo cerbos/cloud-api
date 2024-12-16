@@ -155,6 +155,7 @@ func TestGetBundle(t *testing.T) {
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
+		wantEncryptionKey := []byte("secret")
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
@@ -162,7 +163,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -174,8 +175,9 @@ func TestGetBundle(t *testing.T) {
 			}), nil).Times(3)
 
 		for i := 0; i < 3; i++ {
-			file, err := client.GetBundle(context.Background(), "label")
+			file, encryptionKey, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
+			require.Equal(t, wantEncryptionKey, encryptionKey)
 
 			haveChecksum := checksum(t, file)
 			require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
@@ -221,7 +223,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil)
 
-		file, err := client.GetBundle(context.Background(), "label")
+		file, _, err := client.GetBundle(context.Background(), "label")
 		require.NoError(t, err)
 
 		haveChecksum := checksum(t, file)
@@ -270,7 +272,7 @@ func TestGetBundle(t *testing.T) {
 			}), nil).Times(3)
 
 		for i := 0; i < 3; i++ {
-			file, err := client.GetBundle(context.Background(), "label")
+			file, _, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
 			haveChecksum := checksum(t, file)
@@ -328,7 +330,7 @@ func TestGetBundle(t *testing.T) {
 			}), nil).Times(3)
 
 		for i := 0; i < 3; i++ {
-			file1, err := client.GetBundle(context.Background(), "label")
+			file1, _, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
 			haveChecksum1 := checksum(t, file1)
@@ -380,7 +382,7 @@ func TestGetBundle(t *testing.T) {
 			}), nil).Times(3)
 
 		for i := 0; i < 3; i++ {
-			file2, err := client.GetBundle(context.Background(), "label")
+			file2, _, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
 			haveChecksum2 := checksum(t, file2)
@@ -435,7 +437,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Once()
 
-		_, err := client.GetBundle(context.Background(), "label")
+		_, _, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 
 		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -483,7 +485,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Once()
 
-		_, err := client.GetBundle(context.Background(), "label")
+		_, _, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 
 		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -520,7 +522,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Once()
 
-		_, err := client.GetBundle(context.Background(), "label")
+		_, _, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
@@ -555,7 +557,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Once()
 
-		_, err := client.GetBundle(context.Background(), "label")
+		_, _, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 	})
 
@@ -571,7 +573,7 @@ func TestGetBundle(t *testing.T) {
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-		_, err := client.GetBundle(context.Background(), "label")
+		_, _, err := client.GetBundle(context.Background(), "label")
 		require.Error(t, err)
 		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})
