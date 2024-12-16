@@ -74,6 +74,7 @@ const (
 type ServerEvent struct {
 	Error            error
 	NewBundlePath    string
+	EncryptionKey    []byte
 	ReconnectBackoff time.Duration
 	Kind             ServerEventKind
 }

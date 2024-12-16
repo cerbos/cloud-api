@@ -278,7 +278,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 					return err
 				}
 
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath, EncryptionKey: m.BundleUpdate.EncryptionKey}); err != nil {
 					return err
 				}
 
