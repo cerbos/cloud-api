@@ -129,15 +129,16 @@ func TestBootstrapBundle(t *testing.T) {
 		require.NoError(t, err, "Failed to marshal")
 		writeBundleResponse(t, label, bundleRespBytes)
 
-		file, err := client.BootstrapBundle(context.Background(), label)
+		file, encryptionKey, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)
+		require.Equal(t, bundleResp.BundleInfo.EncryptionKey, encryptionKey)
 
 		haveChecksum := checksum(t, file)
 		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		_, err := client.BootstrapBundle(context.Background(), "blah")
+		_, _, err := client.BootstrapBundle(context.Background(), "blah")
 		require.Error(t, err)
 	})
 }
