@@ -105,13 +105,14 @@ func TestBootstrapBundle(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+		wantEncryptionKey := []byte("secret")
 		label := "label1"
 		bundleResp := &bundlev2.GetBundleResponse{
 			BundleInfo: &bundlev2.BundleInfo{
 				Label:         label,
 				InputHash:     hash("input"),
 				OutputHash:    wantChecksum,
-				EncryptionKey: []byte("secret"),
+				EncryptionKey: wantEncryptionKey,
 				Segments: []*bundlev2.BundleInfo_Segment{
 					{
 						SegmentId: 1,
@@ -131,7 +132,7 @@ func TestBootstrapBundle(t *testing.T) {
 
 		file, encryptionKey, err := client.BootstrapBundle(context.Background(), label)
 		require.NoError(t, err)
-		require.Equal(t, bundleResp.BundleInfo.EncryptionKey, encryptionKey)
+		require.Equal(t, wantEncryptionKey, encryptionKey)
 
 		haveChecksum := checksum(t, file)
 		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
@@ -144,6 +145,7 @@ func TestBootstrapBundle(t *testing.T) {
 }
 
 func TestGetBundle(t *testing.T) {
+	wantEncryptionKey := []byte("secret")
 	t.Run("SingleSegment", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
 		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
@@ -155,7 +157,6 @@ func TestGetBundle(t *testing.T) {
 
 		expectIssueAccessToken(mockAPIKeySvc)
 
-		wantEncryptionKey := []byte("secret")
 		mockBundleSvc.EXPECT().
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
@@ -186,9 +187,10 @@ func TestGetBundle(t *testing.T) {
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-		cached, err := client.GetCachedBundle("label")
+		cached, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 	})
 
 	t.Run("MultipleDownloadURLs", func(t *testing.T) {
@@ -209,7 +211,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId: 1,
@@ -229,9 +231,10 @@ func TestGetBundle(t *testing.T) {
 		haveChecksum := checksum(t, file)
 		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
 
-		cached, err := client.GetCachedBundle("label")
+		cached, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 	})
 
 	t.Run("MultipleSegments", func(t *testing.T) {
@@ -249,8 +252,9 @@ func TestGetBundle(t *testing.T) {
 			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
 			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
 				BundleInfo: &bundlev2.BundleInfo{
-					Label:      "label",
-					OutputHash: wantChecksum,
+					Label:         "label",
+					OutputHash:    wantChecksum,
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -284,9 +288,10 @@ func TestGetBundle(t *testing.T) {
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for segment 02")
 
-		cached, err := client.GetCachedBundle("label")
+		cached, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 	})
 
 	t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
@@ -308,7 +313,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum1,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -337,9 +342,10 @@ func TestGetBundle(t *testing.T) {
 			require.Equal(t, wantChecksum1, haveChecksum1, "Checksum1 does not match")
 		}
 
-		cached1, err := client.GetCachedBundle("label")
+		cached1, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 
 		// second call returns bundle2. segment_00 and segment_01 are identical for both bundle1 and bundle2.
 		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
@@ -350,7 +356,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum2,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -389,9 +395,10 @@ func TestGetBundle(t *testing.T) {
 			require.Equal(t, wantChecksum2, haveChecksum2, "Checksum2 does not match")
 		}
 
-		cached2, err := client.GetCachedBundle("label")
+		cached2, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 
 		require.Equal(t, 6, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for bundle1 segment 00")
@@ -422,7 +429,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId: 1,
@@ -464,7 +471,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -511,7 +518,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    checksum(t, filepath.Join("testdata", "bundle1.crbp")),
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -546,7 +553,7 @@ func TestGetBundle(t *testing.T) {
 					Label:         "label",
 					InputHash:     hash("input"),
 					OutputHash:    []byte{0xba, 0xd1},
-					EncryptionKey: []byte("secret"),
+					EncryptionKey: wantEncryptionKey,
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
@@ -586,6 +593,7 @@ func getBundleReq(wantLabel string) func(*connect.Request[bundlev2.GetBundleRequ
 }
 
 func TestWatchBundle(t *testing.T) {
+	wantEncryptionKey := []byte("secret")
 	t.Run("NormalStream", func(t *testing.T) {
 		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
 		mockWatchSvc := newMockBundleWatchService()
@@ -612,7 +620,7 @@ func TestWatchBundle(t *testing.T) {
 			Label:         "label",
 			InputHash:     hash("input"),
 			OutputHash:    wantChecksum1,
-			EncryptionKey: []byte("secret"),
+			EncryptionKey: wantEncryptionKey,
 			Segments: []*bundlev2.BundleInfo_Segment{
 				{
 					SegmentId:    1,
@@ -628,9 +636,10 @@ func TestWatchBundle(t *testing.T) {
 		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
 		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-		cached1, err := client.GetCachedBundle("label")
+		cached1, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 
 		require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
 		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID1))
@@ -655,9 +664,10 @@ func TestWatchBundle(t *testing.T) {
 		require.Equal(t, wantChecksum2, haveChecksum2, "Checksum does not match")
 		require.Equal(t, 2, counter.getTotal(), "Total download count does not match")
 		require.Equal(t, 1, counter.pathHits("bundle2.crbp"), "Path hit count does not match")
-		cached2, err := client.GetCachedBundle("label")
+		cached2, encryptionKey, err := client.GetCachedBundle("label")
 		require.NoError(t, err, "Failed to get cached bundle")
 		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
+		require.Equal(t, wantEncryptionKey, encryptionKey, "Encryption key does not match for cached bundle")
 
 		require.NoError(t, handle.ActiveBundleChanged(bundleID2), "Failed to acknowledge bundle swap")
 		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID2))
@@ -881,7 +891,7 @@ func mkWBHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
 func TestGetCachedBundle(t *testing.T) {
 	t.Run("NonExistentLabel", func(t *testing.T) {
 		client, _ := mkClient(t, "https://localhost", nil)
-		_, err := client.GetCachedBundle("blah")
+		_, _, err := client.GetCachedBundle("blah")
 		require.Error(t, err)
 	})
 }

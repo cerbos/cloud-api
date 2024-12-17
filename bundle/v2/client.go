@@ -24,6 +24,7 @@ import (
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/bundle/clientcache"
+	"github.com/cerbos/cloud-api/bundle/v2/internal"
 	"github.com/cerbos/cloud-api/credentials"
 	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
@@ -33,7 +34,7 @@ const bootstrapV2PathPrefix = "bootstrap/v2"
 
 type Client struct {
 	rpcClient bundlev2connect.CerbosBundleServiceClient
-	cache     *clientcache.ClientCache
+	cache     *internal.ClientCache
 	base.Client
 }
 
@@ -42,7 +43,7 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 		return nil, err
 	}
 
-	c, err := clientcache.New(conf.CacheDir, conf.TempDir)
+	c, err := internal.NewClientCache(conf.CacheDir, conf.TempDir)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (strin
 	log.Info("Bootstrap bundle response downloaded")
 	base.LogResponsePayload(log, bundleResponse)
 
-	path, err := c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
+	path, _, err := c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
 	if err != nil {
 		return "", nil, err
 	}
@@ -158,7 +159,7 @@ func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, []b
 
 	base.LogResponsePayload(log, resp.Msg)
 
-	path, err := c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
+	path, _, err := c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 	if err != nil {
 		return "", nil, err
 	}
@@ -268,7 +269,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 			switch m := msg.Msg.(type) {
 			case *bundlev2.WatchBundleResponse_BundleUpdate:
 				log.V(2).Info("Received bundle update")
-				bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
+				bundlePath, encryptionKey, err := c.getBundleFile(ctx, m.BundleUpdate)
 				if err != nil {
 					log.V(1).Error(err, "Failed to get bundle")
 					if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: err}); err != nil {
@@ -278,7 +279,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 					return err
 				}
 
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath, EncryptionKey: m.BundleUpdate.EncryptionKey}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath, EncryptionKey: encryptionKey}); err != nil {
 					return err
 				}
 
@@ -434,28 +435,28 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.Wa
 	}
 }
 
-func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) (outPath string, outErr error) {
+func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) (outPath string, encryptionKey []byte, outErr error) {
 	log := logr.FromContextOrDiscard(ctx)
 
 	if len(binfo.OutputHash) != cache.HashSize {
 		err := fmt.Errorf("length of output hash %x does not match expected hash size", binfo.OutputHash)
 		log.Error(err, "Invalid output hash")
-		return "", err
+		return "", nil, err
 	}
 
 	bdlCacheKey := *((*cache.ActionID)(binfo.OutputHash))
 	defer func() {
 		if outErr == nil && outPath != "" {
-			if err := c.cache.UpdateLabelCache(binfo.Label, bdlCacheKey); err != nil {
+			if err := c.cache.UpdateLabelCache(binfo.Label, binfo.EncryptionKey, bdlCacheKey); err != nil {
 				log.V(1).Error(err, "Failed to update label mapping")
 			}
 		}
 	}()
 
-	entry, err := c.cache.Get(bdlCacheKey)
+	entry, encryptionKey, err := c.cache.Get(bdlCacheKey)
 	if err == nil {
 		log.V(1).Info("Bundle exists in cache")
-		return entry, nil
+		return entry, encryptionKey, nil
 	}
 
 	log.V(1).Info("Downloading bundle segments")
@@ -464,9 +465,14 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) 
 	switch len(segments) {
 	case 0:
 		log.V(1).Info("No segments provided")
-		return "", bundle.ErrInvalidResponse
+		return "", nil, bundle.ErrInvalidResponse
 	case 1:
-		return c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0])
+		path, err := c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0])
+		if err != nil {
+			return "", nil, err
+		}
+
+		return path, encryptionKey, nil
 	default:
 		sort.Slice(segments, func(i, j int) bool { return segments[i].SegmentId < segments[j].SegmentId })
 		// TODO(cell): Check segment IDs are sequential (not missing any IDs)
@@ -481,33 +487,33 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) 
 			if err != nil {
 				_ = joiner.Close()
 				logger.Error(err, "Failed to get bundle segment")
-				return "", err
+				return "", nil, err
 			}
 
 			if err := joiner.Add(segFile); err != nil {
 				_ = joiner.Close()
 				logger.Error(err, "Failed to open bundle segment")
-				return "", err
+				return "", nil, err
 			}
 		}
 
-		file, _, err := c.cache.Add(bdlCacheKey, joiner.Join())
-		return file, err
+		file, _, err := c.cache.Add(bdlCacheKey, binfo.EncryptionKey, joiner.Join())
+		return file, encryptionKey, err
 	}
 }
 
 func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev2.BundleInfo_Segment) (string, error) {
 	log := logr.FromContextOrDiscard(ctx)
 
-	cacheKey := clientcache.SegmentCacheKey(segment.Checksum)
-	entry, err := c.cache.Get(cacheKey)
+	segmentCacheKey := clientcache.SegmentCacheKey(segment.Checksum)
+	entry, err := c.cache.GetSegment(segmentCacheKey)
 	if err == nil {
 		log.V(1).Info("Cache hit for segment")
 		return entry, nil
 	}
 
 	log.V(1).Info("Cache miss: downloading segment")
-	return c.downloadSegment(ctx, cacheKey, segment)
+	return c.downloadSegment(ctx, segmentCacheKey, segment)
 }
 
 func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev2.BundleInfo_Segment) (string, error) {
@@ -562,18 +568,18 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 }
 
 // GetCachedBundle returns the last cached entry for the given label if it exists.
-func (c *Client) GetCachedBundle(bundleLabel string) (string, error) {
+func (c *Client) GetCachedBundle(bundleLabel string) (string, []byte, error) {
 	lblCacheKey := clientcache.LabelCacheKey(bundleLabel)
-	entry, err := c.cache.GetBytes(lblCacheKey)
+	entryBytes, err := c.cache.GetBytes(lblCacheKey)
 	if err != nil {
-		return "", fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)
+		return "", nil, fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(entry))
-	bdlEntry, err := c.cache.Get(bdlCacheKey)
+	bdlCacheKey := *((*cache.ActionID)(entryBytes))
+	bdlEntry, encryptionKey, err := c.cache.Get(bdlCacheKey)
 	if err != nil {
-		return "", fmt.Errorf("failed to find bundle in cache: %w", err)
+		return "", nil, fmt.Errorf("failed to find bundle in cache: %w", err)
 	}
 
-	return bdlEntry, nil
+	return bdlEntry, encryptionKey, nil
 }
