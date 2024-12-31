@@ -6,12 +6,8 @@ package storev1
 
 import (
 	fmt "fmt"
-	v1 "github.com/cerbos/cerbos/api/genpb/cerbos/policy/v1"
 	protohelpers "github.com/planetscale/vtprotobuf/protohelpers"
-	timestamppb "github.com/planetscale/vtprotobuf/types/known/timestamppb"
-	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb1 "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 )
 
@@ -157,7 +153,7 @@ func (m *StringMatch_In) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	}
 	return len(dAtA) - i, nil
 }
-func (m *PolicyFilter) MarshalVT() (dAtA []byte, err error) {
+func (m *FileFilter) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -170,12 +166,12 @@ func (m *PolicyFilter) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *PolicyFilter) MarshalToVT(dAtA []byte) (int, error) {
+func (m *FileFilter) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *PolicyFilter) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *FileFilter) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -187,28 +183,8 @@ func (m *PolicyFilter) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Scope != nil {
-		size, err := m.Scope.MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x22
-	}
-	if m.Version != nil {
-		size, err := m.Version.MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if m.Name != nil {
-		size, err := m.Name.MarshalToSizedBufferVT(dAtA[:i])
+	if m.Path != nil {
+		size, err := m.Path.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -241,7 +217,7 @@ func (m *PolicyFilter) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ListPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
+func (m *ListFilesRequest) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -254,12 +230,12 @@ func (m *ListPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ListPoliciesRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ListFilesRequest) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ListPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ListFilesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -291,7 +267,7 @@ func (m *ListPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ListPoliciesResponse_Policy) MarshalVT() (dAtA []byte, err error) {
+func (m *ListFilesResponse_File) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -304,12 +280,12 @@ func (m *ListPoliciesResponse_Policy) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ListPoliciesResponse_Policy) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ListFilesResponse_File) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ListPoliciesResponse_Policy) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ListFilesResponse_File) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -320,54 +296,23 @@ func (m *ListPoliciesResponse_Policy) MarshalToSizedBufferVT(dAtA []byte) (int, 
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
-	}
-	if m.CreatedAt != nil {
-		size, err := (*timestamppb.Timestamp)(m.CreatedAt).MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x32
-	}
-	if len(m.Scope) > 0 {
-		i -= len(m.Scope)
-		copy(dAtA[i:], m.Scope)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Scope)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.Version) > 0 {
-		i -= len(m.Version)
-		copy(dAtA[i:], m.Version)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Version)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Name)))
-		i--
-		dAtA[i] = 0x1a
 	}
 	if m.Kind != 0 {
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Kind))
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.Key) > 0 {
-		i -= len(m.Key)
-		copy(dAtA[i:], m.Key)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Key)))
+	if len(m.Path) > 0 {
+		i -= len(m.Path)
+		copy(dAtA[i:], m.Path)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Path)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *ListPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
+func (m *ListFilesResponse) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -380,12 +325,12 @@ func (m *ListPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ListPoliciesResponse) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ListFilesResponse) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ListPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ListFilesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -397,9 +342,9 @@ func (m *ListPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) 
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.Policies) > 0 {
-		for iNdEx := len(m.Policies) - 1; iNdEx >= 0; iNdEx-- {
-			size, err := m.Policies[iNdEx].MarshalToSizedBufferVT(dAtA[:i])
+	if len(m.Files) > 0 {
+		for iNdEx := len(m.Files) - 1; iNdEx >= 0; iNdEx-- {
+			size, err := m.Files[iNdEx].MarshalToSizedBufferVT(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -417,7 +362,7 @@ func (m *ListPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *GetPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
+func (m *GetFilesRequest) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -430,12 +375,12 @@ func (m *GetPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetPoliciesRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *GetFilesRequest) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *GetPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *GetFilesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -447,11 +392,11 @@ func (m *GetPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.PolicyKeys) > 0 {
-		for iNdEx := len(m.PolicyKeys) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.PolicyKeys[iNdEx])
-			copy(dAtA[i:], m.PolicyKeys[iNdEx])
-			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.PolicyKeys[iNdEx])))
+	if len(m.Paths) > 0 {
+		for iNdEx := len(m.Paths) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Paths[iNdEx])
+			copy(dAtA[i:], m.Paths[iNdEx])
+			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Paths[iNdEx])))
 			i--
 			dAtA[i] = 0x12
 		}
@@ -466,7 +411,7 @@ func (m *GetPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *GetPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
+func (m *File) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -479,12 +424,12 @@ func (m *GetPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetPoliciesResponse) MarshalToVT(dAtA []byte) (int, error) {
+func (m *File) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *GetPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *File) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -496,28 +441,68 @@ func (m *GetPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.Policies) > 0 {
-		for k := range m.Policies {
-			v := m.Policies[k]
+	if len(m.Contents) > 0 {
+		i -= len(m.Contents)
+		copy(dAtA[i:], m.Contents)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Contents)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Path) > 0 {
+		i -= len(m.Path)
+		copy(dAtA[i:], m.Path)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Path)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Kind != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Kind))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetFilesResponse) MarshalVT() (dAtA []byte, err error) {
+	if m == nil {
+		return nil, nil
+	}
+	size := m.SizeVT()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBufferVT(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetFilesResponse) MarshalToVT(dAtA []byte) (int, error) {
+	size := m.SizeVT()
+	return m.MarshalToSizedBufferVT(dAtA[:size])
+}
+
+func (m *GetFilesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+	if m == nil {
+		return 0, nil
+	}
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.unknownFields != nil {
+		i -= len(m.unknownFields)
+		copy(dAtA[i:], m.unknownFields)
+	}
+	if len(m.Files) > 0 {
+		for k := range m.Files {
+			v := m.Files[k]
 			baseI := i
-			if vtmsg, ok := interface{}(v).(interface {
-				MarshalToSizedBufferVT([]byte) (int, error)
-			}); ok {
-				size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-			} else {
-				encoded, err := proto.Marshal(v)
-				if err != nil {
-					return 0, err
-				}
-				i -= len(encoded)
-				copy(dAtA[i:], encoded)
-				i = protohelpers.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			size, err := v.MarshalToSizedBufferVT(dAtA[:i])
+			if err != nil {
+				return 0, err
 			}
+			i -= size
+			i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 			i--
 			dAtA[i] = 0x12
 			i -= len(k)
@@ -538,7 +523,7 @@ func (m *GetPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *PolicyOp) MarshalVT() (dAtA []byte, err error) {
+func (m *FileOp) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -551,12 +536,12 @@ func (m *PolicyOp) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *PolicyOp) MarshalToVT(dAtA []byte) (int, error) {
+func (m *FileOp) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *PolicyOp) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *FileOp) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -580,32 +565,20 @@ func (m *PolicyOp) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *PolicyOp_AddOrUpdate) MarshalToVT(dAtA []byte) (int, error) {
+func (m *FileOp_AddOrUpdate) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *PolicyOp_AddOrUpdate) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *FileOp_AddOrUpdate) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	if m.AddOrUpdate != nil {
-		if vtmsg, ok := interface{}(m.AddOrUpdate).(interface {
-			MarshalToSizedBufferVT([]byte) (int, error)
-		}); ok {
-			size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		} else {
-			encoded, err := proto.Marshal(m.AddOrUpdate)
-			if err != nil {
-				return 0, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(encoded)))
+		size, err := m.AddOrUpdate.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
+		i -= size
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 		i--
 		dAtA[i] = 0xa
 	} else {
@@ -615,12 +588,12 @@ func (m *PolicyOp_AddOrUpdate) MarshalToSizedBufferVT(dAtA []byte) (int, error) 
 	}
 	return len(dAtA) - i, nil
 }
-func (m *PolicyOp_Delete) MarshalToVT(dAtA []byte) (int, error) {
+func (m *FileOp_Delete) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *PolicyOp_Delete) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *FileOp_Delete) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	i -= len(m.Delete)
 	copy(dAtA[i:], m.Delete)
@@ -629,7 +602,7 @@ func (m *PolicyOp_Delete) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	dAtA[i] = 0x12
 	return len(dAtA) - i, nil
 }
-func (m *ModifyPoliciesRequest_Condition) MarshalVT() (dAtA []byte, err error) {
+func (m *ModifyFilesRequest_Condition) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -642,12 +615,12 @@ func (m *ModifyPoliciesRequest_Condition) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ModifyPoliciesRequest_Condition) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesRequest_Condition) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ModifyPoliciesRequest_Condition) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesRequest_Condition) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -667,7 +640,7 @@ func (m *ModifyPoliciesRequest_Condition) MarshalToSizedBufferVT(dAtA []byte) (i
 	return len(dAtA) - i, nil
 }
 
-func (m *ModifyPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
+func (m *ModifyFilesRequest) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -680,12 +653,12 @@ func (m *ModifyPoliciesRequest) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ModifyPoliciesRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesRequest) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ModifyPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -729,7 +702,7 @@ func (m *ModifyPoliciesRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *ModifyPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
+func (m *ModifyFilesResponse) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -742,12 +715,12 @@ func (m *ModifyPoliciesResponse) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ModifyPoliciesResponse) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesResponse) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ModifyPoliciesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ModifyFilesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -830,7 +803,7 @@ func (m *StringMatch_In) SizeVT() (n int) {
 	}
 	return n
 }
-func (m *PolicyFilter) SizeVT() (n int) {
+func (m *FileFilter) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -843,23 +816,15 @@ func (m *PolicyFilter) SizeVT() (n int) {
 		}
 		n += 1 + protohelpers.SizeOfVarint(uint64(l)) + l
 	}
-	if m.Name != nil {
-		l = m.Name.SizeVT()
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	if m.Version != nil {
-		l = m.Version.SizeVT()
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	if m.Scope != nil {
-		l = m.Scope.SizeVT()
+	if m.Path != nil {
+		l = m.Path.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
 	return n
 }
 
-func (m *ListPoliciesRequest) SizeVT() (n int) {
+func (m *ListFilesRequest) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -877,40 +842,24 @@ func (m *ListPoliciesRequest) SizeVT() (n int) {
 	return n
 }
 
-func (m *ListPoliciesResponse_Policy) SizeVT() (n int) {
+func (m *ListFilesResponse_File) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Key)
+	l = len(m.Path)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	if m.Kind != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.Kind))
 	}
-	l = len(m.Name)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	l = len(m.Version)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	l = len(m.Scope)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
-	if m.CreatedAt != nil {
-		l = (*timestamppb.Timestamp)(m.CreatedAt).SizeVT()
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
 	n += len(m.unknownFields)
 	return n
 }
 
-func (m *ListPoliciesResponse) SizeVT() (n int) {
+func (m *ListFilesResponse) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -919,8 +868,8 @@ func (m *ListPoliciesResponse) SizeVT() (n int) {
 	if m.StoreVersion != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.StoreVersion))
 	}
-	if len(m.Policies) > 0 {
-		for _, e := range m.Policies {
+	if len(m.Files) > 0 {
+		for _, e := range m.Files {
 			l = e.SizeVT()
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
@@ -929,7 +878,7 @@ func (m *ListPoliciesResponse) SizeVT() (n int) {
 	return n
 }
 
-func (m *GetPoliciesRequest) SizeVT() (n int) {
+func (m *GetFilesRequest) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -939,8 +888,8 @@ func (m *GetPoliciesRequest) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if len(m.PolicyKeys) > 0 {
-		for _, s := range m.PolicyKeys {
+	if len(m.Paths) > 0 {
+		for _, s := range m.Paths {
 			l = len(s)
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
@@ -949,7 +898,28 @@ func (m *GetPoliciesRequest) SizeVT() (n int) {
 	return n
 }
 
-func (m *GetPoliciesResponse) SizeVT() (n int) {
+func (m *File) SizeVT() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Kind != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.Kind))
+	}
+	l = len(m.Path)
+	if l > 0 {
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
+	l = len(m.Contents)
+	if l > 0 {
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *GetFilesResponse) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -958,19 +928,13 @@ func (m *GetPoliciesResponse) SizeVT() (n int) {
 	if m.StoreVersion != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.StoreVersion))
 	}
-	if len(m.Policies) > 0 {
-		for k, v := range m.Policies {
+	if len(m.Files) > 0 {
+		for k, v := range m.Files {
 			_ = k
 			_ = v
 			l = 0
 			if v != nil {
-				if size, ok := interface{}(v).(interface {
-					SizeVT() int
-				}); ok {
-					l = size.SizeVT()
-				} else {
-					l = proto.Size(v)
-				}
+				l = v.SizeVT()
 			}
 			l += 1 + protohelpers.SizeOfVarint(uint64(l))
 			mapEntrySize := 1 + len(k) + protohelpers.SizeOfVarint(uint64(len(k))) + l
@@ -981,7 +945,7 @@ func (m *GetPoliciesResponse) SizeVT() (n int) {
 	return n
 }
 
-func (m *PolicyOp) SizeVT() (n int) {
+func (m *FileOp) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -994,27 +958,21 @@ func (m *PolicyOp) SizeVT() (n int) {
 	return n
 }
 
-func (m *PolicyOp_AddOrUpdate) SizeVT() (n int) {
+func (m *FileOp_AddOrUpdate) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
 	if m.AddOrUpdate != nil {
-		if size, ok := interface{}(m.AddOrUpdate).(interface {
-			SizeVT() int
-		}); ok {
-			l = size.SizeVT()
-		} else {
-			l = proto.Size(m.AddOrUpdate)
-		}
+		l = m.AddOrUpdate.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	} else {
 		n += 2
 	}
 	return n
 }
-func (m *PolicyOp_Delete) SizeVT() (n int) {
+func (m *FileOp_Delete) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1024,7 +982,7 @@ func (m *PolicyOp_Delete) SizeVT() (n int) {
 	n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	return n
 }
-func (m *ModifyPoliciesRequest_Condition) SizeVT() (n int) {
+func (m *ModifyFilesRequest_Condition) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1037,7 +995,7 @@ func (m *ModifyPoliciesRequest_Condition) SizeVT() (n int) {
 	return n
 }
 
-func (m *ModifyPoliciesRequest) SizeVT() (n int) {
+func (m *ModifyFilesRequest) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1061,7 +1019,7 @@ func (m *ModifyPoliciesRequest) SizeVT() (n int) {
 	return n
 }
 
-func (m *ModifyPoliciesResponse) SizeVT() (n int) {
+func (m *ModifyFilesResponse) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1313,7 +1271,7 @@ func (m *StringMatch) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
+func (m *FileFilter) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1336,15 +1294,15 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: PolicyFilter: wiretype end group for non-group")
+			return fmt.Errorf("proto: FileFilter: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: PolicyFilter: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FileFilter: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType == 0 {
-				var v v1.Kind
+				var v FileKind
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protohelpers.ErrIntOverflow
@@ -1354,7 +1312,7 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= v1.Kind(b&0x7F) << shift
+					v |= FileKind(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -1388,10 +1346,10 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 				}
 				var elementCount int
 				if elementCount != 0 && len(m.Kinds) == 0 {
-					m.Kinds = make([]v1.Kind, 0, elementCount)
+					m.Kinds = make([]FileKind, 0, elementCount)
 				}
 				for iNdEx < postIndex {
-					var v v1.Kind
+					var v FileKind
 					for shift := uint(0); ; shift += 7 {
 						if shift >= 64 {
 							return protohelpers.ErrIntOverflow
@@ -1401,7 +1359,7 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 						}
 						b := dAtA[iNdEx]
 						iNdEx++
-						v |= v1.Kind(b&0x7F) << shift
+						v |= FileKind(b&0x7F) << shift
 						if b < 0x80 {
 							break
 						}
@@ -1413,7 +1371,7 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Path", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1440,82 +1398,10 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Name == nil {
-				m.Name = &StringMatch{}
+			if m.Path == nil {
+				m.Path = &StringMatch{}
 			}
-			if err := m.Name.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Version == nil {
-				m.Version = &StringMatch{}
-			}
-			if err := m.Version.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Scope", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Scope == nil {
-				m.Scope = &StringMatch{}
-			}
-			if err := m.Scope.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Path.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1541,7 +1427,7 @@ func (m *PolicyFilter) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
+func (m *ListFilesRequest) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1564,10 +1450,10 @@ func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ListPoliciesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: ListFilesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListPoliciesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ListFilesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1632,7 +1518,7 @@ func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Filter == nil {
-				m.Filter = &PolicyFilter{}
+				m.Filter = &FileFilter{}
 			}
 			if err := m.Filter.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1660,7 +1546,7 @@ func (m *ListPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ListPoliciesResponse_Policy) UnmarshalVT(dAtA []byte) error {
+func (m *ListFilesResponse_File) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1683,15 +1569,15 @@ func (m *ListPoliciesResponse_Policy) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ListPoliciesResponse_Policy: wiretype end group for non-group")
+			return fmt.Errorf("proto: ListFilesResponse_File: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListPoliciesResponse_Policy: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ListFilesResponse_File: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Path", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1719,7 +1605,7 @@ func (m *ListPoliciesResponse_Policy) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Key = string(dAtA[iNdEx:postIndex])
+			m.Path = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
@@ -1735,143 +1621,11 @@ func (m *ListPoliciesResponse_Policy) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Kind |= v1.Kind(b&0x7F) << shift
+				m.Kind |= FileKind(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Name = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Version = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Scope", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Scope = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.CreatedAt == nil {
-				m.CreatedAt = &timestamppb1.Timestamp{}
-			}
-			if err := (*timestamppb.Timestamp)(m.CreatedAt).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -1894,7 +1648,7 @@ func (m *ListPoliciesResponse_Policy) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ListPoliciesResponse) UnmarshalVT(dAtA []byte) error {
+func (m *ListFilesResponse) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1917,10 +1671,10 @@ func (m *ListPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ListPoliciesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: ListFilesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListPoliciesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ListFilesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1944,7 +1698,7 @@ func (m *ListPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Policies", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Files", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1971,8 +1725,8 @@ func (m *ListPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Policies = append(m.Policies, &ListPoliciesResponse_Policy{})
-			if err := m.Policies[len(m.Policies)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			m.Files = append(m.Files, &ListFilesResponse_File{})
+			if err := m.Files[len(m.Files)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1998,7 +1752,7 @@ func (m *ListPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
+func (m *GetFilesRequest) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2021,10 +1775,10 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetPoliciesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetFilesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetPoliciesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetFilesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2061,7 +1815,7 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PolicyKeys", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Paths", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2089,7 +1843,7 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PolicyKeys = append(m.PolicyKeys, string(dAtA[iNdEx:postIndex]))
+			m.Paths = append(m.Paths, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2113,7 +1867,7 @@ func (m *GetPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
+func (m *File) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2136,10 +1890,146 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetPoliciesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: File: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetPoliciesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: File: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Kind", wireType)
+			}
+			m.Kind = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Kind |= FileKind(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Path", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Path = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Contents", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Contents = append(m.Contents[:0], dAtA[iNdEx:postIndex]...)
+			if m.Contents == nil {
+				m.Contents = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.unknownFields = append(m.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetFilesResponse) UnmarshalVT(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return protohelpers.ErrIntOverflow
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetFilesResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetFilesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2163,7 +2053,7 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Policies", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Files", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2190,11 +2080,11 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Policies == nil {
-				m.Policies = make(map[string]*v1.Policy)
+			if m.Files == nil {
+				m.Files = make(map[string]*File)
 			}
 			var mapkey string
-			var mapvalue *v1.Policy
+			var mapvalue *File
 			for iNdEx < postIndex {
 				entryPreIndex := iNdEx
 				var wire uint64
@@ -2268,17 +2158,9 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 					if postmsgIndex > l {
 						return io.ErrUnexpectedEOF
 					}
-					mapvalue = &v1.Policy{}
-					if unmarshal, ok := interface{}(mapvalue).(interface {
-						UnmarshalVT([]byte) error
-					}); ok {
-						if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postmsgIndex]); err != nil {
-							return err
-						}
-					} else {
-						if err := proto.Unmarshal(dAtA[iNdEx:postmsgIndex], mapvalue); err != nil {
-							return err
-						}
+					mapvalue = &File{}
+					if err := mapvalue.UnmarshalVT(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
 					}
 					iNdEx = postmsgIndex
 				} else {
@@ -2296,7 +2178,7 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 					iNdEx += skippy
 				}
 			}
-			m.Policies[mapkey] = mapvalue
+			m.Files[mapkey] = mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2320,7 +2202,7 @@ func (m *GetPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *PolicyOp) UnmarshalVT(dAtA []byte) error {
+func (m *FileOp) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2343,10 +2225,10 @@ func (m *PolicyOp) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: PolicyOp: wiretype end group for non-group")
+			return fmt.Errorf("proto: FileOp: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: PolicyOp: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: FileOp: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2378,32 +2260,16 @@ func (m *PolicyOp) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if oneof, ok := m.Op.(*PolicyOp_AddOrUpdate); ok {
-				if unmarshal, ok := interface{}(oneof.AddOrUpdate).(interface {
-					UnmarshalVT([]byte) error
-				}); ok {
-					if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-						return err
-					}
-				} else {
-					if err := proto.Unmarshal(dAtA[iNdEx:postIndex], oneof.AddOrUpdate); err != nil {
-						return err
-					}
+			if oneof, ok := m.Op.(*FileOp_AddOrUpdate); ok {
+				if err := oneof.AddOrUpdate.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+					return err
 				}
 			} else {
-				v := &v1.Policy{}
-				if unmarshal, ok := interface{}(v).(interface {
-					UnmarshalVT([]byte) error
-				}); ok {
-					if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-						return err
-					}
-				} else {
-					if err := proto.Unmarshal(dAtA[iNdEx:postIndex], v); err != nil {
-						return err
-					}
+				v := &File{}
+				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+					return err
 				}
-				m.Op = &PolicyOp_AddOrUpdate{AddOrUpdate: v}
+				m.Op = &FileOp_AddOrUpdate{AddOrUpdate: v}
 			}
 			iNdEx = postIndex
 		case 2:
@@ -2436,7 +2302,7 @@ func (m *PolicyOp) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Op = &PolicyOp_Delete{Delete: string(dAtA[iNdEx:postIndex])}
+			m.Op = &FileOp_Delete{Delete: string(dAtA[iNdEx:postIndex])}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2460,7 +2326,7 @@ func (m *PolicyOp) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ModifyPoliciesRequest_Condition) UnmarshalVT(dAtA []byte) error {
+func (m *ModifyFilesRequest_Condition) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2483,10 +2349,10 @@ func (m *ModifyPoliciesRequest_Condition) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ModifyPoliciesRequest_Condition: wiretype end group for non-group")
+			return fmt.Errorf("proto: ModifyFilesRequest_Condition: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ModifyPoliciesRequest_Condition: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ModifyFilesRequest_Condition: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2530,7 +2396,7 @@ func (m *ModifyPoliciesRequest_Condition) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
+func (m *ModifyFilesRequest) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2553,10 +2419,10 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ModifyPoliciesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: ModifyFilesRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ModifyPoliciesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ModifyFilesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2621,7 +2487,7 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Condition == nil {
-				m.Condition = &ModifyPoliciesRequest_Condition{}
+				m.Condition = &ModifyFilesRequest_Condition{}
 			}
 			if err := m.Condition.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2656,7 +2522,7 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Operations = append(m.Operations, &PolicyOp{})
+			m.Operations = append(m.Operations, &FileOp{})
 			if err := m.Operations[len(m.Operations)-1].UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2683,7 +2549,7 @@ func (m *ModifyPoliciesRequest) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ModifyPoliciesResponse) UnmarshalVT(dAtA []byte) error {
+func (m *ModifyFilesResponse) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2706,10 +2572,10 @@ func (m *ModifyPoliciesResponse) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ModifyPoliciesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: ModifyFilesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ModifyPoliciesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ModifyFilesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

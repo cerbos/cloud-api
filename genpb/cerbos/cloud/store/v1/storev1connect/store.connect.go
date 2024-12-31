@@ -36,30 +36,30 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// CerbosStoreServiceListPoliciesProcedure is the fully-qualified name of the CerbosStoreService's
-	// ListPolicies RPC.
-	CerbosStoreServiceListPoliciesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ListPolicies"
-	// CerbosStoreServiceGetPoliciesProcedure is the fully-qualified name of the CerbosStoreService's
-	// GetPolicies RPC.
-	CerbosStoreServiceGetPoliciesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/GetPolicies"
-	// CerbosStoreServiceModifyPoliciesProcedure is the fully-qualified name of the CerbosStoreService's
-	// ModifyPolicies RPC.
-	CerbosStoreServiceModifyPoliciesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ModifyPolicies"
+	// CerbosStoreServiceListFilesProcedure is the fully-qualified name of the CerbosStoreService's
+	// ListFiles RPC.
+	CerbosStoreServiceListFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ListFiles"
+	// CerbosStoreServiceGetFilesProcedure is the fully-qualified name of the CerbosStoreService's
+	// GetFiles RPC.
+	CerbosStoreServiceGetFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/GetFiles"
+	// CerbosStoreServiceModifyFilesProcedure is the fully-qualified name of the CerbosStoreService's
+	// ModifyFiles RPC.
+	CerbosStoreServiceModifyFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ModifyFiles"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	cerbosStoreServiceServiceDescriptor              = v1.File_cerbos_cloud_store_v1_store_proto.Services().ByName("CerbosStoreService")
-	cerbosStoreServiceListPoliciesMethodDescriptor   = cerbosStoreServiceServiceDescriptor.Methods().ByName("ListPolicies")
-	cerbosStoreServiceGetPoliciesMethodDescriptor    = cerbosStoreServiceServiceDescriptor.Methods().ByName("GetPolicies")
-	cerbosStoreServiceModifyPoliciesMethodDescriptor = cerbosStoreServiceServiceDescriptor.Methods().ByName("ModifyPolicies")
+	cerbosStoreServiceServiceDescriptor           = v1.File_cerbos_cloud_store_v1_store_proto.Services().ByName("CerbosStoreService")
+	cerbosStoreServiceListFilesMethodDescriptor   = cerbosStoreServiceServiceDescriptor.Methods().ByName("ListFiles")
+	cerbosStoreServiceGetFilesMethodDescriptor    = cerbosStoreServiceServiceDescriptor.Methods().ByName("GetFiles")
+	cerbosStoreServiceModifyFilesMethodDescriptor = cerbosStoreServiceServiceDescriptor.Methods().ByName("ModifyFiles")
 )
 
 // CerbosStoreServiceClient is a client for the cerbos.cloud.store.v1.CerbosStoreService service.
 type CerbosStoreServiceClient interface {
-	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
-	GetPolicies(context.Context, *connect.Request[v1.GetPoliciesRequest]) (*connect.Response[v1.GetPoliciesResponse], error)
-	ModifyPolicies(context.Context, *connect.Request[v1.ModifyPoliciesRequest]) (*connect.Response[v1.ModifyPoliciesResponse], error)
+	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
+	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
+	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
 }
 
 // NewCerbosStoreServiceClient constructs a client for the cerbos.cloud.store.v1.CerbosStoreService
@@ -72,24 +72,24 @@ type CerbosStoreServiceClient interface {
 func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CerbosStoreServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &cerbosStoreServiceClient{
-		listPolicies: connect.NewClient[v1.ListPoliciesRequest, v1.ListPoliciesResponse](
+		listFiles: connect.NewClient[v1.ListFilesRequest, v1.ListFilesResponse](
 			httpClient,
-			baseURL+CerbosStoreServiceListPoliciesProcedure,
-			connect.WithSchema(cerbosStoreServiceListPoliciesMethodDescriptor),
+			baseURL+CerbosStoreServiceListFilesProcedure,
+			connect.WithSchema(cerbosStoreServiceListFilesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		getPolicies: connect.NewClient[v1.GetPoliciesRequest, v1.GetPoliciesResponse](
+		getFiles: connect.NewClient[v1.GetFilesRequest, v1.GetFilesResponse](
 			httpClient,
-			baseURL+CerbosStoreServiceGetPoliciesProcedure,
-			connect.WithSchema(cerbosStoreServiceGetPoliciesMethodDescriptor),
+			baseURL+CerbosStoreServiceGetFilesProcedure,
+			connect.WithSchema(cerbosStoreServiceGetFilesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		modifyPolicies: connect.NewClient[v1.ModifyPoliciesRequest, v1.ModifyPoliciesResponse](
+		modifyFiles: connect.NewClient[v1.ModifyFilesRequest, v1.ModifyFilesResponse](
 			httpClient,
-			baseURL+CerbosStoreServiceModifyPoliciesProcedure,
-			connect.WithSchema(cerbosStoreServiceModifyPoliciesMethodDescriptor),
+			baseURL+CerbosStoreServiceModifyFilesProcedure,
+			connect.WithSchema(cerbosStoreServiceModifyFilesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -97,32 +97,32 @@ func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // cerbosStoreServiceClient implements CerbosStoreServiceClient.
 type cerbosStoreServiceClient struct {
-	listPolicies   *connect.Client[v1.ListPoliciesRequest, v1.ListPoliciesResponse]
-	getPolicies    *connect.Client[v1.GetPoliciesRequest, v1.GetPoliciesResponse]
-	modifyPolicies *connect.Client[v1.ModifyPoliciesRequest, v1.ModifyPoliciesResponse]
+	listFiles   *connect.Client[v1.ListFilesRequest, v1.ListFilesResponse]
+	getFiles    *connect.Client[v1.GetFilesRequest, v1.GetFilesResponse]
+	modifyFiles *connect.Client[v1.ModifyFilesRequest, v1.ModifyFilesResponse]
 }
 
-// ListPolicies calls cerbos.cloud.store.v1.CerbosStoreService.ListPolicies.
-func (c *cerbosStoreServiceClient) ListPolicies(ctx context.Context, req *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
-	return c.listPolicies.CallUnary(ctx, req)
+// ListFiles calls cerbos.cloud.store.v1.CerbosStoreService.ListFiles.
+func (c *cerbosStoreServiceClient) ListFiles(ctx context.Context, req *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error) {
+	return c.listFiles.CallUnary(ctx, req)
 }
 
-// GetPolicies calls cerbos.cloud.store.v1.CerbosStoreService.GetPolicies.
-func (c *cerbosStoreServiceClient) GetPolicies(ctx context.Context, req *connect.Request[v1.GetPoliciesRequest]) (*connect.Response[v1.GetPoliciesResponse], error) {
-	return c.getPolicies.CallUnary(ctx, req)
+// GetFiles calls cerbos.cloud.store.v1.CerbosStoreService.GetFiles.
+func (c *cerbosStoreServiceClient) GetFiles(ctx context.Context, req *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error) {
+	return c.getFiles.CallUnary(ctx, req)
 }
 
-// ModifyPolicies calls cerbos.cloud.store.v1.CerbosStoreService.ModifyPolicies.
-func (c *cerbosStoreServiceClient) ModifyPolicies(ctx context.Context, req *connect.Request[v1.ModifyPoliciesRequest]) (*connect.Response[v1.ModifyPoliciesResponse], error) {
-	return c.modifyPolicies.CallUnary(ctx, req)
+// ModifyFiles calls cerbos.cloud.store.v1.CerbosStoreService.ModifyFiles.
+func (c *cerbosStoreServiceClient) ModifyFiles(ctx context.Context, req *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error) {
+	return c.modifyFiles.CallUnary(ctx, req)
 }
 
 // CerbosStoreServiceHandler is an implementation of the cerbos.cloud.store.v1.CerbosStoreService
 // service.
 type CerbosStoreServiceHandler interface {
-	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
-	GetPolicies(context.Context, *connect.Request[v1.GetPoliciesRequest]) (*connect.Response[v1.GetPoliciesResponse], error)
-	ModifyPolicies(context.Context, *connect.Request[v1.ModifyPoliciesRequest]) (*connect.Response[v1.ModifyPoliciesResponse], error)
+	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
+	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
+	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
 }
 
 // NewCerbosStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -131,34 +131,34 @@ type CerbosStoreServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	cerbosStoreServiceListPoliciesHandler := connect.NewUnaryHandler(
-		CerbosStoreServiceListPoliciesProcedure,
-		svc.ListPolicies,
-		connect.WithSchema(cerbosStoreServiceListPoliciesMethodDescriptor),
+	cerbosStoreServiceListFilesHandler := connect.NewUnaryHandler(
+		CerbosStoreServiceListFilesProcedure,
+		svc.ListFiles,
+		connect.WithSchema(cerbosStoreServiceListFilesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	cerbosStoreServiceGetPoliciesHandler := connect.NewUnaryHandler(
-		CerbosStoreServiceGetPoliciesProcedure,
-		svc.GetPolicies,
-		connect.WithSchema(cerbosStoreServiceGetPoliciesMethodDescriptor),
+	cerbosStoreServiceGetFilesHandler := connect.NewUnaryHandler(
+		CerbosStoreServiceGetFilesProcedure,
+		svc.GetFiles,
+		connect.WithSchema(cerbosStoreServiceGetFilesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	cerbosStoreServiceModifyPoliciesHandler := connect.NewUnaryHandler(
-		CerbosStoreServiceModifyPoliciesProcedure,
-		svc.ModifyPolicies,
-		connect.WithSchema(cerbosStoreServiceModifyPoliciesMethodDescriptor),
+	cerbosStoreServiceModifyFilesHandler := connect.NewUnaryHandler(
+		CerbosStoreServiceModifyFilesProcedure,
+		svc.ModifyFiles,
+		connect.WithSchema(cerbosStoreServiceModifyFilesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.store.v1.CerbosStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case CerbosStoreServiceListPoliciesProcedure:
-			cerbosStoreServiceListPoliciesHandler.ServeHTTP(w, r)
-		case CerbosStoreServiceGetPoliciesProcedure:
-			cerbosStoreServiceGetPoliciesHandler.ServeHTTP(w, r)
-		case CerbosStoreServiceModifyPoliciesProcedure:
-			cerbosStoreServiceModifyPoliciesHandler.ServeHTTP(w, r)
+		case CerbosStoreServiceListFilesProcedure:
+			cerbosStoreServiceListFilesHandler.ServeHTTP(w, r)
+		case CerbosStoreServiceGetFilesProcedure:
+			cerbosStoreServiceGetFilesHandler.ServeHTTP(w, r)
+		case CerbosStoreServiceModifyFilesProcedure:
+			cerbosStoreServiceModifyFilesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -168,14 +168,14 @@ func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect
 // UnimplementedCerbosStoreServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCerbosStoreServiceHandler struct{}
 
-func (UnimplementedCerbosStoreServiceHandler) ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ListPolicies is not implemented"))
+func (UnimplementedCerbosStoreServiceHandler) ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ListFiles is not implemented"))
 }
 
-func (UnimplementedCerbosStoreServiceHandler) GetPolicies(context.Context, *connect.Request[v1.GetPoliciesRequest]) (*connect.Response[v1.GetPoliciesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.GetPolicies is not implemented"))
+func (UnimplementedCerbosStoreServiceHandler) GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.GetFiles is not implemented"))
 }
 
-func (UnimplementedCerbosStoreServiceHandler) ModifyPolicies(context.Context, *connect.Request[v1.ModifyPoliciesRequest]) (*connect.Response[v1.ModifyPoliciesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ModifyPolicies is not implemented"))
+func (UnimplementedCerbosStoreServiceHandler) ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ModifyFiles is not implemented"))
 }
