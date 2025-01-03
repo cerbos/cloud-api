@@ -31,28 +31,8 @@ message StringMatch {
   }
 }
 
-enum FileKind {
-  FILE_KIND_UNSPECIFIED = 0;
-  FILE_KIND_POLICY = 1;
-  FILE_KIND_SCHEMA = 2;
-  FILE_KIND_TEST = 3;
-  FILE_KIND_TEST_DATA = 4;
-}
-
 message FileFilter {
-  repeated FileKind kinds = 1 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).repeated = {
-      unique: true
-      items: {
-        enum: {
-          not_in: [0]
-          defined_only: true
-        }
-      }
-    }
-  ];
-  optional StringMatch path = 2;
+  optional StringMatch path = 1;
 }
 
 message ListFilesRequest {
@@ -61,18 +41,15 @@ message ListFilesRequest {
 }
 
 message ListFilesResponse {
-  message File {
-    string path = 1;
-    FileKind kind = 2;
-  }
   int64 store_version = 1;
-  repeated File files = 2;
+  repeated string files = 2;
 }
 
 message GetFilesRequest {
   string store_id = 1 [(buf.validate.field).string.len = 12];
-  repeated string paths = 2 [(buf.validate.field).repeated = {
+  repeated string files = 2 [(buf.validate.field).repeated = {
     min_items: 1
+    max_items: 10
     unique: true
     items: {
       string: {min_len: 1}
@@ -81,14 +58,16 @@ message GetFilesRequest {
 }
 
 message File {
-  FileKind kind = 1;
-  string path = 2;
-  bytes contents = 3;
+  string path = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 1024
+  }];
+  bytes contents = 2 [(buf.validate.field).bytes.min_len = 1];
 }
 
 message GetFilesResponse {
   int64 store_version = 1;
-  map<string, File> files = 2;
+  repeated File files = 2;
 }
 
 message FileOp {

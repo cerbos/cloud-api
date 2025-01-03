@@ -6,18 +6,9 @@ package storev1
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	hash "hash"
-	sort "sort"
 )
 
 func cerbos_cloud_store_v1_FileFilter_hashpb_sum(m *FileFilter, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.FileFilter.kinds"]; !ok {
-		if len(m.Kinds) > 0 {
-			for _, v := range m.Kinds {
-				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(v)))
-
-			}
-		}
-	}
 	if _, ok := ignore["cerbos.cloud.store.v1.FileFilter.path"]; !ok {
 		if m.GetPath() != nil {
 			cerbos_cloud_store_v1_StringMatch_hashpb_sum(m.GetPath(), hasher, ignore)
@@ -44,10 +35,6 @@ func cerbos_cloud_store_v1_FileOp_hashpb_sum(m *FileOp, hasher hash.Hash, ignore
 }
 
 func cerbos_cloud_store_v1_File_hashpb_sum(m *File, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.File.kind"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetKind())))
-
-	}
 	if _, ok := ignore["cerbos.cloud.store.v1.File.path"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetPath()))
 
@@ -63,9 +50,9 @@ func cerbos_cloud_store_v1_GetFilesRequest_hashpb_sum(m *GetFilesRequest, hasher
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStoreId()))
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.GetFilesRequest.paths"]; !ok {
-		if len(m.Paths) > 0 {
-			for _, v := range m.Paths {
+	if _, ok := ignore["cerbos.cloud.store.v1.GetFilesRequest.files"]; !ok {
+		if len(m.Files) > 0 {
+			for _, v := range m.Files {
 				_, _ = hasher.Write(protowire.AppendString(nil, v))
 
 			}
@@ -80,18 +67,9 @@ func cerbos_cloud_store_v1_GetFilesResponse_hashpb_sum(m *GetFilesResponse, hash
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.GetFilesResponse.files"]; !ok {
 		if len(m.Files) > 0 {
-			keys := make([]string, len(m.Files))
-			i := 0
-			for k := range m.Files {
-				keys[i] = k
-				i++
-			}
-
-			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
-
-			for _, k := range keys {
-				if m.Files[k] != nil {
-					cerbos_cloud_store_v1_File_hashpb_sum(m.Files[k], hasher, ignore)
+			for _, v := range m.Files {
+				if v != nil {
+					cerbos_cloud_store_v1_File_hashpb_sum(v, hasher, ignore)
 				}
 
 			}
@@ -112,17 +90,6 @@ func cerbos_cloud_store_v1_ListFilesRequest_hashpb_sum(m *ListFilesRequest, hash
 	}
 }
 
-func cerbos_cloud_store_v1_ListFilesResponse_File_hashpb_sum(m *ListFilesResponse_File, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ListFilesResponse.File.path"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetPath()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ListFilesResponse.File.kind"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetKind())))
-
-	}
-}
-
 func cerbos_cloud_store_v1_ListFilesResponse_hashpb_sum(m *ListFilesResponse, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ListFilesResponse.store_version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersion())))
@@ -131,9 +98,7 @@ func cerbos_cloud_store_v1_ListFilesResponse_hashpb_sum(m *ListFilesResponse, ha
 	if _, ok := ignore["cerbos.cloud.store.v1.ListFilesResponse.files"]; !ok {
 		if len(m.Files) > 0 {
 			for _, v := range m.Files {
-				if v != nil {
-					cerbos_cloud_store_v1_ListFilesResponse_File_hashpb_sum(v, hasher, ignore)
-				}
+				_, _ = hasher.Write(protowire.AppendString(nil, v))
 
 			}
 		}
