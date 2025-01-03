@@ -50,14 +50,6 @@ func (m *ListFilesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{})
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *ListFilesResponse_File) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		cerbos_cloud_store_v1_ListFilesResponse_File_hashpb_sum(m, hasher, ignore)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *GetFilesRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_GetFilesRequest_hashpb_sum(m, hasher, ignore)
