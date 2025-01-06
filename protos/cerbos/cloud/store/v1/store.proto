@@ -89,16 +89,22 @@ message ModifyFilesRequest {
 }
 
 message ModifyFilesResponse {
-  message Failure {
+  message Error {
     enum Cause {
       CAUSE_UNSPECIFIED = 0;
-      CAUSE_UNSUPPORTED_FILE_TYPE = 1;
-      CAUSE_INVALID_CONTENT = 2;
+      CAUSE_INVALID_FILE_PATH = 1;
+      CAUSE_UNSUPPORTED_FILE_EXTENSION = 2;
+      CAUSE_INVALID_FILE_CONTENTS = 3;
+      CAUSE_DUPLICATE_FILE_PATH = 4;
     }
 
     string file = 1;
     Cause cause = 2;
     string details = 3;
+  }
+
+  message Failure {
+    repeated Error errors = 1;
   }
 
   message Success {

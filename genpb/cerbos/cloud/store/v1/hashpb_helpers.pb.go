@@ -135,18 +135,31 @@ func cerbos_cloud_store_v1_ModifyFilesRequest_hashpb_sum(m *ModifyFilesRequest, 
 	}
 }
 
-func cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m *ModifyFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.file"]; !ok {
+func cerbos_cloud_store_v1_ModifyFilesResponse_Error_hashpb_sum(m *ModifyFilesResponse_Error, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.file"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetFile()))
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.cause"]; !ok {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.cause"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCause())))
 
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.details"]; !ok {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.details"]; !ok {
 		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDetails()))
 
+	}
+}
+
+func cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m *ModifyFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.errors"]; !ok {
+		if len(m.Errors) > 0 {
+			for _, v := range m.Errors {
+				if v != nil {
+					cerbos_cloud_store_v1_ModifyFilesResponse_Error_hashpb_sum(v, hasher, ignore)
+				}
+
+			}
+		}
 	}
 }
 
