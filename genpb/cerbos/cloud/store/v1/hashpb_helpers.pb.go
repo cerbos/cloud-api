@@ -135,10 +135,44 @@ func cerbos_cloud_store_v1_ModifyFilesRequest_hashpb_sum(m *ModifyFilesRequest, 
 	}
 }
 
-func cerbos_cloud_store_v1_ModifyFilesResponse_hashpb_sum(m *ModifyFilesResponse, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.new_store_version"]; !ok {
+func cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m *ModifyFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.file"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetFile()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.cause"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCause())))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.details"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDetails()))
+
+	}
+}
+
+func cerbos_cloud_store_v1_ModifyFilesResponse_Success_hashpb_sum(m *ModifyFilesResponse_Success, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Success.new_store_version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetNewStoreVersion())))
 
+	}
+}
+
+func cerbos_cloud_store_v1_ModifyFilesResponse_hashpb_sum(m *ModifyFilesResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if m.Result != nil {
+		if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.result"]; !ok {
+			switch t := m.Result.(type) {
+			case *ModifyFilesResponse_Success_:
+				if t.Success != nil {
+					cerbos_cloud_store_v1_ModifyFilesResponse_Success_hashpb_sum(t.Success, hasher, ignore)
+				}
+
+			case *ModifyFilesResponse_Failure_:
+				if t.Failure != nil {
+					cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(t.Failure, hasher, ignore)
+				}
+
+			}
+		}
 	}
 }
 

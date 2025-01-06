@@ -89,7 +89,27 @@ message ModifyFilesRequest {
 }
 
 message ModifyFilesResponse {
-  int64 new_store_version = 1;
+  message Failure {
+    enum Cause {
+      CAUSE_UNSPECIFIED = 0;
+      CAUSE_UNSUPPORTED_FILE_TYPE = 1;
+      CAUSE_INVALID_CONTENT = 2;
+    }
+
+    string file = 1;
+    Cause cause = 2;
+    string details = 3;
+  }
+
+  message Success {
+    int64 new_store_version = 1;
+  }
+
+  oneof result {
+    option (buf.validate.oneof).required = true;
+    Success success = 1;
+    Failure failure = 2;
+  }
 }
 
 service CerbosStoreService {
