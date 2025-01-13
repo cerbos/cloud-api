@@ -41,12 +41,6 @@ const (
 	ApiKeyServiceIssueAccessTokenProcedure = "/cerbos.cloud.apikey.v1.ApiKeyService/IssueAccessToken"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	apiKeyServiceServiceDescriptor                = v1.File_cerbos_cloud_apikey_v1_apikey_proto.Services().ByName("ApiKeyService")
-	apiKeyServiceIssueAccessTokenMethodDescriptor = apiKeyServiceServiceDescriptor.Methods().ByName("IssueAccessToken")
-)
-
 // ApiKeyServiceClient is a client for the cerbos.cloud.apikey.v1.ApiKeyService service.
 type ApiKeyServiceClient interface {
 	IssueAccessToken(context.Context, *connect.Request[v1.IssueAccessTokenRequest]) (*connect.Response[v1.IssueAccessTokenResponse], error)
@@ -61,11 +55,12 @@ type ApiKeyServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewApiKeyServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ApiKeyServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	apiKeyServiceMethods := v1.File_cerbos_cloud_apikey_v1_apikey_proto.Services().ByName("ApiKeyService").Methods()
 	return &apiKeyServiceClient{
 		issueAccessToken: connect.NewClient[v1.IssueAccessTokenRequest, v1.IssueAccessTokenResponse](
 			httpClient,
 			baseURL+ApiKeyServiceIssueAccessTokenProcedure,
-			connect.WithSchema(apiKeyServiceIssueAccessTokenMethodDescriptor),
+			connect.WithSchema(apiKeyServiceMethods.ByName("IssueAccessToken")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -92,10 +87,11 @@ type ApiKeyServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	apiKeyServiceMethods := v1.File_cerbos_cloud_apikey_v1_apikey_proto.Services().ByName("ApiKeyService").Methods()
 	apiKeyServiceIssueAccessTokenHandler := connect.NewUnaryHandler(
 		ApiKeyServiceIssueAccessTokenProcedure,
 		svc.IssueAccessToken,
-		connect.WithSchema(apiKeyServiceIssueAccessTokenMethodDescriptor),
+		connect.WithSchema(apiKeyServiceMethods.ByName("IssueAccessToken")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.apikey.v1.ApiKeyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

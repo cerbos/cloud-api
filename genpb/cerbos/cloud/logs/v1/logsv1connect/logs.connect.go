@@ -41,12 +41,6 @@ const (
 	CerbosLogsServiceIngestProcedure = "/cerbos.cloud.logs.v1.CerbosLogsService/Ingest"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	cerbosLogsServiceServiceDescriptor      = v1.File_cerbos_cloud_logs_v1_logs_proto.Services().ByName("CerbosLogsService")
-	cerbosLogsServiceIngestMethodDescriptor = cerbosLogsServiceServiceDescriptor.Methods().ByName("Ingest")
-)
-
 // CerbosLogsServiceClient is a client for the cerbos.cloud.logs.v1.CerbosLogsService service.
 type CerbosLogsServiceClient interface {
 	Ingest(context.Context, *connect.Request[v1.IngestRequest]) (*connect.Response[v1.IngestResponse], error)
@@ -61,11 +55,12 @@ type CerbosLogsServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewCerbosLogsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CerbosLogsServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	cerbosLogsServiceMethods := v1.File_cerbos_cloud_logs_v1_logs_proto.Services().ByName("CerbosLogsService").Methods()
 	return &cerbosLogsServiceClient{
 		ingest: connect.NewClient[v1.IngestRequest, v1.IngestResponse](
 			httpClient,
 			baseURL+CerbosLogsServiceIngestProcedure,
-			connect.WithSchema(cerbosLogsServiceIngestMethodDescriptor),
+			connect.WithSchema(cerbosLogsServiceMethods.ByName("Ingest")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -93,10 +88,11 @@ type CerbosLogsServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCerbosLogsServiceHandler(svc CerbosLogsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	cerbosLogsServiceMethods := v1.File_cerbos_cloud_logs_v1_logs_proto.Services().ByName("CerbosLogsService").Methods()
 	cerbosLogsServiceIngestHandler := connect.NewUnaryHandler(
 		CerbosLogsServiceIngestProcedure,
 		svc.Ingest,
-		connect.WithSchema(cerbosLogsServiceIngestMethodDescriptor),
+		connect.WithSchema(cerbosLogsServiceMethods.ByName("Ingest")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.logs.v1.CerbosLogsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
