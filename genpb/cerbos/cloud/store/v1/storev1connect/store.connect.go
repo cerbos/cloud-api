@@ -47,14 +47,6 @@ const (
 	CerbosStoreServiceModifyFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ModifyFiles"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	cerbosStoreServiceServiceDescriptor           = v1.File_cerbos_cloud_store_v1_store_proto.Services().ByName("CerbosStoreService")
-	cerbosStoreServiceListFilesMethodDescriptor   = cerbosStoreServiceServiceDescriptor.Methods().ByName("ListFiles")
-	cerbosStoreServiceGetFilesMethodDescriptor    = cerbosStoreServiceServiceDescriptor.Methods().ByName("GetFiles")
-	cerbosStoreServiceModifyFilesMethodDescriptor = cerbosStoreServiceServiceDescriptor.Methods().ByName("ModifyFiles")
-)
-
 // CerbosStoreServiceClient is a client for the cerbos.cloud.store.v1.CerbosStoreService service.
 type CerbosStoreServiceClient interface {
 	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
@@ -71,25 +63,26 @@ type CerbosStoreServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CerbosStoreServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	cerbosStoreServiceMethods := v1.File_cerbos_cloud_store_v1_store_proto.Services().ByName("CerbosStoreService").Methods()
 	return &cerbosStoreServiceClient{
 		listFiles: connect.NewClient[v1.ListFilesRequest, v1.ListFilesResponse](
 			httpClient,
 			baseURL+CerbosStoreServiceListFilesProcedure,
-			connect.WithSchema(cerbosStoreServiceListFilesMethodDescriptor),
+			connect.WithSchema(cerbosStoreServiceMethods.ByName("ListFiles")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getFiles: connect.NewClient[v1.GetFilesRequest, v1.GetFilesResponse](
 			httpClient,
 			baseURL+CerbosStoreServiceGetFilesProcedure,
-			connect.WithSchema(cerbosStoreServiceGetFilesMethodDescriptor),
+			connect.WithSchema(cerbosStoreServiceMethods.ByName("GetFiles")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		modifyFiles: connect.NewClient[v1.ModifyFilesRequest, v1.ModifyFilesResponse](
 			httpClient,
 			baseURL+CerbosStoreServiceModifyFilesProcedure,
-			connect.WithSchema(cerbosStoreServiceModifyFilesMethodDescriptor),
+			connect.WithSchema(cerbosStoreServiceMethods.ByName("ModifyFiles")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -131,24 +124,25 @@ type CerbosStoreServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	cerbosStoreServiceMethods := v1.File_cerbos_cloud_store_v1_store_proto.Services().ByName("CerbosStoreService").Methods()
 	cerbosStoreServiceListFilesHandler := connect.NewUnaryHandler(
 		CerbosStoreServiceListFilesProcedure,
 		svc.ListFiles,
-		connect.WithSchema(cerbosStoreServiceListFilesMethodDescriptor),
+		connect.WithSchema(cerbosStoreServiceMethods.ByName("ListFiles")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosStoreServiceGetFilesHandler := connect.NewUnaryHandler(
 		CerbosStoreServiceGetFilesProcedure,
 		svc.GetFiles,
-		connect.WithSchema(cerbosStoreServiceGetFilesMethodDescriptor),
+		connect.WithSchema(cerbosStoreServiceMethods.ByName("GetFiles")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosStoreServiceModifyFilesHandler := connect.NewUnaryHandler(
 		CerbosStoreServiceModifyFilesProcedure,
 		svc.ModifyFiles,
-		connect.WithSchema(cerbosStoreServiceModifyFilesMethodDescriptor),
+		connect.WithSchema(cerbosStoreServiceMethods.ByName("ModifyFiles")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.store.v1.CerbosStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

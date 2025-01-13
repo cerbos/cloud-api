@@ -44,13 +44,6 @@ const (
 	CerbosBundleServiceWatchBundleProcedure = "/cerbos.cloud.bundle.v1.CerbosBundleService/WatchBundle"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	cerbosBundleServiceServiceDescriptor           = v1.File_cerbos_cloud_bundle_v1_bundle_proto.Services().ByName("CerbosBundleService")
-	cerbosBundleServiceGetBundleMethodDescriptor   = cerbosBundleServiceServiceDescriptor.Methods().ByName("GetBundle")
-	cerbosBundleServiceWatchBundleMethodDescriptor = cerbosBundleServiceServiceDescriptor.Methods().ByName("WatchBundle")
-)
-
 // CerbosBundleServiceClient is a client for the cerbos.cloud.bundle.v1.CerbosBundleService service.
 type CerbosBundleServiceClient interface {
 	GetBundle(context.Context, *connect.Request[v1.GetBundleRequest]) (*connect.Response[v1.GetBundleResponse], error)
@@ -66,17 +59,18 @@ type CerbosBundleServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewCerbosBundleServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CerbosBundleServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	cerbosBundleServiceMethods := v1.File_cerbos_cloud_bundle_v1_bundle_proto.Services().ByName("CerbosBundleService").Methods()
 	return &cerbosBundleServiceClient{
 		getBundle: connect.NewClient[v1.GetBundleRequest, v1.GetBundleResponse](
 			httpClient,
 			baseURL+CerbosBundleServiceGetBundleProcedure,
-			connect.WithSchema(cerbosBundleServiceGetBundleMethodDescriptor),
+			connect.WithSchema(cerbosBundleServiceMethods.ByName("GetBundle")),
 			connect.WithClientOptions(opts...),
 		),
 		watchBundle: connect.NewClient[v1.WatchBundleRequest, v1.WatchBundleResponse](
 			httpClient,
 			baseURL+CerbosBundleServiceWatchBundleProcedure,
-			connect.WithSchema(cerbosBundleServiceWatchBundleMethodDescriptor),
+			connect.WithSchema(cerbosBundleServiceMethods.ByName("WatchBundle")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -111,16 +105,17 @@ type CerbosBundleServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCerbosBundleServiceHandler(svc CerbosBundleServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	cerbosBundleServiceMethods := v1.File_cerbos_cloud_bundle_v1_bundle_proto.Services().ByName("CerbosBundleService").Methods()
 	cerbosBundleServiceGetBundleHandler := connect.NewUnaryHandler(
 		CerbosBundleServiceGetBundleProcedure,
 		svc.GetBundle,
-		connect.WithSchema(cerbosBundleServiceGetBundleMethodDescriptor),
+		connect.WithSchema(cerbosBundleServiceMethods.ByName("GetBundle")),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosBundleServiceWatchBundleHandler := connect.NewBidiStreamHandler(
 		CerbosBundleServiceWatchBundleProcedure,
 		svc.WatchBundle,
-		connect.WithSchema(cerbosBundleServiceWatchBundleMethodDescriptor),
+		connect.WithSchema(cerbosBundleServiceMethods.ByName("WatchBundle")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/cerbos.cloud.bundle.v1.CerbosBundleService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
