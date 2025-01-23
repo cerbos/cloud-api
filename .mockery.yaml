@@ -4,6 +4,8 @@ filename: "{{.InterfaceName}}.go"
 mockname: "{{.InterfaceName}}"
 outpkg: "mock{{.PackageName}}"
 with-expecter: True
+resolve-type-alias: False
+issue-845-fix: True
 packages:
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect:
     interfaces:
