@@ -11,7 +11,7 @@ require (
 	github.com/golangci/golangci-lint v1.63.4
 	github.com/planetscale/vtprotobuf v0.6.1-0.20241121165744-79df5c4772f2
 	github.com/vektra/mockery/v2 v2.51.1
-	google.golang.org/protobuf v1.36.4-0.20250116160514-2005adbe0cf6
+	google.golang.org/protobuf v1.36.4
 	gotest.tools/gotestsum v1.12.0
 )
 
