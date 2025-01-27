@@ -5,7 +5,7 @@ go 1.22.8
 toolchain go1.23.5
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.3-20241127180247-a33202765966.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.4-20241127180247-a33202765966.1
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/otelconnect v0.7.1
@@ -25,8 +25,8 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.32.0
 	golang.org/x/net v0.34.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250122153221-138b5a5a4fd4
-	google.golang.org/protobuf v1.36.3
+	google.golang.org/genproto/googleapis/api v0.0.0-20250124145028-65684f501c47
+	google.golang.org/protobuf v1.36.4
 )
 
 require (
