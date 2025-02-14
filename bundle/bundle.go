@@ -39,6 +39,7 @@ var JSONStart = []byte("{")
 var (
 	ErrBootstrapBundleNotFound         = errors.New("bootstrap bundle not found")
 	ErrBootstrapBundleResponseNotFound = errors.New("bootstrap bundle response not found")
+	ErrBootstrappingNotSupported       = errors.New("bootstrapping is not supported for the bundle source")
 	ErrBundleNotFound                  = errors.New("bundle not found")
 	ErrDownloadFailed                  = errors.New("download failed")
 	ErrNoSegmentDownloadURL            = errors.New("no download URLs")

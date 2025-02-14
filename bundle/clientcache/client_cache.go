@@ -97,9 +97,8 @@ func (c *ClientCache) GetBytes(key cache.ActionID) ([]byte, error) {
 	return entry, nil
 }
 
-func (c *ClientCache) UpdateLabelCache(bundleLabel string, bundleCacheKey cache.ActionID) error {
-	lblCacheKey := LabelCacheKey(bundleLabel)
-	return c.cache.PutBytes(lblCacheKey, bundleCacheKey[:])
+func (c *ClientCache) UpdateSourceCache(source string, bundleCacheKey cache.ActionID) error {
+	return c.cache.PutBytes(SourceCacheKey(source), bundleCacheKey[:])
 }
 
 func mkCache(path string) (*cache.Cache, error) {
@@ -132,8 +131,8 @@ func SegmentCacheKey(checksum []byte) cache.ActionID {
 	return *((*cache.ActionID)(s.Sum(nil)))
 }
 
-func LabelCacheKey(label string) cache.ActionID {
+func SourceCacheKey(source string) cache.ActionID {
 	s := sha256.New()
-	_, _ = fmt.Fprintf(s, "cerbos:cloud:bundle:label=%s", label)
+	_, _ = fmt.Fprintf(s, "cerbos:cloud:bundle:source=%s", source)
 	return *((*cache.ActionID)(s.Sum(nil)))
 }

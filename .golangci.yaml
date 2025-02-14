@@ -46,6 +46,9 @@ linters-settings:
         xml: goCamel
         bson: goCamel
 
+  usetesting:
+    os-setenv: true
+
 linters:
   enable:
     - asasalint

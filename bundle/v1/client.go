@@ -181,11 +181,11 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 		return nil, fmt.Errorf("failed to send request headers: %w", err)
 	}
 
-	wh := &bundle.WatchHandleImpl{
+	wh := &bundle.WatchHandleImpl[string]{
 		ServerEventsCh: make(chan bundle.ServerEvent, 1),
 		ClientEventsCh: make(chan bundle.ClientEvent, 1),
 		ErrorsCh:       make(chan error, 1),
-		BundleLabel:    bundleLabel,
+		Source:         bundleLabel,
 		Pool:           pool.New().WithContext(ctx).WithCancelOnError().WithFirstError(),
 	}
 
@@ -218,7 +218,7 @@ type recvMsg struct {
 	err error
 }
 
-func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl, logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl[string], logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("recv")
 		log.V(1).Info("Starting response handler")
@@ -349,7 +349,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl, logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl[string], logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("send")
 		log.V(1).Info("Starting request handler")
@@ -383,7 +383,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		if err := stream.Send(&bundlev1.WatchBundleRequest{
 			PdpId: c.PDPIdentifier,
 			Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
-				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.BundleLabel},
+				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.Source},
 			},
 		}); err != nil {
 			log.Error(err, "WatchBundle RPC failed")
@@ -449,7 +449,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 	bdlCacheKey := *((*cache.ActionID)(binfo.BundleHash))
 	defer func() {
 		if outErr == nil && outPath != "" {
-			if err := c.cache.UpdateLabelCache(binfo.Label, bdlCacheKey); err != nil {
+			if err := c.cache.UpdateSourceCache(binfo.Label, bdlCacheKey); err != nil {
 				log.V(1).Error(err, "Failed to update label mapping")
 			}
 		}
@@ -566,7 +566,7 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 
 // GetCachedBundle returns the last cached entry for the given label if it exists.
 func (c *Client) GetCachedBundle(bundleLabel string) (string, error) {
-	lblCacheKey := clientcache.LabelCacheKey(bundleLabel)
+	lblCacheKey := clientcache.SourceCacheKey(bundleLabel)
 	entry, err := c.cache.GetBytes(lblCacheKey)
 	if err != nil {
 		return "", fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)

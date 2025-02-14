@@ -10,6 +10,14 @@ import (
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *Source) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_bundle_v2_Source_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *BundleInfo) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_bundle_v2_BundleInfo_hashpb_sum(m, hasher, ignore)
@@ -66,9 +74,9 @@ func (m *WatchBundleRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *WatchBundleRequest_WatchLabel) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+func (m *WatchBundleRequest_Start) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
-		cerbos_cloud_bundle_v2_WatchBundleRequest_WatchLabel_hashpb_sum(m, hasher, ignore)
+		cerbos_cloud_bundle_v2_WatchBundleRequest_Start_hashpb_sum(m, hasher, ignore)
 	}
 }
 
