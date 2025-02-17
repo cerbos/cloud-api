@@ -26,7 +26,7 @@ var (
 
 const (
 	defaultHeartbeatInterval = 2 * time.Minute
-	defaultRetryWaitMin      = 1 * time.Second //nolint:revive
+	defaultRetryWaitMin      = 1 * time.Second
 	defaultRetryWaitMax      = 5 * time.Minute
 	defaultRetryMaxAttempts  = 10
 	minHeartbeatInterval     = 30 * time.Second
