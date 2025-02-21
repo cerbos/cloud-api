@@ -45,6 +45,9 @@ const (
 	// CerbosStoreServiceModifyFilesProcedure is the fully-qualified name of the CerbosStoreService's
 	// ModifyFiles RPC.
 	CerbosStoreServiceModifyFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ModifyFiles"
+	// CerbosStoreServiceReplaceFilesProcedure is the fully-qualified name of the CerbosStoreService's
+	// ReplaceFiles RPC.
+	CerbosStoreServiceReplaceFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ReplaceFiles"
 )
 
 // CerbosStoreServiceClient is a client for the cerbos.cloud.store.v1.CerbosStoreService service.
@@ -52,6 +55,7 @@ type CerbosStoreServiceClient interface {
 	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
 	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
 	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
+	ReplaceFiles(context.Context, *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error)
 }
 
 // NewCerbosStoreServiceClient constructs a client for the cerbos.cloud.store.v1.CerbosStoreService
@@ -85,14 +89,21 @@ func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(cerbosStoreServiceMethods.ByName("ModifyFiles")),
 			connect.WithClientOptions(opts...),
 		),
+		replaceFiles: connect.NewClient[v1.ReplaceFilesRequest, v1.ReplaceFilesResponse](
+			httpClient,
+			baseURL+CerbosStoreServiceReplaceFilesProcedure,
+			connect.WithSchema(cerbosStoreServiceMethods.ByName("ReplaceFiles")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // cerbosStoreServiceClient implements CerbosStoreServiceClient.
 type cerbosStoreServiceClient struct {
-	listFiles   *connect.Client[v1.ListFilesRequest, v1.ListFilesResponse]
-	getFiles    *connect.Client[v1.GetFilesRequest, v1.GetFilesResponse]
-	modifyFiles *connect.Client[v1.ModifyFilesRequest, v1.ModifyFilesResponse]
+	listFiles    *connect.Client[v1.ListFilesRequest, v1.ListFilesResponse]
+	getFiles     *connect.Client[v1.GetFilesRequest, v1.GetFilesResponse]
+	modifyFiles  *connect.Client[v1.ModifyFilesRequest, v1.ModifyFilesResponse]
+	replaceFiles *connect.Client[v1.ReplaceFilesRequest, v1.ReplaceFilesResponse]
 }
 
 // ListFiles calls cerbos.cloud.store.v1.CerbosStoreService.ListFiles.
@@ -110,12 +121,18 @@ func (c *cerbosStoreServiceClient) ModifyFiles(ctx context.Context, req *connect
 	return c.modifyFiles.CallUnary(ctx, req)
 }
 
+// ReplaceFiles calls cerbos.cloud.store.v1.CerbosStoreService.ReplaceFiles.
+func (c *cerbosStoreServiceClient) ReplaceFiles(ctx context.Context, req *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error) {
+	return c.replaceFiles.CallUnary(ctx, req)
+}
+
 // CerbosStoreServiceHandler is an implementation of the cerbos.cloud.store.v1.CerbosStoreService
 // service.
 type CerbosStoreServiceHandler interface {
 	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
 	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
 	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
+	ReplaceFiles(context.Context, *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error)
 }
 
 // NewCerbosStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -145,6 +162,12 @@ func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect
 		connect.WithSchema(cerbosStoreServiceMethods.ByName("ModifyFiles")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cerbosStoreServiceReplaceFilesHandler := connect.NewUnaryHandler(
+		CerbosStoreServiceReplaceFilesProcedure,
+		svc.ReplaceFiles,
+		connect.WithSchema(cerbosStoreServiceMethods.ByName("ReplaceFiles")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/cerbos.cloud.store.v1.CerbosStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CerbosStoreServiceListFilesProcedure:
@@ -153,6 +176,8 @@ func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect
 			cerbosStoreServiceGetFilesHandler.ServeHTTP(w, r)
 		case CerbosStoreServiceModifyFilesProcedure:
 			cerbosStoreServiceModifyFilesHandler.ServeHTTP(w, r)
+		case CerbosStoreServiceReplaceFilesProcedure:
+			cerbosStoreServiceReplaceFilesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -172,4 +197,8 @@ func (UnimplementedCerbosStoreServiceHandler) GetFiles(context.Context, *connect
 
 func (UnimplementedCerbosStoreServiceHandler) ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ModifyFiles is not implemented"))
+}
+
+func (UnimplementedCerbosStoreServiceHandler) ReplaceFiles(context.Context, *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ReplaceFiles is not implemented"))
 }

@@ -8,6 +8,21 @@ import (
 	hash "hash"
 )
 
+func cerbos_cloud_store_v1_FileError_hashpb_sum(m *FileError, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.FileError.file"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetFile()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.FileError.cause"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCause())))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.FileError.details"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDetails()))
+
+	}
+}
+
 func cerbos_cloud_store_v1_FileFilter_hashpb_sum(m *FileFilter, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.FileFilter.path"]; !ok {
 		if m.GetPath() != nil {
@@ -135,27 +150,12 @@ func cerbos_cloud_store_v1_ModifyFilesRequest_hashpb_sum(m *ModifyFilesRequest, 
 	}
 }
 
-func cerbos_cloud_store_v1_ModifyFilesResponse_Error_hashpb_sum(m *ModifyFilesResponse_Error, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.file"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetFile()))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.cause"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCause())))
-
-	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Error.details"]; !ok {
-		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDetails()))
-
-	}
-}
-
 func cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m *ModifyFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesResponse.Failure.errors"]; !ok {
 		if len(m.Errors) > 0 {
 			for _, v := range m.Errors {
 				if v != nil {
-					cerbos_cloud_store_v1_ModifyFilesResponse_Error_hashpb_sum(v, hasher, ignore)
+					cerbos_cloud_store_v1_FileError_hashpb_sum(v, hasher, ignore)
 				}
 
 			}
@@ -182,6 +182,69 @@ func cerbos_cloud_store_v1_ModifyFilesResponse_hashpb_sum(m *ModifyFilesResponse
 			case *ModifyFilesResponse_Failure_:
 				if t.Failure != nil {
 					cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(t.Failure, hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func cerbos_cloud_store_v1_ReplaceFilesRequest_Condition_hashpb_sum(m *ReplaceFilesRequest_Condition, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.Condition.store_version_must_equal"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersionMustEqual())))
+
+	}
+}
+
+func cerbos_cloud_store_v1_ReplaceFilesRequest_hashpb_sum(m *ReplaceFilesRequest, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.store_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetStoreId()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.condition"]; !ok {
+		if m.GetCondition() != nil {
+			cerbos_cloud_store_v1_ReplaceFilesRequest_Condition_hashpb_sum(m.GetCondition(), hasher, ignore)
+		}
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.zipped_contents"]; !ok {
+		_, _ = hasher.Write(protowire.AppendBytes(nil, m.GetZippedContents()))
+
+	}
+}
+
+func cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(m *ReplaceFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.Failure.errors"]; !ok {
+		if len(m.Errors) > 0 {
+			for _, v := range m.Errors {
+				if v != nil {
+					cerbos_cloud_store_v1_FileError_hashpb_sum(v, hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func cerbos_cloud_store_v1_ReplaceFilesResponse_Success_hashpb_sum(m *ReplaceFilesResponse_Success, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.Success.new_store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetNewStoreVersion())))
+
+	}
+}
+
+func cerbos_cloud_store_v1_ReplaceFilesResponse_hashpb_sum(m *ReplaceFilesResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if m.Result != nil {
+		if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.result"]; !ok {
+			switch t := m.Result.(type) {
+			case *ReplaceFilesResponse_Success_:
+				if t.Success != nil {
+					cerbos_cloud_store_v1_ReplaceFilesResponse_Success_hashpb_sum(t.Success, hasher, ignore)
+				}
+
+			case *ReplaceFilesResponse_Failure_:
+				if t.Failure != nil {
+					cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(t.Failure, hasher, ignore)
 				}
 
 			}
