@@ -5,8 +5,132 @@ package storev1
 
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
+	math "math"
+	sort "sort"
 )
+
+func cerbos_cloud_store_v1_ChangeDetails_Git_hashpb_sum(m *ChangeDetails_Git, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.repo"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetRepo()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.ref"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetRef()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.hash"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetHash()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.message"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetMessage()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.committer"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetCommitter()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.commit_date"]; !ok {
+		if m.GetCommitDate() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetCommitDate(), hasher, ignore)
+		}
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.author"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetAuthor()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Git.author_date"]; !ok {
+		if m.GetAuthorDate() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetAuthorDate(), hasher, ignore)
+		}
+
+	}
+}
+
+func cerbos_cloud_store_v1_ChangeDetails_Internal_hashpb_sum(m *ChangeDetails_Internal, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Internal.source"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetSource()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Internal.metadata"]; !ok {
+		if len(m.Metadata) > 0 {
+			keys := make([]string, len(m.Metadata))
+			i := 0
+			for k := range m.Metadata {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				if m.Metadata[k] != nil {
+					google_protobuf_Value_hashpb_sum(m.Metadata[k], hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func cerbos_cloud_store_v1_ChangeDetails_Uploader_hashpb_sum(m *ChangeDetails_Uploader, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Uploader.name"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetName()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.Uploader.metadata"]; !ok {
+		if len(m.Metadata) > 0 {
+			keys := make([]string, len(m.Metadata))
+			i := 0
+			for k := range m.Metadata {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				if m.Metadata[k] != nil {
+					google_protobuf_Value_hashpb_sum(m.Metadata[k], hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m *ChangeDetails, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.description"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetDescription()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.uploader"]; !ok {
+		if m.GetUploader() != nil {
+			cerbos_cloud_store_v1_ChangeDetails_Uploader_hashpb_sum(m.GetUploader(), hasher, ignore)
+		}
+
+	}
+	if m.Origin != nil {
+		if _, ok := ignore["cerbos.cloud.store.v1.ChangeDetails.origin"]; !ok {
+			switch t := m.Origin.(type) {
+			case *ChangeDetails_Git_:
+				if t.Git != nil {
+					cerbos_cloud_store_v1_ChangeDetails_Git_hashpb_sum(t.Git, hasher, ignore)
+				}
+
+			case *ChangeDetails_Internal_:
+				if t.Internal != nil {
+					cerbos_cloud_store_v1_ChangeDetails_Internal_hashpb_sum(t.Internal, hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
 
 func cerbos_cloud_store_v1_FileError_hashpb_sum(m *FileError, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.FileError.file"]; !ok {
@@ -148,6 +272,12 @@ func cerbos_cloud_store_v1_ModifyFilesRequest_hashpb_sum(m *ModifyFilesRequest, 
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ModifyFilesRequest.change_details"]; !ok {
+		if m.GetChangeDetails() != nil {
+			cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m.GetChangeDetails(), hasher, ignore)
+		}
+
+	}
 }
 
 func cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m *ModifyFilesResponse_Failure, hasher hash.Hash, ignore map[string]struct{}) {
@@ -209,6 +339,12 @@ func cerbos_cloud_store_v1_ReplaceFilesRequest_hashpb_sum(m *ReplaceFilesRequest
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.zipped_contents"]; !ok {
 		_, _ = hasher.Write(protowire.AppendBytes(nil, m.GetZippedContents()))
+
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.change_details"]; !ok {
+		if m.GetChangeDetails() != nil {
+			cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m.GetChangeDetails(), hasher, ignore)
+		}
 
 	}
 }
@@ -276,6 +412,83 @@ func cerbos_cloud_store_v1_StringMatch_hashpb_sum(m *StringMatch, hasher hash.Ha
 			case *StringMatch_In:
 				if t.In != nil {
 					cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(t.In, hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func google_protobuf_ListValue_hashpb_sum(m *structpb.ListValue, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["google.protobuf.ListValue.values"]; !ok {
+		if len(m.Values) > 0 {
+			for _, v := range m.Values {
+				if v != nil {
+					google_protobuf_Value_hashpb_sum(v, hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func google_protobuf_Struct_hashpb_sum(m *structpb.Struct, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["google.protobuf.Struct.fields"]; !ok {
+		if len(m.Fields) > 0 {
+			keys := make([]string, len(m.Fields))
+			i := 0
+			for k := range m.Fields {
+				keys[i] = k
+				i++
+			}
+
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+			for _, k := range keys {
+				if m.Fields[k] != nil {
+					google_protobuf_Value_hashpb_sum(m.Fields[k], hasher, ignore)
+				}
+
+			}
+		}
+	}
+}
+
+func google_protobuf_Timestamp_hashpb_sum(m *timestamppb.Timestamp, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["google.protobuf.Timestamp.seconds"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetSeconds())))
+
+	}
+	if _, ok := ignore["google.protobuf.Timestamp.nanos"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetNanos())))
+
+	}
+}
+
+func google_protobuf_Value_hashpb_sum(m *structpb.Value, hasher hash.Hash, ignore map[string]struct{}) {
+	if m.Kind != nil {
+		if _, ok := ignore["google.protobuf.Value.kind"]; !ok {
+			switch t := m.Kind.(type) {
+			case *structpb.Value_NullValue:
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(t.NullValue)))
+
+			case *structpb.Value_NumberValue:
+				_, _ = hasher.Write(protowire.AppendFixed64(nil, math.Float64bits(t.NumberValue)))
+
+			case *structpb.Value_StringValue:
+				_, _ = hasher.Write(protowire.AppendString(nil, t.StringValue))
+
+			case *structpb.Value_BoolValue:
+				_, _ = hasher.Write(protowire.AppendVarint(nil, protowire.EncodeBool(t.BoolValue)))
+
+			case *structpb.Value_StructValue:
+				if t.StructValue != nil {
+					google_protobuf_Struct_hashpb_sum(t.StructValue, hasher, ignore)
+				}
+
+			case *structpb.Value_ListValue:
+				if t.ListValue != nil {
+					google_protobuf_ListValue_hashpb_sum(t.ListValue, hasher, ignore)
 				}
 
 			}
