@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bufbuild/protovalidate-go"
 	"github.com/go-logr/logr"
 	"go.uber.org/multierr"
 
@@ -60,7 +61,7 @@ func (cc ClientConf) Validate() (outErr error) {
 
 	if cc.PDPIdentifier == nil {
 		outErr = multierr.Append(outErr, errMissingIdentifier)
-	} else if err := Validate(cc.PDPIdentifier); err != nil {
+	} else if err := protovalidate.Validate(cc.PDPIdentifier); err != nil {
 		outErr = multierr.Append(outErr, fmt.Errorf("invalid PDP identifier: %w", err))
 	}
 

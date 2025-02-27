@@ -16,6 +16,7 @@ import (
 	"unicode"
 
 	"connectrpc.com/connect"
+	"github.com/bufbuild/protovalidate-go"
 	"github.com/go-logr/logr"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
@@ -142,7 +143,7 @@ func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, er
 		return nil, fmt.Errorf("failed to unmarshal bootstrap proto: %w", err)
 	}
 
-	if err := bundle.Validate(out); err != nil {
+	if err := protovalidate.Validate(out); err != nil {
 		return out, fmt.Errorf("invalid bootstrap configuration: %w", err)
 	}
 
