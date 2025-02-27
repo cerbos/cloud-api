@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/bufbuild/protovalidate-go"
 	"github.com/go-logr/logr"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
@@ -135,7 +136,7 @@ func (c *Client) parseBundleResponse(bundleResponseBytes []byte) (*bundlev2.GetB
 		return nil, fmt.Errorf("failed to unmarshal bootstrap bundle response proto: %w", err)
 	}
 
-	if err := bundle.Validate(out); err != nil {
+	if err := protovalidate.Validate(out); err != nil {
 		return nil, fmt.Errorf("invalid bootstrap bundle response: %w", err)
 	}
 
