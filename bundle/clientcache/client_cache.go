@@ -133,6 +133,6 @@ func SegmentCacheKey(checksum []byte) cache.ActionID {
 
 func SourceCacheKey(source string) cache.ActionID {
 	s := sha256.New()
-	_, _ = fmt.Fprintf(s, "cerbos:cloud:bundle:source=%s", source)
+	_, _ = fmt.Fprintf(s, "cerbos:hub:bundle:source=%s", source)
 	return *((*cache.ActionID)(s.Sum(nil)))
 }
