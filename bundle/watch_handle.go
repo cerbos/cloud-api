@@ -10,7 +10,7 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
-var _ WatchHandle = (*WatchHandleImpl)(nil)
+var _ WatchHandle = (*WatchHandleImpl[string])(nil)
 
 var errFailedToNotifyBundleChange = errors.New("failed to notify server about bundle change")
 
@@ -20,19 +20,19 @@ type WatchHandle interface {
 	ActiveBundleChanged(string) error
 }
 
-type WatchHandleImpl struct {
+type WatchHandleImpl[T any] struct {
 	ServerEventsCh chan ServerEvent
 	ClientEventsCh chan ClientEvent
 	ErrorsCh       chan error
 	Pool           *pool.ContextPool
-	BundleLabel    string
+	Source         T
 }
 
-func (wh *WatchHandleImpl) ServerEvents() <-chan ServerEvent {
+func (wh *WatchHandleImpl[T]) ServerEvents() <-chan ServerEvent {
 	return wh.ServerEventsCh
 }
 
-func (wh *WatchHandleImpl) ActiveBundleChanged(id string) error {
+func (wh *WatchHandleImpl[T]) ActiveBundleChanged(id string) error {
 	select {
 	case wh.ClientEventsCh <- ClientEvent{Kind: ClientEventBundleSwap, ActiveBundleID: id}:
 		return nil
@@ -41,18 +41,18 @@ func (wh *WatchHandleImpl) ActiveBundleChanged(id string) error {
 	}
 }
 
-func (wh *WatchHandleImpl) Errors() <-chan error {
+func (wh *WatchHandleImpl[T]) Errors() <-chan error {
 	return wh.ErrorsCh
 }
 
-func (wh *WatchHandleImpl) trySendError(err error) {
+func (wh *WatchHandleImpl[T]) trySendError(err error) {
 	select {
 	case wh.ErrorsCh <- err:
 	default:
 	}
 }
 
-func (wh *WatchHandleImpl) Wait() error {
+func (wh *WatchHandleImpl[T]) Wait() error {
 	err := wh.Pool.Wait()
 	wh.trySendError(err)
 	close(wh.ErrorsCh)

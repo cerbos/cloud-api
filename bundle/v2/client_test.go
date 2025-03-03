@@ -13,6 +13,7 @@ import (
 	"crypto/sha1" //nolint:gosec
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -79,19 +80,16 @@ func TestBootstrapBundle(t *testing.T) {
 
 	clientID := creds.ClientID
 	clientSecret := creds.ClientSecret
-	dataDir := filepath.Join(rootDir, "v2", clientID)
+	dataDir := filepath.Join(rootDir, "v2")
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create data dir")
 
-	writeBundleResponse := func(t *testing.T, label string, data []byte) {
+	writeBootstrapBundleResponse := func(t *testing.T, deploymentID v2.DeploymentID, data []byte) {
 		t.Helper()
 
-		bundleResponseName := hex.EncodeToString(
-			credentials.Hash(
-				creds.BootstrapKey,
-				[]byte(label),
-			),
-		)
-		bundleResponseFile, err := os.Create(filepath.Join(dataDir, bundleResponseName))
+		dir := filepath.Join(dataDir, string(deploymentID), clientID)
+		require.NoError(t, os.MkdirAll(dir, 0o774), "Failed to create bootstrap bundle response dir")
+
+		bundleResponseFile, err := os.Create(filepath.Join(dir, base64.RawURLEncoding.EncodeToString(creds.BootstrapKey)))
 		require.NoError(t, err, "Failed to create bootstrap bundle response file")
 		t.Cleanup(func() { _ = bundleResponseFile.Close() })
 
@@ -105,10 +103,9 @@ func TestBootstrapBundle(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		label := "label1"
+		source := v2.DeploymentID("PJX7SLDX8SNG")
 		bundleResp := &bundlev2.GetBundleResponse{
-			BundleInfo: &bundlev2.BundleInfo{
-				Label:         label,
+			BundleInfo: bundleInfo(source, &bundlev2.BundleInfo{
 				InputHash:     hash("input"),
 				OutputHash:    wantChecksum,
 				EncryptionKey: []byte("secret"),
@@ -122,14 +119,14 @@ func TestBootstrapBundle(t *testing.T) {
 						},
 					},
 				},
-			},
+			}),
 		}
 
 		bundleRespBytes, err := bundleResp.MarshalVT()
 		require.NoError(t, err, "Failed to marshal")
-		writeBundleResponse(t, label, bundleRespBytes)
+		writeBootstrapBundleResponse(t, source, bundleRespBytes)
 
-		file, encryptionKey, err := client.BootstrapBundle(context.Background(), label)
+		file, encryptionKey, err := client.BootstrapBundle(context.Background(), source)
 		require.NoError(t, err)
 		require.Equal(t, bundleResp.BundleInfo.EncryptionKey, encryptionKey)
 
@@ -138,706 +135,743 @@ func TestBootstrapBundle(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		_, _, err := client.BootstrapBundle(context.Background(), "blah")
+		_, _, err := client.BootstrapBundle(context.Background(), v2.DeploymentID("VQZE8L9LQDML"))
 		require.Error(t, err)
 	})
 }
 
 func TestGetBundle(t *testing.T) {
-	t.Run("SingleSegment", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+	testCases := []struct {
+		name   string
+		source v2.Source
+	}{
+		{
+			name:   "Deployment",
+			source: v2.DeploymentID("PJX7SLDX8SNG"),
+		},
+		{
+			name:   "Playground",
+			source: v2.PlaygroundID("FMOAXTQ1ZK84"),
+		},
+	}
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Run("SingleSegment", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
 
-		expectIssueAccessToken(mockAPIKeySvc)
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		wantEncryptionKey := []byte("secret")
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
-					InputHash:     hash("input"),
-					OutputHash:    wantChecksum,
-					EncryptionKey: wantEncryptionKey,
-					Segments: []*bundlev2.BundleInfo_Segment{
-						{
-							SegmentId:    1,
-							Checksum:     wantChecksum,
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-						},
-					},
-				},
-			}), nil).Times(3)
+				expectIssueAccessToken(mockAPIKeySvc)
 
-		for i := 0; i < 3; i++ {
-			file, encryptionKey, err := client.GetBundle(context.Background(), "label")
-			require.NoError(t, err)
-			require.Equal(t, wantEncryptionKey, encryptionKey)
-
-			haveChecksum := checksum(t, file)
-			require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
-		}
-
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-
-		cached, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
-	})
-
-	t.Run("MultipleDownloadURLs", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
-					InputHash:     hash("input"),
-					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
-					Segments: []*bundlev2.BundleInfo_Segment{
-						{
-							SegmentId: 1,
-							Checksum:  wantChecksum,
-							DownloadUrls: []string{
-								fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
-								fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
+				wantEncryptionKey := []byte("secret")
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum,
+							EncryptionKey: wantEncryptionKey,
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     wantChecksum,
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+								},
 							},
-						},
-					},
-				},
-			}), nil)
+						}),
+					}), nil).Times(3)
 
-		file, _, err := client.GetBundle(context.Background(), "label")
-		require.NoError(t, err)
+				for i := 0; i < 3; i++ {
+					file, encryptionKey, err := client.GetBundle(context.Background(), tc.source)
+					require.NoError(t, err)
+					require.Equal(t, wantEncryptionKey, encryptionKey)
 
-		haveChecksum := checksum(t, file)
-		require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
+					haveChecksum := checksum(t, file)
+					require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
+				}
 
-		cached, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
-	})
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-	t.Run("MultipleSegments", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+				cached, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+			})
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+			t.Run("MultipleDownloadURLs", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
 
-		expectIssueAccessToken(mockAPIKeySvc)
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:      "label",
-					OutputHash: wantChecksum,
-					Segments: []*bundlev2.BundleInfo_Segment{
-						{
-							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
-						},
-						{
-							SegmentId:    2,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
-						},
-						{
-							SegmentId:    3,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02", server.URL)},
-						},
-					},
-				},
-			}), nil).Times(3)
+				expectIssueAccessToken(mockAPIKeySvc)
 
-		for i := 0; i < 3; i++ {
-			file, _, err := client.GetBundle(context.Background(), "label")
-			require.NoError(t, err)
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum,
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId: 1,
+									Checksum:  wantChecksum,
+									DownloadUrls: []string{
+										fmt.Sprintf("%s/files/bundle1.crbp", server.URL),
+										fmt.Sprintf("%s/files/bundle1_copy.crbp", server.URL),
+									},
+								},
+							},
+						}),
+					}), nil)
 
-			haveChecksum := checksum(t, file)
-			require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
-		}
+				file, _, err := client.GetBundle(context.Background(), tc.source)
+				require.NoError(t, err)
 
-		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for segment 00")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for segment 02")
+				haveChecksum := checksum(t, file)
+				require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
 
-		cached, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
-	})
+				cached, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+			})
 
-	t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+			t.Run("MultipleSegments", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		expectIssueAccessToken(mockAPIKeySvc)
+				expectIssueAccessToken(mockAPIKeySvc)
 
-		// first call returns bundle1
-		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							OutputHash: wantChecksum,
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
+								},
+								{
+									SegmentId:    2,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
+								},
+								{
+									SegmentId:    3,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02", server.URL)},
+								},
+							},
+						}),
+					}), nil).Times(3)
+
+				for i := 0; i < 3; i++ {
+					file, _, err := client.GetBundle(context.Background(), tc.source)
+					require.NoError(t, err)
+
+					haveChecksum := checksum(t, file)
+					require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
+				}
+
+				require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for segment 00")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for segment 02")
+
+				cached, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum, checksum(t, cached), "Checksum does not match for cached bundle")
+			})
+
+			t.Run("BundleChangesWithCommonSegments", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				// first call returns bundle1
+				wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum1,
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
+								},
+								{
+									SegmentId:    2,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
+								},
+								{
+									SegmentId:    3,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02", server.URL)},
+								},
+							},
+						}),
+					}), nil).Times(3)
+
+				for i := 0; i < 3; i++ {
+					file1, _, err := client.GetBundle(context.Background(), tc.source)
+					require.NoError(t, err)
+
+					haveChecksum1 := checksum(t, file1)
+					require.Equal(t, wantChecksum1, haveChecksum1, "Checksum1 does not match")
+				}
+
+				cached1, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
+
+				// second call returns bundle2. segment_00 and segment_01 are identical for both bundle1 and bundle2.
+				wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum2,
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_00")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_00", server.URL)},
+								},
+								{
+									SegmentId:    2,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_01")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_01", server.URL)},
+								},
+								{
+									SegmentId:    3,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_02")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_02", server.URL)},
+								},
+								{
+									SegmentId:    4,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_03")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_03", server.URL)},
+								},
+								{
+									SegmentId:    5,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_04")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_04", server.URL)},
+								},
+							},
+						}),
+					}), nil).Times(3)
+
+				for i := 0; i < 3; i++ {
+					file2, _, err := client.GetBundle(context.Background(), tc.source)
+					require.NoError(t, err)
+
+					haveChecksum2 := checksum(t, file2)
+					require.Equal(t, wantChecksum2, haveChecksum2, "Checksum2 does not match")
+				}
+
+				cached2, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
+
+				require.Equal(t, 6, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for bundle1 segment 00")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for bundle1 segment 01")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for bundle1 segment 02")
+				require.Equal(t, 0, counter.pathHits("bundle2_segment_00"), "Path hit count does not match for bundle2 segment 00")
+				require.Equal(t, 0, counter.pathHits("bundle2_segment_01"), "Path hit count does not match for bundle2 segment 01")
+				require.Equal(t, 1, counter.pathHits("bundle2_segment_02"), "Path hit count does not match for bundle2 segment 02")
+				require.Equal(t, 1, counter.pathHits("bundle2_segment_03"), "Path hit count does not match for bundle2 segment 03")
+				require.Equal(t, 1, counter.pathHits("bundle2_segment_04"), "Path hit count does not match for bundle2 segment 04")
+			})
+
+			t.Run("BundleNotAvailableForDownload", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum,
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId: 1,
+									Checksum:  wantChecksum,
+									DownloadUrls: []string{
+										fmt.Sprintf("%s/files/bundle1_BLAH1.crbp", server.URL),
+										fmt.Sprintf("%s/files/bundle1_BLAH2.crbp", server.URL),
+										fmt.Sprintf("%s/files/bundle1_BLAH3.crbp", server.URL),
+									},
+								},
+							},
+						}),
+					}), nil).Once()
+
+				_, _, err := client.GetBundle(context.Background(), tc.source)
+				require.Error(t, err)
+
+				require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_BLAH1.crbp"), "Path hit count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_BLAH2.crbp"), "Path hit count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_BLAH3.crbp"), "Path hit count does not match")
+			})
+
+			t.Run("SegmentNotAvailableForDownload", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    wantChecksum,
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
+								},
+								{
+									SegmentId:    2,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
+								},
+								{
+									SegmentId:    3,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02_BLAH", server.URL)},
+								},
+							},
+						}),
+					}), nil).Once()
+
+				_, _, err := client.GetBundle(context.Background(), tc.source)
+				require.Error(t, err)
+
+				require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for segment 00")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
+				require.Equal(t, 1, counter.pathHits("bundle1_segment_02_BLAH"), "Path hit count does not match for segment 02")
+			})
+
+			t.Run("ChecksumMismatch", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    checksum(t, filepath.Join("testdata", "bundle1.crbp")),
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+								},
+							},
+						}),
+					}), nil).Once()
+
+				_, _, err := client.GetBundle(context.Background(), tc.source)
+				require.Error(t, err)
+
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
+			})
+
+			t.Run("InvalidBundleHash", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				mockBundleSvc.EXPECT().
+					GetBundle(mock.Anything, mock.MatchedBy(getBundleReq(tc.source))).
+					Return(connect.NewResponse(&bundlev2.GetBundleResponse{
+						BundleInfo: bundleInfo(tc.source, &bundlev2.BundleInfo{
+							InputHash:     hash("input"),
+							OutputHash:    []byte{0xba, 0xd1},
+							EncryptionKey: []byte("secret"),
+							Segments: []*bundlev2.BundleInfo_Segment{
+								{
+									SegmentId:    1,
+									Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
+									DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
+								},
+							},
+						}),
+					}), nil).Once()
+
+				_, _, err := client.GetBundle(context.Background(), tc.source)
+				require.Error(t, err)
+			})
+
+			t.Run("AuthenticationFailure", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+
+				mockAPIKeySvc.EXPECT().
+					IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+					Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
+
+				_, _, err := client.GetBundle(context.Background(), tc.source)
+				require.Error(t, err)
+				require.ErrorIs(t, err, base.ErrAuthenticationFailed)
+			})
+		})
+	}
+}
+
+func getBundleReq(source v2.Source) func(*connect.Request[bundlev2.GetBundleRequest]) bool {
+	return func(req *connect.Request[bundlev2.GetBundleRequest]) bool {
+		return cmp.Equal(&bundlev2.GetBundleRequest{
+			PdpId:  pdpIdentifer,
+			Source: source.ToProto(),
+		}, req.Msg, protocmp.Transform())
+	}
+}
+
+func bundleInfo(source v2.Source, info *bundlev2.BundleInfo) *bundlev2.BundleInfo {
+	switch s := source.(type) {
+	case v2.DeploymentID:
+		info.Source = &bundlev2.Source{Source: &bundlev2.Source_DeploymentId{DeploymentId: string(s)}}
+	case v2.PlaygroundID:
+		info.Source = &bundlev2.Source{Source: &bundlev2.Source_PlaygroundId{PlaygroundId: string(s)}}
+	default:
+		return nil
+	}
+	return info
+}
+
+func TestWatchBundle(t *testing.T) {
+	testCases := []struct {
+		name   string
+		source v2.Source
+	}{
+		{
+			name:   "Deployment",
+			source: v2.DeploymentID("PJX7SLDX8SNG"),
+		},
+		{
+			name:   "Playground",
+			source: v2.PlaygroundID("FMOAXTQ1ZK84"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Run("NormalStream", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockWatchSvc := newMockBundleWatchService()
+
+				server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				bundleID1 := randomCommit()
+				bundleID2 := randomCommit()
+				wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+				wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
+
+				ctx, cancelFn := context.WithCancel(context.Background())
+				t.Cleanup(cancelFn)
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				handle, err := client.WatchBundle(ctx, tc.source)
+				require.NoError(t, err, "Failed to call RPC")
+				eventStream := handle.ServerEvents()
+
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source))
+				mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum1,
 					EncryptionKey: []byte("secret"),
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
-						},
-						{
-							SegmentId:    2,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
-						},
-						{
-							SegmentId:    3,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02", server.URL)},
+							Checksum:     wantChecksum1,
+							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
 						},
 					},
-				},
-			}), nil).Times(3)
+				}))
+				haveEvent1 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+				require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+				haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
+				require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
+				cached1, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
 
-		for i := 0; i < 3; i++ {
-			file1, _, err := client.GetBundle(context.Background(), "label")
-			require.NoError(t, err)
+				require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID1))
 
-			haveChecksum1 := checksum(t, file1)
-			require.Equal(t, wantChecksum1, haveChecksum1, "Checksum1 does not match")
-		}
-
-		cached1, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
-
-		// second call returns bundle2. segment_00 and segment_01 are identical for both bundle1 and bundle2.
-		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
+				mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum2,
 					EncryptionKey: []byte("secret"),
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_00")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_00", server.URL)},
-						},
-						{
-							SegmentId:    2,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_01")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_01", server.URL)},
-						},
-						{
-							SegmentId:    3,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_02")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_02", server.URL)},
-						},
-						{
-							SegmentId:    4,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_03")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_03", server.URL)},
-						},
-						{
-							SegmentId:    5,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2_segment_04")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2_segment_04", server.URL)},
+							Checksum:     wantChecksum2,
+							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2.crbp", server.URL)},
 						},
 					},
-				},
-			}), nil).Times(3)
+				}))
+				haveEvent2 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventNewBundle, haveEvent2.Kind, "Unexpected event kind")
+				require.NotEmpty(t, haveEvent2.NewBundlePath, "BundlePath is empty")
+				haveChecksum2 := checksum(t, haveEvent2.NewBundlePath)
+				require.Equal(t, wantChecksum2, haveChecksum2, "Checksum does not match")
+				require.Equal(t, 2, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle2.crbp"), "Path hit count does not match")
+				cached2, err := client.GetCachedBundle(tc.source)
+				require.NoError(t, err, "Failed to get cached bundle")
+				require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
 
-		for i := 0; i < 3; i++ {
-			file2, _, err := client.GetBundle(context.Background(), "label")
-			require.NoError(t, err)
+				require.NoError(t, handle.ActiveBundleChanged(bundleID2), "Failed to acknowledge bundle swap")
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID2))
+			})
 
-			haveChecksum2 := checksum(t, file2)
-			require.Equal(t, wantChecksum2, haveChecksum2, "Checksum2 does not match")
-		}
+			t.Run("BadDownloadURL", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockWatchSvc := newMockBundleWatchService()
+				server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
+				t.Cleanup(server.Close)
 
-		cached2, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		require.Equal(t, 6, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for bundle1 segment 00")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for bundle1 segment 01")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_02"), "Path hit count does not match for bundle1 segment 02")
-		require.Equal(t, 0, counter.pathHits("bundle2_segment_00"), "Path hit count does not match for bundle2 segment 00")
-		require.Equal(t, 0, counter.pathHits("bundle2_segment_01"), "Path hit count does not match for bundle2 segment 01")
-		require.Equal(t, 1, counter.pathHits("bundle2_segment_02"), "Path hit count does not match for bundle2 segment 02")
-		require.Equal(t, 1, counter.pathHits("bundle2_segment_03"), "Path hit count does not match for bundle2 segment 03")
-		require.Equal(t, 1, counter.pathHits("bundle2_segment_04"), "Path hit count does not match for bundle2 segment 04")
-	})
+				ctx, cancelFn := context.WithCancel(context.Background())
+				t.Cleanup(cancelFn)
+				expectIssueAccessToken(mockAPIKeySvc)
 
-	t.Run("BundleNotAvailableForDownload", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+				handle, err := client.WatchBundle(ctx, tc.source)
+				require.NoError(t, err, "Failed to call RPC")
+				eventStream := handle.ServerEvents()
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
-					InputHash:     hash("input"),
-					OutputHash:    wantChecksum,
-					EncryptionKey: []byte("secret"),
-					Segments: []*bundlev2.BundleInfo_Segment{
-						{
-							SegmentId: 1,
-							Checksum:  wantChecksum,
-							DownloadUrls: []string{
-								fmt.Sprintf("%s/files/bundle1_BLAH1.crbp", server.URL),
-								fmt.Sprintf("%s/files/bundle1_BLAH2.crbp", server.URL),
-								fmt.Sprintf("%s/files/bundle1_BLAH3.crbp", server.URL),
-							},
-						},
-					},
-				},
-			}), nil).Once()
-
-		_, _, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
-
-		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_BLAH1.crbp"), "Path hit count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_BLAH2.crbp"), "Path hit count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_BLAH3.crbp"), "Path hit count does not match")
-	})
-
-	t.Run("SegmentNotAvailableForDownload", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source))
+				mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 					InputHash:     hash("input"),
 					OutputHash:    wantChecksum,
 					EncryptionKey: []byte("secret"),
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_00")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_00", server.URL)},
-						},
-						{
-							SegmentId:    2,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_01")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_01", server.URL)},
-						},
-						{
-							SegmentId:    3,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle1_segment_02")),
-							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_segment_02_BLAH", server.URL)},
+							Checksum:     wantChecksum,
+							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_BLAH.crbp", server.URL)},
 						},
 					},
-				},
-			}), nil).Once()
+				}))
 
-		_, _, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
+				haveEvent := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
+				require.Error(t, haveEvent.Error, "Expected error in event")
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1_BLAH.crbp"), "Path hit count does not match")
+			})
 
-		require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_00"), "Path hit count does not match for segment 00")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_01"), "Path hit count does not match for segment 01")
-		require.Equal(t, 1, counter.pathHits("bundle1_segment_02_BLAH"), "Path hit count does not match for segment 02")
-	})
+			t.Run("BundleNotFound", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockWatchSvc := newMockBundleWatchService()
 
-	t.Run("ChecksumMismatch", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+				server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
+				t.Cleanup(server.Close)
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
+				client, _ := mkClient(t, server.URL, server.Certificate())
 
-		expectIssueAccessToken(mockAPIKeySvc)
+				ctx, cancelFn := context.WithCancel(context.Background())
+				t.Cleanup(cancelFn)
+				expectIssueAccessToken(mockAPIKeySvc)
 
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
+				handle, err := client.WatchBundle(ctx, tc.source)
+				require.NoError(t, err, "Failed to call RPC")
+				eventStream := handle.ServerEvents()
+
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source))
+				mockWatchSvc.respondWithError(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
+
+				haveEvent := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
+				require.Error(t, haveEvent.Error, "Error expected")
+				require.ErrorIs(t, haveEvent.Error, bundle.ErrBundleNotFound, "Unexpected error kind")
+			})
+
+			t.Run("Reconnect", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockWatchSvc := newMockBundleWatchService()
+
+				server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
+				t.Cleanup(server.Close)
+
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
+
+				ctx, cancelFn := context.WithCancel(context.Background())
+				t.Cleanup(cancelFn)
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				handle, err := client.WatchBundle(ctx, tc.source)
+				require.NoError(t, err, "Failed to call RPC")
+				eventStream := handle.ServerEvents()
+
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source))
+				mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 					InputHash:     hash("input"),
-					OutputHash:    checksum(t, filepath.Join("testdata", "bundle1.crbp")),
+					OutputHash:    wantChecksum1,
 					EncryptionKey: []byte("secret"),
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
+							Checksum:     wantChecksum1,
 							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
 						},
 					},
-				},
-			}), nil).Once()
+				}))
 
-		_, _, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
+				haveEvent1 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+				require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+				haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
+				require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-	})
+				mockWatchSvc.respondWithReconnect(1 * time.Minute)
+				haveEvent2 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventReconnect, haveEvent2.Kind, "Unexpected event kind")
+				require.Equal(t, 1*time.Minute, haveEvent2.ReconnectBackoff)
+			})
 
-	t.Run("InvalidBundleHash", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+			t.Run("BundleRemoved", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockWatchSvc := newMockBundleWatchService()
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
+				server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
+				t.Cleanup(server.Close)
 
-		expectIssueAccessToken(mockAPIKeySvc)
+				client, _ := mkClient(t, server.URL, server.Certificate())
+				wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockBundleSvc.EXPECT().
-			GetBundle(mock.Anything, mock.MatchedBy(getBundleReq("label"))).
-			Return(connect.NewResponse(&bundlev2.GetBundleResponse{
-				BundleInfo: &bundlev2.BundleInfo{
-					Label:         "label",
+				ctx, cancelFn := context.WithCancel(context.Background())
+				t.Cleanup(cancelFn)
+				expectIssueAccessToken(mockAPIKeySvc)
+
+				handle, err := client.WatchBundle(ctx, tc.source)
+				require.NoError(t, err, "Failed to call RPC")
+				eventStream := handle.ServerEvents()
+
+				mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source))
+				mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 					InputHash:     hash("input"),
-					OutputHash:    []byte{0xba, 0xd1},
+					OutputHash:    wantChecksum1,
 					EncryptionKey: []byte("secret"),
 					Segments: []*bundlev2.BundleInfo_Segment{
 						{
 							SegmentId:    1,
-							Checksum:     checksum(t, filepath.Join("testdata", "bundle2.crbp")),
+							Checksum:     wantChecksum1,
 							DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
 						},
 					},
-				},
-			}), nil).Once()
+				}))
 
-		_, _, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
-	})
+				haveEvent1 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
+				require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
+				haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
+				require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
+				require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
+				require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
 
-	t.Run("AuthenticationFailure", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
+				mockWatchSvc.respondWithBundleRemoved()
 
-		client, _ := mkClient(t, server.URL, server.Certificate())
+				haveEvent2 := mustPopFromChan(t, eventStream)
+				require.Equal(t, bundle.ServerEventBundleRemoved, haveEvent2.Kind, "Unexpected event kind")
+			})
 
-		mockAPIKeySvc.EXPECT().
-			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
-			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
+			t.Run("AuthenticationFailure", func(t *testing.T) {
+				mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
+				mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
+				server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
+				t.Cleanup(server.Close)
 
-		_, _, err := client.GetBundle(context.Background(), "label")
-		require.Error(t, err)
-		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
-	})
-}
+				client, _ := mkClient(t, server.URL, server.Certificate())
 
-func getBundleReq(wantLabel string) func(*connect.Request[bundlev2.GetBundleRequest]) bool {
-	return func(c *connect.Request[bundlev2.GetBundleRequest]) bool {
-		return c.Msg.GetBundleLabel() == wantLabel && c.Msg.GetPdpId().Instance == "instance"
+				mockAPIKeySvc.EXPECT().
+					IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+					Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
+
+				_, err := client.WatchBundle(context.Background(), v2.DeploymentID("PJX7SLDX8SNG"))
+				require.Error(t, err)
+				require.ErrorIs(t, err, base.ErrAuthenticationFailed)
+			})
+		})
 	}
-}
-
-func TestWatchBundle(t *testing.T) {
-	t.Run("NormalStream", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-
-		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		bundleID1 := randomCommit()
-		bundleID2 := randomCommit()
-		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum1,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum1,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-				},
-			},
-		})
-		haveEvent1 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
-		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
-		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-		cached1, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
-
-		require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
-		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID1))
-
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum2,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum2,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle2.crbp", server.URL)},
-				},
-			},
-		})
-		haveEvent2 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventNewBundle, haveEvent2.Kind, "Unexpected event kind")
-		require.NotEmpty(t, haveEvent2.NewBundlePath, "BundlePath is empty")
-		haveChecksum2 := checksum(t, haveEvent2.NewBundlePath)
-		require.Equal(t, wantChecksum2, haveChecksum2, "Checksum does not match")
-		require.Equal(t, 2, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle2.crbp"), "Path hit count does not match")
-		cached2, err := client.GetCachedBundle("label")
-		require.NoError(t, err, "Failed to get cached bundle")
-		require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
-
-		require.NoError(t, handle.ActiveBundleChanged(bundleID2), "Failed to acknowledge bundle swap")
-		mockWatchSvc.requireRequestReceived(t, mkWBHeartbeatReq(bundleID2))
-	})
-
-	t.Run("BadDownloadURL", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1_BLAH.crbp", server.URL)},
-				},
-			},
-		})
-
-		haveEvent := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
-		require.Error(t, haveEvent.Error, "Expected error in event")
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1_BLAH.crbp"), "Path hit count does not match")
-	})
-
-	t.Run("BundleNotFound", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-
-		server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithError(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
-
-		haveEvent := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventError, haveEvent.Kind, "Unexpected event kind")
-		require.Error(t, haveEvent.Error, "Error expected")
-		require.ErrorIs(t, haveEvent.Error, bundle.ErrBundleNotFound, "Unexpected error kind")
-	})
-
-	t.Run("Reconnect", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-
-		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum1,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum1,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-				},
-			},
-		})
-
-		haveEvent1 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
-		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
-		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-
-		mockWatchSvc.respondWithReconnect(1 * time.Minute)
-		haveEvent2 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventReconnect, haveEvent2.Kind, "Unexpected event kind")
-		require.Equal(t, 1*time.Minute, haveEvent2.ReconnectBackoff)
-	})
-
-	t.Run("BundleRemoved", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockWatchSvc := newMockBundleWatchService()
-
-		server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-		wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-
-		ctx, cancelFn := context.WithCancel(context.Background())
-		t.Cleanup(cancelFn)
-		expectIssueAccessToken(mockAPIKeySvc)
-
-		handle, err := client.WatchBundle(ctx, "label")
-		require.NoError(t, err, "Failed to call RPC")
-		eventStream := handle.ServerEvents()
-
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
-			InputHash:     hash("input"),
-			OutputHash:    wantChecksum1,
-			EncryptionKey: []byte("secret"),
-			Segments: []*bundlev2.BundleInfo_Segment{
-				{
-					SegmentId:    1,
-					Checksum:     wantChecksum1,
-					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
-				},
-			},
-		})
-
-		haveEvent1 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
-		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")
-		haveChecksum1 := checksum(t, haveEvent1.NewBundlePath)
-		require.Equal(t, wantChecksum1, haveChecksum1, "Checksum does not match")
-		require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
-		require.Equal(t, 1, counter.pathHits("bundle1.crbp"), "Path hit count does not match")
-
-		mockWatchSvc.respondWithBundleRemoved()
-
-		haveEvent2 := mustPopFromChan(t, eventStream)
-		require.Equal(t, bundle.ServerEventBundleRemoved, haveEvent2.Kind, "Unexpected event kind")
-	})
-
-	t.Run("AuthenticationFailure", func(t *testing.T) {
-		mockAPIKeySvc := mockapikeyv1connect.NewApiKeyServiceHandler(t)
-		mockBundleSvc := mockbundlev2connect.NewCerbosBundleServiceHandler(t)
-		server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
-		t.Cleanup(server.Close)
-
-		client, _ := mkClient(t, server.URL, server.Certificate())
-
-		mockAPIKeySvc.EXPECT().
-			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
-			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
-
-		_, err := client.WatchBundle(context.Background(), "label")
-		require.Error(t, err)
-		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
-	})
 }
 
 func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
@@ -855,18 +889,18 @@ func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
 	}
 }
 
-func mkWBWatchLabelReq(label string) *bundlev2.WatchBundleRequest {
+func mkWatchBundleStartReq(source v2.Source) *bundlev2.WatchBundleRequest {
 	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
-		Msg: &bundlev2.WatchBundleRequest_WatchLabel_{
-			WatchLabel: &bundlev2.WatchBundleRequest_WatchLabel{
-				BundleLabel: label,
+		Msg: &bundlev2.WatchBundleRequest_Start_{
+			Start: &bundlev2.WatchBundleRequest_Start{
+				Source: source.ToProto(),
 			},
 		},
 	}
 }
 
-func mkWBHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
+func mkWatchBundleHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
 	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
 		Msg: &bundlev2.WatchBundleRequest_Heartbeat_{
@@ -879,9 +913,9 @@ func mkWBHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
 }
 
 func TestGetCachedBundle(t *testing.T) {
-	t.Run("NonExistentLabel", func(t *testing.T) {
+	t.Run("NonExistentDeployment", func(t *testing.T) {
 		client, _ := mkClient(t, "https://localhost", nil)
-		_, err := client.GetCachedBundle("blah")
+		_, err := client.GetCachedBundle(v2.DeploymentID(""))
 		require.Error(t, err)
 	})
 }
@@ -908,7 +942,7 @@ func TestNetworkIssues(t *testing.T) {
 
 		require.NoError(t, proxy.Disable(), " Failed to apply toxic")
 
-		_, err := client.WatchBundle(ctx, "label")
+		_, err := client.WatchBundle(ctx, v2.DeploymentID(""))
 		require.Error(t, err, "Expected RPC to fail")
 		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
 	})
@@ -928,15 +962,16 @@ func TestNetworkIssues(t *testing.T) {
 		t.Cleanup(cancelFn)
 		expectIssueAccessToken(mockAPIKeySvc)
 
-		handle, err := client.WatchBundle(ctx, "label")
+		source := v2.DeploymentID("PJX7SLDX8SNG")
+
+		handle, err := client.WatchBundle(ctx, source)
 		require.NoError(t, err, "Failed to call RPC")
 		eventStream := handle.ServerEvents()
 
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockWatchSvc.requireRequestReceived(t, mkWBWatchLabelReq("label"))
-		mockWatchSvc.respondWithBundleUpdate(&bundlev2.BundleInfo{
-			Label:         "label",
+		mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(source))
+		mockWatchSvc.respondWithBundleUpdate(bundleInfo(source, &bundlev2.BundleInfo{
 			InputHash:     hash("input"),
 			OutputHash:    wantChecksum,
 			EncryptionKey: []byte("secret"),
@@ -947,7 +982,7 @@ func TestNetworkIssues(t *testing.T) {
 					DownloadUrls: []string{fmt.Sprintf("%s/files/bundle1.crbp", server.URL)},
 				},
 			},
-		})
+		}))
 		haveEvent1 := mustPopFromChan(t, eventStream)
 		require.Equal(t, bundle.ServerEventNewBundle, haveEvent1.Kind, "Unexpected event kind")
 		require.NotEmpty(t, haveEvent1.NewBundlePath, "BundlePath is empty")

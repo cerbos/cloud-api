@@ -24,6 +24,76 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+func (m *Source) MarshalVT() (dAtA []byte, err error) {
+	if m == nil {
+		return nil, nil
+	}
+	size := m.SizeVT()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBufferVT(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Source) MarshalToVT(dAtA []byte) (int, error) {
+	size := m.SizeVT()
+	return m.MarshalToSizedBufferVT(dAtA[:size])
+}
+
+func (m *Source) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+	if m == nil {
+		return 0, nil
+	}
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.unknownFields != nil {
+		i -= len(m.unknownFields)
+		copy(dAtA[i:], m.unknownFields)
+	}
+	if vtmsg, ok := m.Source.(interface {
+		MarshalToSizedBufferVT([]byte) (int, error)
+	}); ok {
+		size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Source_DeploymentId) MarshalToVT(dAtA []byte) (int, error) {
+	size := m.SizeVT()
+	return m.MarshalToSizedBufferVT(dAtA[:size])
+}
+
+func (m *Source_DeploymentId) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	i -= len(m.DeploymentId)
+	copy(dAtA[i:], m.DeploymentId)
+	i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.DeploymentId)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+func (m *Source_PlaygroundId) MarshalToVT(dAtA []byte) (int, error) {
+	size := m.SizeVT()
+	return m.MarshalToSizedBufferVT(dAtA[:size])
+}
+
+func (m *Source_PlaygroundId) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	i -= len(m.PlaygroundId)
+	copy(dAtA[i:], m.PlaygroundId)
+	i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.PlaygroundId)))
+	i--
+	dAtA[i] = 0x12
+	return len(dAtA) - i, nil
+}
 func (m *BundleInfo_Segment) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
@@ -141,10 +211,13 @@ func (m *BundleInfo) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Label) > 0 {
-		i -= len(m.Label)
-		copy(dAtA[i:], m.Label)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Label)))
+	if m.Source != nil {
+		size, err := m.Source.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -188,10 +261,10 @@ func (m *Meta) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Identifier) > 0 {
-		i -= len(m.Identifier)
-		copy(dAtA[i:], m.Identifier)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Identifier)))
+	if len(m.BundleId) > 0 {
+		i -= len(m.BundleId)
+		copy(dAtA[i:], m.BundleId)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.BundleId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -306,10 +379,13 @@ func (m *GetBundleRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.BundleLabel) > 0 {
-		i -= len(m.BundleLabel)
-		copy(dAtA[i:], m.BundleLabel)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.BundleLabel)))
+	if m.Source != nil {
+		size, err := m.Source.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -381,7 +457,7 @@ func (m *GetBundleResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *WatchBundleRequest_WatchLabel) MarshalVT() (dAtA []byte, err error) {
+func (m *WatchBundleRequest_Start) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -394,12 +470,12 @@ func (m *WatchBundleRequest_WatchLabel) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *WatchBundleRequest_WatchLabel) MarshalToVT(dAtA []byte) (int, error) {
+func (m *WatchBundleRequest_Start) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *WatchBundleRequest_WatchLabel) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *WatchBundleRequest_Start) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -411,10 +487,13 @@ func (m *WatchBundleRequest_WatchLabel) MarshalToSizedBufferVT(dAtA []byte) (int
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if len(m.BundleLabel) > 0 {
-		i -= len(m.BundleLabel)
-		copy(dAtA[i:], m.BundleLabel)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.BundleLabel)))
+	if m.Source != nil {
+		size, err := m.Source.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -535,15 +614,15 @@ func (m *WatchBundleRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *WatchBundleRequest_WatchLabel_) MarshalToVT(dAtA []byte) (int, error) {
+func (m *WatchBundleRequest_Start_) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *WatchBundleRequest_WatchLabel_) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *WatchBundleRequest_Start_) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
-	if m.WatchLabel != nil {
-		size, err := m.WatchLabel.MarshalToSizedBufferVT(dAtA[:i])
+	if m.Start != nil {
+		size, err := m.Start.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -775,6 +854,39 @@ func (m *WatchBundleResponse_BundleRemoved_) MarshalToSizedBufferVT(dAtA []byte)
 	}
 	return len(dAtA) - i, nil
 }
+func (m *Source) SizeVT() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if vtmsg, ok := m.Source.(interface{ SizeVT() int }); ok {
+		n += vtmsg.SizeVT()
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *Source_DeploymentId) SizeVT() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DeploymentId)
+	n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	return n
+}
+func (m *Source_PlaygroundId) SizeVT() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.PlaygroundId)
+	n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	return n
+}
 func (m *BundleInfo_Segment) SizeVT() (n int) {
 	if m == nil {
 		return 0
@@ -804,8 +916,8 @@ func (m *BundleInfo) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Label)
-	if l > 0 {
+	if m.Source != nil {
+		l = m.Source.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	l = len(m.InputHash)
@@ -836,7 +948,7 @@ func (m *Meta) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Identifier)
+	l = len(m.BundleId)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
@@ -896,8 +1008,8 @@ func (m *GetBundleRequest) SizeVT() (n int) {
 		}
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	l = len(m.BundleLabel)
-	if l > 0 {
+	if m.Source != nil {
+		l = m.Source.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
@@ -918,14 +1030,14 @@ func (m *GetBundleResponse) SizeVT() (n int) {
 	return n
 }
 
-func (m *WatchBundleRequest_WatchLabel) SizeVT() (n int) {
+func (m *WatchBundleRequest_Start) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.BundleLabel)
-	if l > 0 {
+	if m.Source != nil {
+		l = m.Source.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
@@ -973,14 +1085,14 @@ func (m *WatchBundleRequest) SizeVT() (n int) {
 	return n
 }
 
-func (m *WatchBundleRequest_WatchLabel_) SizeVT() (n int) {
+func (m *WatchBundleRequest_Start_) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.WatchLabel != nil {
-		l = m.WatchLabel.SizeVT()
+	if m.Start != nil {
+		l = m.Start.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	} else {
 		n += 2
@@ -1083,6 +1195,121 @@ func (m *WatchBundleResponse_BundleRemoved_) SizeVT() (n int) {
 		n += 2
 	}
 	return n
+}
+func (m *Source) UnmarshalVT(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return protohelpers.ErrIntOverflow
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Source: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Source: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeploymentId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Source = &Source_DeploymentId{DeploymentId: string(dAtA[iNdEx:postIndex])}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PlaygroundId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Source = &Source_PlaygroundId{PlaygroundId: string(dAtA[iNdEx:postIndex])}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.unknownFields = append(m.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *BundleInfo_Segment) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
@@ -1251,9 +1478,9 @@ func (m *BundleInfo) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Label", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Source", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -1263,23 +1490,27 @@ func (m *BundleInfo) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return protohelpers.ErrInvalidLength
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Label = string(dAtA[iNdEx:postIndex])
+			if m.Source == nil {
+				m.Source = &Source{}
+			}
+			if err := m.Source.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -1470,7 +1701,7 @@ func (m *Meta) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1498,7 +1729,7 @@ func (m *Meta) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Identifier = string(dAtA[iNdEx:postIndex])
+			m.BundleId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -1907,9 +2138,9 @@ func (m *GetBundleRequest) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BundleLabel", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Source", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -1919,23 +2150,27 @@ func (m *GetBundleRequest) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return protohelpers.ErrInvalidLength
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BundleLabel = string(dAtA[iNdEx:postIndex])
+			if m.Source == nil {
+				m.Source = &Source{}
+			}
+			if err := m.Source.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2046,7 +2281,7 @@ func (m *GetBundleResponse) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *WatchBundleRequest_WatchLabel) UnmarshalVT(dAtA []byte) error {
+func (m *WatchBundleRequest_Start) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2069,17 +2304,17 @@ func (m *WatchBundleRequest_WatchLabel) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: WatchBundleRequest_WatchLabel: wiretype end group for non-group")
+			return fmt.Errorf("proto: WatchBundleRequest_Start: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: WatchBundleRequest_WatchLabel: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: WatchBundleRequest_Start: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BundleLabel", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Source", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -2089,23 +2324,27 @@ func (m *WatchBundleRequest_WatchLabel) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return protohelpers.ErrInvalidLength
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BundleLabel = string(dAtA[iNdEx:postIndex])
+			if m.Source == nil {
+				m.Source = &Source{}
+			}
+			if err := m.Source.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2323,7 +2562,7 @@ func (m *WatchBundleRequest) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field WatchLabel", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Start", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2350,16 +2589,16 @@ func (m *WatchBundleRequest) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if oneof, ok := m.Msg.(*WatchBundleRequest_WatchLabel_); ok {
-				if err := oneof.WatchLabel.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if oneof, ok := m.Msg.(*WatchBundleRequest_Start_); ok {
+				if err := oneof.Start.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
 			} else {
-				v := &WatchBundleRequest_WatchLabel{}
+				v := &WatchBundleRequest_Start{}
 				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
-				m.Msg = &WatchBundleRequest_WatchLabel_{WatchLabel: v}
+				m.Msg = &WatchBundleRequest_Start_{Start: v}
 			}
 			iNdEx = postIndex
 		case 3:
