@@ -2,7 +2,7 @@ module github.com/cerbos/cloud-api/tools
 
 go 1.24
 
-toolchain go1.24.0
+toolchain go1.24.1
 
 require (
 	connectrpc.com/connect v1.18.1
@@ -10,7 +10,7 @@ require (
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.5
 	github.com/golangci/golangci-lint v1.64.6
 	github.com/planetscale/vtprotobuf v0.6.1-0.20241121165744-79df5c4772f2
-	github.com/vektra/mockery/v2 v2.53.0
+	github.com/vektra/mockery/v2 v2.53.1
 	google.golang.org/protobuf v1.36.5
 	gotest.tools/gotestsum v1.12.0
 )
