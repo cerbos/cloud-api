@@ -43,10 +43,7 @@ func testRoundTrip(t *testing.T, stepSize, length int) {
 
 	var n int
 	for n < length {
-		b := length - n
-		if b > stepSize {
-			b = stepSize
-		}
+		b := min(length-n, stepSize)
 		nn, err := w.Write(src[n : n+b])
 		if err != nil {
 			t.Fatal(err)

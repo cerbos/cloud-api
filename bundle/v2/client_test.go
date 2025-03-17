@@ -186,7 +186,7 @@ func TestGetBundle(t *testing.T) {
 						}),
 					}), nil).Times(3)
 
-				for i := 0; i < 3; i++ {
+				for range 3 {
 					file, encryptionKey, err := client.GetBundle(context.Background(), tc.source)
 					require.NoError(t, err)
 					require.Equal(t, wantEncryptionKey, encryptionKey)
@@ -281,7 +281,7 @@ func TestGetBundle(t *testing.T) {
 						}),
 					}), nil).Times(3)
 
-				for i := 0; i < 3; i++ {
+				for range 3 {
 					file, _, err := client.GetBundle(context.Background(), tc.source)
 					require.NoError(t, err)
 
@@ -338,7 +338,7 @@ func TestGetBundle(t *testing.T) {
 						}),
 					}), nil).Times(3)
 
-				for i := 0; i < 3; i++ {
+				for range 3 {
 					file1, _, err := client.GetBundle(context.Background(), tc.source)
 					require.NoError(t, err)
 
@@ -389,7 +389,7 @@ func TestGetBundle(t *testing.T) {
 						}),
 					}), nil).Times(3)
 
-				for i := 0; i < 3; i++ {
+				for range 3 {
 					file2, _, err := client.GetBundle(context.Background(), tc.source)
 					require.NoError(t, err)
 
