@@ -13,7 +13,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.x
+          go-version: 1.24.x
           check-latest: true
 
       - name: Checkout
@@ -44,11 +44,11 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.x
+          go-version: 1.24.x
           check-latest: true
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6.5.0
+        uses: golangci/golangci-lint-action@v6.5.1
         with:
           version: latest
           args: "--config=.golangci.yaml --fix"
