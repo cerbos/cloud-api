@@ -168,7 +168,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Times(3)
 
-		for i := 0; i < 3; i++ {
+		for range 3 {
 			file, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
@@ -262,7 +262,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Times(3)
 
-		for i := 0; i < 3; i++ {
+		for range 3 {
 			file, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
@@ -318,7 +318,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Times(3)
 
-		for i := 0; i < 3; i++ {
+		for range 3 {
 			file1, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 
@@ -368,7 +368,7 @@ func TestGetBundle(t *testing.T) {
 				},
 			}), nil).Times(3)
 
-		for i := 0; i < 3; i++ {
+		for range 3 {
 			file2, err := client.GetBundle(context.Background(), "label")
 			require.NoError(t, err)
 

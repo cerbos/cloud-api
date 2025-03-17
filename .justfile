@@ -42,10 +42,13 @@ generate-proto-code: _buf
         "${TOOLS_BIN_DIR}/buf" generate --template=buf.gen.yaml --output=..
     )
 
-lint: _golangcilint _buf
+lint: lint-modernize _golangcilint _buf
     @ "${TOOLS_BIN_DIR}/golangci-lint" run --config=.golangci.yaml --fix
     @ "${TOOLS_BIN_DIR}/buf" lint
     @ "${TOOLS_BIN_DIR}/buf" format --diff --exit-code
+
+lint-modernize: _modernize
+    @ go list ./... | grep -v genpb | GOFLAGS=-tags=tests,integration xargs "${TOOLS_BIN_DIR}/modernize" -fix -test
 
 pre-commit: generate lint tests
 
@@ -64,6 +67,8 @@ _cover: (_install "cover" "nikand.dev/go/cover@master" )
 _golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint" "cmd/golangci-lint")
 
 _gotestsum: (_install "gotestsum" "gotest.tools/gotestsum")
+
+_modernize: (_install "modernize" "golang.org/x/tools/gopls" "internal/analysis/modernize/cmd/modernize")
 
 _mockery: (_install "mockery" "github.com/vektra/mockery/v2")
 
@@ -87,4 +92,3 @@ _install EXECUTABLE MODULE CMD_PKG="":
       fi
       ln -s "$BINARY" "$SYMLINK"
     fi
-
