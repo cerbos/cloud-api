@@ -48,7 +48,7 @@ lint: lint-modernize _golangcilint _buf
     @ "${TOOLS_BIN_DIR}/buf" format --diff --exit-code
 
 lint-modernize: _modernize
-    @ go list ./... | grep -v genpb | GOFLAGS=-tags=tests,integration xargs "${TOOLS_BIN_DIR}/modernize" -fix -test
+    @ GOFLAGS=-tags=tests,integration "${TOOLS_BIN_DIR}/modernize" -fix -test ./...
 
 pre-commit: generate lint tests
 
