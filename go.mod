@@ -10,7 +10,7 @@ require (
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/otelconnect v0.7.2
 	filippo.io/age v1.2.1
-	github.com/Shopify/toxiproxy/v2 v2.11.0
+	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/bufbuild/protovalidate-go v0.9.2
 	github.com/cerbos/cerbos/api/genpb v0.41.0
 	github.com/go-logr/logr v1.4.2
@@ -47,9 +47,9 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/prometheus/client_golang v1.20.5 // indirect
+	github.com/prometheus/client_golang v1.21.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.61.0 // indirect
+	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
