@@ -170,6 +170,7 @@ message ReplaceFilesRequest {
 message ReplaceFilesResponse {
   message Failure {
     repeated FileError errors = 1;
+    string cause = 2;
   }
 
   message Success {

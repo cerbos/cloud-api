@@ -296,6 +296,9 @@ func cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(m *ReplaceFil
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.Failure.cause"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetCause()))
+	}
 }
 
 func cerbos_cloud_store_v1_ReplaceFilesResponse_Success_hashpb_sum(m *ReplaceFilesResponse_Success, hasher hash.Hash, ignore map[string]struct{}) {
