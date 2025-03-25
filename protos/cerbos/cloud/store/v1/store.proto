@@ -170,16 +170,19 @@ message ReplaceFilesRequest {
 message ReplaceFilesResponse {
   message Failure {
     repeated FileError errors = 1;
+    string cause = 2;
   }
 
   message Success {
     int64 new_store_version = 1;
   }
+
   oneof result {
     option (buf.validate.oneof).required = true;
     Success success = 1;
     Failure failure = 2;
   }
+  repeated string ignored_files = 3;
 }
 
 service CerbosStoreService {

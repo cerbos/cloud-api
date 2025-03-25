@@ -296,6 +296,9 @@ func cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(m *ReplaceFil
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.Failure.cause"]; !ok {
+		_, _ = hasher.Write(protowire.AppendString(nil, m.GetCause()))
+	}
 }
 
 func cerbos_cloud_store_v1_ReplaceFilesResponse_Success_hashpb_sum(m *ReplaceFilesResponse_Success, hasher hash.Hash, ignore map[string]struct{}) {
@@ -316,6 +319,13 @@ func cerbos_cloud_store_v1_ReplaceFilesResponse_hashpb_sum(m *ReplaceFilesRespon
 				if t.Failure != nil {
 					cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(t.Failure, hasher, ignore)
 				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.ignored_files"]; !ok {
+		if len(m.IgnoredFiles) > 0 {
+			for _, v := range m.IgnoredFiles {
+				_, _ = hasher.Write(protowire.AppendString(nil, v))
 			}
 		}
 	}
