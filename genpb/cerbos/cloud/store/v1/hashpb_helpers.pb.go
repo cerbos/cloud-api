@@ -319,6 +319,13 @@ func cerbos_cloud_store_v1_ReplaceFilesResponse_hashpb_sum(m *ReplaceFilesRespon
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesResponse.ignored_files"]; !ok {
+		if len(m.IgnoredFiles) > 0 {
+			for _, v := range m.IgnoredFiles {
+				_, _ = hasher.Write(protowire.AppendString(nil, v))
+			}
+		}
+	}
 }
 
 func cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(m *StringMatch_InList, hasher hash.Hash, ignore map[string]struct{}) {

@@ -1406,6 +1406,15 @@ func (m *ReplaceFilesResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) 
 		}
 		i -= size
 	}
+	if len(m.IgnoredFiles) > 0 {
+		for iNdEx := len(m.IgnoredFiles) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.IgnoredFiles[iNdEx])
+			copy(dAtA[i:], m.IgnoredFiles[iNdEx])
+			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.IgnoredFiles[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -2016,6 +2025,12 @@ func (m *ReplaceFilesResponse) SizeVT() (n int) {
 	_ = l
 	if vtmsg, ok := m.Result.(interface{ SizeVT() int }); ok {
 		n += vtmsg.SizeVT()
+	}
+	if len(m.IgnoredFiles) > 0 {
+		for _, s := range m.IgnoredFiles {
+			l = len(s)
+			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+		}
 	}
 	n += len(m.unknownFields)
 	return n
@@ -5201,6 +5216,38 @@ func (m *ReplaceFilesResponse) UnmarshalVT(dAtA []byte) error {
 				}
 				m.Result = &ReplaceFilesResponse_Failure_{Failure: v}
 			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IgnoredFiles", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.IgnoredFiles = append(m.IgnoredFiles, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
