@@ -146,22 +146,6 @@ func (m *ModifyFilesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *ModifyFilesResponse_Failure) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		cerbos_cloud_store_v1_ModifyFilesResponse_Failure_hashpb_sum(m, hasher, ignore)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *ModifyFilesResponse_Success) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		cerbos_cloud_store_v1_ModifyFilesResponse_Success_hashpb_sum(m, hasher, ignore)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *ReplaceFilesRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_ReplaceFilesRequest_hashpb_sum(m, hasher, ignore)
@@ -178,24 +162,24 @@ func (m *ReplaceFilesRequest_Condition) HashPB(hasher hash.Hash, ignore map[stri
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ErrDetailValidationFailure) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ErrDetailValidationFailure_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ErrDetailNoUsableFiles) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ErrDetailNoUsableFiles_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *ReplaceFilesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_ReplaceFilesResponse_hashpb_sum(m, hasher, ignore)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *ReplaceFilesResponse_Failure) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		cerbos_cloud_store_v1_ReplaceFilesResponse_Failure_hashpb_sum(m, hasher, ignore)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *ReplaceFilesResponse_Success) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		cerbos_cloud_store_v1_ReplaceFilesResponse_Success_hashpb_sum(m, hasher, ignore)
 	}
 }
