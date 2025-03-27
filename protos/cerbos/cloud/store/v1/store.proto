@@ -160,8 +160,8 @@ message ErrDetailValidationFailure {
   repeated FileError errors = 1;
 }
 
-message ErrDetailUnusableFiles {
-  repeated string ignored_files = 2;
+message ErrDetailNoUsableFiles {
+  repeated string ignored_files = 1;
 }
 
 message ReplaceFilesResponse {
