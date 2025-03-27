@@ -99,8 +99,8 @@ func cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m *ChangeDetails, hasher has
 	}
 }
 
-func cerbos_cloud_store_v1_ErrDetailUnusableFiles_hashpb_sum(m *ErrDetailUnusableFiles, hasher hash.Hash, ignore map[string]struct{}) {
-	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailUnusableFiles.ignored_files"]; !ok {
+func cerbos_cloud_store_v1_ErrDetailNoUsableFiles_hashpb_sum(m *ErrDetailNoUsableFiles, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailNoUsableFiles.ignored_files"]; !ok {
 		if len(m.IgnoredFiles) > 0 {
 			for _, v := range m.IgnoredFiles {
 				_, _ = hasher.Write(protowire.AppendString(nil, v))

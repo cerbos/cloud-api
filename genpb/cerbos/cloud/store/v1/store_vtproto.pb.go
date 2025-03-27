@@ -1196,7 +1196,7 @@ func (m *ErrDetailValidationFailure) MarshalToSizedBufferVT(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *ErrDetailUnusableFiles) MarshalVT() (dAtA []byte, err error) {
+func (m *ErrDetailNoUsableFiles) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -1209,12 +1209,12 @@ func (m *ErrDetailUnusableFiles) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ErrDetailUnusableFiles) MarshalToVT(dAtA []byte) (int, error) {
+func (m *ErrDetailNoUsableFiles) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *ErrDetailUnusableFiles) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *ErrDetailNoUsableFiles) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -1232,7 +1232,7 @@ func (m *ErrDetailUnusableFiles) MarshalToSizedBufferVT(dAtA []byte) (int, error
 			copy(dAtA[i:], m.IgnoredFiles[iNdEx])
 			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.IgnoredFiles[iNdEx])))
 			i--
-			dAtA[i] = 0x12
+			dAtA[i] = 0xa
 		}
 	}
 	return len(dAtA) - i, nil
@@ -1768,7 +1768,7 @@ func (m *ErrDetailValidationFailure) SizeVT() (n int) {
 	return n
 }
 
-func (m *ErrDetailUnusableFiles) SizeVT() (n int) {
+func (m *ErrDetailNoUsableFiles) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -4557,7 +4557,7 @@ func (m *ErrDetailValidationFailure) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ErrDetailUnusableFiles) UnmarshalVT(dAtA []byte) error {
+func (m *ErrDetailNoUsableFiles) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4580,13 +4580,13 @@ func (m *ErrDetailUnusableFiles) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ErrDetailUnusableFiles: wiretype end group for non-group")
+			return fmt.Errorf("proto: ErrDetailNoUsableFiles: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ErrDetailUnusableFiles: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ErrDetailNoUsableFiles: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 2:
+		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IgnoredFiles", wireType)
 			}

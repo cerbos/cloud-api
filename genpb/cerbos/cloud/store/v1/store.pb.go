@@ -952,27 +952,27 @@ func (x *ErrDetailValidationFailure) GetErrors() []*FileError {
 	return nil
 }
 
-type ErrDetailUnusableFiles struct {
+type ErrDetailNoUsableFiles struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IgnoredFiles  []string               `protobuf:"bytes,2,rep,name=ignored_files,json=ignoredFiles,proto3" json:"ignored_files,omitempty"`
+	IgnoredFiles  []string               `protobuf:"bytes,1,rep,name=ignored_files,json=ignoredFiles,proto3" json:"ignored_files,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ErrDetailUnusableFiles) Reset() {
-	*x = ErrDetailUnusableFiles{}
+func (x *ErrDetailNoUsableFiles) Reset() {
+	*x = ErrDetailNoUsableFiles{}
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ErrDetailUnusableFiles) String() string {
+func (x *ErrDetailNoUsableFiles) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ErrDetailUnusableFiles) ProtoMessage() {}
+func (*ErrDetailNoUsableFiles) ProtoMessage() {}
 
-func (x *ErrDetailUnusableFiles) ProtoReflect() protoreflect.Message {
+func (x *ErrDetailNoUsableFiles) ProtoReflect() protoreflect.Message {
 	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -984,12 +984,12 @@ func (x *ErrDetailUnusableFiles) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ErrDetailUnusableFiles.ProtoReflect.Descriptor instead.
-func (*ErrDetailUnusableFiles) Descriptor() ([]byte, []int) {
+// Deprecated: Use ErrDetailNoUsableFiles.ProtoReflect.Descriptor instead.
+func (*ErrDetailNoUsableFiles) Descriptor() ([]byte, []int) {
 	return file_cerbos_cloud_store_v1_store_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *ErrDetailUnusableFiles) GetIgnoredFiles() []string {
+func (x *ErrDetailNoUsableFiles) GetIgnoredFiles() []string {
 	if x != nil {
 		return x.IgnoredFiles
 	}
@@ -1595,9 +1595,9 @@ var file_cerbos_cloud_store_v1_store_proto_rawDesc = string([]byte{
 	0x62, 0x6f, 0x73, 0x2e, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2e, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x2e,
 	0x76, 0x31, 0x2e, 0x46, 0x69, 0x6c, 0x65, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x06, 0x65, 0x72,
 	0x72, 0x6f, 0x72, 0x73, 0x22, 0x3d, 0x0a, 0x16, 0x45, 0x72, 0x72, 0x44, 0x65, 0x74, 0x61, 0x69,
-	0x6c, 0x55, 0x6e, 0x75, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x73, 0x12, 0x23,
+	0x6c, 0x4e, 0x6f, 0x55, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x73, 0x12, 0x23,
 	0x0a, 0x0d, 0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x64, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x18,
-	0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0c, 0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x64, 0x46, 0x69,
+	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0c, 0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x64, 0x46, 0x69,
 	0x6c, 0x65, 0x73, 0x22, 0x67, 0x0a, 0x14, 0x52, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x46, 0x69,
 	0x6c, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x11, 0x6e,
 	0x65, 0x77, 0x5f, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x5f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
@@ -1670,7 +1670,7 @@ var file_cerbos_cloud_store_v1_store_proto_goTypes = []any{
 	(*ModifyFilesResponse)(nil),           // 12: cerbos.cloud.store.v1.ModifyFilesResponse
 	(*ReplaceFilesRequest)(nil),           // 13: cerbos.cloud.store.v1.ReplaceFilesRequest
 	(*ErrDetailValidationFailure)(nil),    // 14: cerbos.cloud.store.v1.ErrDetailValidationFailure
-	(*ErrDetailUnusableFiles)(nil),        // 15: cerbos.cloud.store.v1.ErrDetailUnusableFiles
+	(*ErrDetailNoUsableFiles)(nil),        // 15: cerbos.cloud.store.v1.ErrDetailNoUsableFiles
 	(*ReplaceFilesResponse)(nil),          // 16: cerbos.cloud.store.v1.ReplaceFilesResponse
 	(*StringMatch_InList)(nil),            // 17: cerbos.cloud.store.v1.StringMatch.InList
 	(*ChangeDetails_Git)(nil),             // 18: cerbos.cloud.store.v1.ChangeDetails.Git
