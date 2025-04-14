@@ -5,6 +5,7 @@ package logcap
 
 import (
 	"context"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -28,7 +29,7 @@ func NewClient(baseClient base.Client, options []connect.ClientOption) (*Client,
 	}, nil
 }
 
-func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) error {
+func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) (time.Duration, error) {
 	log := c.Logger
 	log.V(1).Info("Calling Ingest RPC")
 
@@ -38,10 +39,14 @@ func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) error {
 	}))
 	if err != nil {
 		log.Error(err, "Ingest RPC failed")
-		return err
+		var d time.Duration
+		if resp != nil && resp.Msg != nil {
+			d = resp.Msg.GetBackoff().GetDuration().AsDuration()
+		}
+		return d, err
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
 
-	return nil
+	return resp.Msg.GetBackoff().GetDuration().AsDuration(), nil
 }
