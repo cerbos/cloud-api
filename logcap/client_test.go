@@ -137,7 +137,7 @@ func TestIngest(t *testing.T) {
 				Status: &logsv1.IngestResponse_Success{},
 			}), nil).Once()
 
-		err := client.Ingest(context.Background(), batch)
+		_, err := client.Ingest(context.Background(), batch)
 		require.NoError(t, err)
 	})
 
@@ -153,7 +153,7 @@ func TestIngest(t *testing.T) {
 			IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-		err := client.Ingest(context.Background(), &logsv1.IngestBatch{})
+		_, err := client.Ingest(context.Background(), &logsv1.IngestBatch{})
 		require.Error(t, err)
 		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})
