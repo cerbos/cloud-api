@@ -39,11 +39,7 @@ func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) (time.Du
 	}))
 	if err != nil {
 		log.Error(err, "Ingest RPC failed")
-		var d time.Duration
-		if resp != nil && resp.Msg != nil {
-			d = resp.Msg.GetBackoff().GetDuration().AsDuration()
-		}
-		return d, err
+		return 0, err
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
