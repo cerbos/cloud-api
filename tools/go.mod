@@ -10,7 +10,7 @@ require (
 	github.com/cerbos/protoc-gen-go-hashpb v0.3.7
 	github.com/golangci/golangci-lint/v2 v2.1.2
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
-	github.com/vektra/mockery/v2 v2.53.3
+	github.com/vektra/mockery/v3 v3.2.2
 	google.golang.org/protobuf v1.36.6
 	gotest.tools/gotestsum v1.12.1
 )
@@ -142,7 +142,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/huandu/xstrings v1.4.0 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jdx/go-netrc v1.0.0 // indirect
