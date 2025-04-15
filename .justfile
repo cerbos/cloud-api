@@ -68,7 +68,7 @@ _golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint/v2" 
 
 _gotestsum: (_install "gotestsum" "gotest.tools/gotestsum")
 
-_mockery: (_install "mockery" "github.com/vektra/mockery/v2")
+_mockery: (_install "mockery" "github.com/vektra/mockery/v3")
 
 _install EXECUTABLE MODULE CMD_PKG="":
     #!/usr/bin/env bash

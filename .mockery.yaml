@@ -1,25 +1,23 @@
-boilerplate-file: hack/copyright_header.txt
-dir: test/mocks/{{trimPrefix .PackagePath "github.com/cerbos/cloud-api/"}}
+dir: test/mocks/{{trimPrefix "github.com/cerbos/cloud-api/" .SrcPackagePath}}
 filename: "{{.InterfaceName}}.go"
-mockname: "{{.InterfaceName}}"
-outpkg: "mock{{.PackageName}}"
-with-expecter: True
-resolve-type-alias: False
-issue-845-fix: True
-disable-version-string: True
+pkgname: mock{{.SrcPackageName}}
+structname: "{{.InterfaceName}}"
+template: testify
+template-data:
+  boilerplate-file: hack/copyright_header.txt
 packages:
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect:
     interfaces:
-      ApiKeyServiceHandler:
+      ApiKeyServiceHandler: {}
 
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect:
     interfaces:
-      CerbosBundleServiceHandler:
+      CerbosBundleServiceHandler: {}
 
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect:
     interfaces:
-      CerbosBundleServiceHandler:
+      CerbosBundleServiceHandler: {}
 
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect:
     interfaces:
-      CerbosLogsServiceHandler:
+      CerbosLogsServiceHandler: {}
