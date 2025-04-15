@@ -47,8 +47,8 @@ lint: lint-modernize _golangcilint _buf
     @ "${TOOLS_BIN_DIR}/buf" lint
     @ "${TOOLS_BIN_DIR}/buf" format --diff --exit-code
 
-lint-modernize: _modernize
-    @ GOFLAGS=-tags=tests,integration "${TOOLS_BIN_DIR}/modernize" -fix -test ./...
+lint-modernize:
+    @ GOFLAGS=-tags=tests,integration go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
 
 pre-commit: generate lint tests
 
@@ -67,8 +67,6 @@ _cover: (_install "cover" "nikand.dev/go/cover@master" )
 _golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint/v2" "cmd/golangci-lint")
 
 _gotestsum: (_install "gotestsum" "gotest.tools/gotestsum")
-
-_modernize: (_install "modernize" "golang.org/x/tools/gopls" "internal/analysis/modernize/cmd/modernize")
 
 _mockery: (_install "mockery" "github.com/vektra/mockery/v2")
 

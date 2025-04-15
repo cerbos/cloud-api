@@ -13,7 +13,6 @@ import (
 	_ "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"
 	_ "github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto"
 	_ "github.com/vektra/mockery/v2"
-	_ "golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
 	_ "gotest.tools/gotestsum"
 )
