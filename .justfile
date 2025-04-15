@@ -64,7 +64,7 @@ _buf: (_install "buf" "github.com/bufbuild/buf" "cmd/buf")
 
 _cover: (_install "cover" "nikand.dev/go/cover@master" )
 
-_golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint" "cmd/golangci-lint")
+_golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint/v2" "cmd/golangci-lint")
 
 _gotestsum: (_install "gotestsum" "gotest.tools/gotestsum")
 

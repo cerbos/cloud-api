@@ -1,53 +1,8 @@
 ---
+version: "2"
 run:
-  timeout: 300s
   build-tags:
     - tests
-
-linters-settings:
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/cerbos/cloud-api)
-      - blank
-      - dot
-    skip-generated: true
-    custom-order: true
-
-  gofumpt:
-    extra-rules: true
-
-  goheader:
-    values:
-      const:
-        COMPANY: Zenauth Ltd.
-    template: |-
-      Copyright {{ YEAR-RANGE }} {{ COMPANY }}
-      SPDX-License-Identifier: Apache-2.0
-
-  govet:
-    enable-all: true
-    disable:
-      - shadow
-
-  nolintlint:
-    allow-unused: false
-    require-specific: true
-
-  tagliatelle:
-    case:
-      rules:
-        json: goCamel
-        yaml: goCamel
-        xml: goCamel
-        bson: goCamel
-
-  usetesting:
-    os-setenv: true
 
 linters:
   enable:
@@ -61,16 +16,12 @@ linters:
     - exhaustive
     - forbidigo
     - forcetypeassert
-    - gci
     - gocheckcompilerdirectives
     - goconst
     - gocritic
     - godot
-    - gofumpt
-    - goimports
     - goheader
     - gosec
-    - govet
     - importas
     - makezero
     - misspell
@@ -86,7 +37,7 @@ linters:
     - revive
     - rowserrcheck
     - sqlclosecheck
-    - stylecheck
+    - staticcheck
     - tagliatelle
     - thelper
     - tparallel
@@ -96,22 +47,98 @@ linters:
     - wastedassign
     - whitespace
 
+  settings:
+    exhaustive:
+      default-signifies-exhaustive: true
+
+    goheader:
+      values:
+        const:
+          COMPANY: Zenauth Ltd.
+      template: |-
+        Copyright {{ YEAR-RANGE }} {{ COMPANY }}
+        SPDX-License-Identifier: Apache-2.0
+
+    govet:
+      disable:
+        - shadow
+      enable-all: true
+
+    nolintlint:
+      require-specific: true
+      allow-unused: false
+
+    tagliatelle:
+      case:
+        rules:
+          bson: goCamel
+          json: goCamel
+          xml: goCamel
+          yaml: goCamel
+
+    usetesting:
+      os-setenv: true
+
+  exclusions:
+    generated: lax
+
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+
+    rules:
+      - linters:
+          - dupl
+          - forcetypeassert
+          - goconst
+          - govet
+          - mnd
+          - unparam
+        path: _test\.go
+
+    paths:
+      - ^crypto/stream
+      - ^genpb/
+      - ^hack/
+      - ^protos/
+      - ^tools/
+      - third_party$
+      - builtin$
+      - examples$
+
 issues:
   max-same-issues: 30
 
-  exclude-dirs:
-    - "^crypto/stream"
-    - "^genpb/"
-    - "^hack/"
-    - "^protos/"
-    - "^tools/"
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
 
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - dupl
-        - forcetypeassert
-        - goconst
-        - gomnd
-        - govet
-        - unparam
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/cerbos/cloud-api)
+        - blank
+        - dot
+      custom-order: true
+
+    gofumpt:
+      extra-rules: true
+
+  exclusions:
+    generated: lax
+
+    paths:
+      - ^crypto/stream
+      - ^genpb/
+      - ^hack/
+      - ^protos/
+      - ^tools/
+      - third_party$
+      - builtin$
+      - examples$
