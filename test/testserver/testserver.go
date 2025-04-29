@@ -17,9 +17,11 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/go-logr/logr/testr"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/credentials"
@@ -141,7 +143,26 @@ func (ac authCheck) WrapStreamingHandler(next connect.StreamingHandlerFunc) conn
 	})
 }
 
-func IssueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
+func ExpectAPIKeySuccess(t *testing.T, mockAPIKeySvc *mockapikeyv1connect.ApiKeyServiceHandler) {
+	t.Helper()
+
+	mockAPIKeySvc.EXPECT().
+		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+		Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
+			AccessToken: "access-token",
+			ExpiresIn:   durationpb.New(1 * time.Minute),
+		}), nil)
+}
+
+func ExpectAPIKeyFailure(t *testing.T, mockAPIKeySvc *mockapikeyv1connect.ApiKeyServiceHandler) {
+	t.Helper()
+
+	mockAPIKeySvc.EXPECT().
+		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
+		Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated")))
+}
+
+func issueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
 	return func(req *connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
 		return req.Msg.ClientId == "client-id" && req.Msg.ClientSecret == "client-secret"
 	}

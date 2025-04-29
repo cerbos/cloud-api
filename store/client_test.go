@@ -7,7 +7,6 @@ import (
 	"errors"
 	"net/http"
 	"testing"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/google/go-cmp/cmp"
@@ -15,11 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/credentials"
-	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	storev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1/storev1connect"
 	"github.com/cerbos/cloud-api/store"
@@ -54,13 +51,7 @@ func testListFiles(creds *credentials.Credentials) func(*testing.T) {
 			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-			mockAPIKeySvc.EXPECT().
-				IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-				Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-					AccessToken: "access-token",
-					ExpiresIn:   durationpb.New(1 * time.Minute),
-				}), nil)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
 			wantResp := &storev1.ListFilesResponse{
 				StoreVersion: 2,
@@ -100,10 +91,7 @@ func testAuthenticationFailure(creds *credentials.Credentials, fn func(*store.Cl
 		mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 		storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 		mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-		mockAPIKeySvc.EXPECT().
-			IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-			Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated")))
+		testserver.ExpectAPIKeyFailure(t, mockAPIKeySvc)
 
 		client, err := hub.StoreClient()
 		require.NoError(t, err)
@@ -181,13 +169,7 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 				storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 				mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-				mockAPIKeySvc.EXPECT().
-					IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-					Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-						AccessToken: "access-token",
-						ExpiresIn:   durationpb.New(1 * time.Minute),
-					}), nil)
+				testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
 				if tc.details != nil {
 					details, err := connect.NewErrorDetail(tc.details)
@@ -220,13 +202,7 @@ func testGetFiles(creds *credentials.Credentials) func(*testing.T) {
 			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-			mockAPIKeySvc.EXPECT().
-				IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-				Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-					AccessToken: "access-token",
-					ExpiresIn:   durationpb.New(1 * time.Minute),
-				}), nil)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
 			wantResp := &storev1.GetFilesResponse{
 				StoreVersion: 2,
@@ -294,13 +270,7 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-			mockAPIKeySvc.EXPECT().
-				IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-				Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-					AccessToken: "access-token",
-					ExpiresIn:   durationpb.New(1 * time.Minute),
-				}), nil)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
 			wantResp := &storev1.ModifyFilesResponse{
 				NewStoreVersion: 3,
@@ -345,13 +315,7 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
 			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-
-			mockAPIKeySvc.EXPECT().
-				IssueAccessToken(mock.Anything, mock.MatchedBy(testserver.IssueAccessTokenRequest())).
-				Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-					AccessToken: "access-token",
-					ExpiresIn:   durationpb.New(1 * time.Minute),
-				}), nil)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
 			wantResp := &storev1.ReplaceFilesResponse{
 				NewStoreVersion: 3,
