@@ -14,6 +14,7 @@ import (
 	bundlev1 "github.com/cerbos/cloud-api/bundle/v1"
 	bundlev2 "github.com/cerbos/cloud-api/bundle/v2"
 	"github.com/cerbos/cloud-api/logcap"
+	"github.com/cerbos/cloud-api/store"
 )
 
 var (
@@ -73,4 +74,8 @@ func (h *Hub) BundleClientV2(conf bundle.ClientConf) (*bundlev2.Client, error) {
 
 func (h *Hub) LogCapClient() (*logcap.Client, error) {
 	return logcap.NewClient(h.client, h.opts)
+}
+
+func (h *Hub) StoreClient() (*store.Client, error) {
+	return store.NewClient(h.client, h.opts)
 }

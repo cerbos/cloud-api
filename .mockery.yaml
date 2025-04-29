@@ -21,3 +21,7 @@ packages:
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect:
     interfaces:
       CerbosLogsServiceHandler: {}
+
+  github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1/storev1connect:
+    interfaces:
+      CerbosStoreServiceHandler: {}
