@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 
