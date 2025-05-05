@@ -13,8 +13,8 @@ import (
 	"sort"
 	"time"
 
+	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
-	"github.com/bufbuild/protovalidate-go"
 	"github.com/go-logr/logr"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"

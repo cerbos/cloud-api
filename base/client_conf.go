@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bufbuild/protovalidate-go"
+	"buf.build/go/protovalidate"
 	"github.com/go-logr/logr"
 	"go.uber.org/multierr"
 

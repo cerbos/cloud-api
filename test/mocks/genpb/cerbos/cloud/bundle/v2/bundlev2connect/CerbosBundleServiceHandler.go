@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 	mock "github.com/stretchr/testify/mock"
 )
 
