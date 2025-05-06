@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	storev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 
