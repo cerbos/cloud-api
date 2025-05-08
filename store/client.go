@@ -21,7 +21,7 @@ const (
 	RPCErrorConditionUnsatisfied
 	RPCErrorInvalidRequest
 	RPCErrorNoUsableFiles
-	RPCErrorOperaionDiscarded
+	RPCErrorOperationDiscarded
 	RPCErrorPermissionDenied
 	RPCErrorStoreNotFound
 	RPCErrorUnknown
@@ -78,7 +78,7 @@ func newRPCError(err error) RPCError {
 
 		return RPCError{Kind: RPCErrorInvalidRequest, Underlying: connectErr}
 	case connect.CodeAlreadyExists:
-		return RPCError{Kind: RPCErrorOperaionDiscarded, Underlying: connectErr}
+		return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr}
 	default:
 		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
 	}
@@ -90,7 +90,7 @@ type Client struct {
 }
 
 func NewClient(baseClient base.Client, options []connect.ClientOption) (*Client, error) {
-	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
+	httpClient := baseClient.StdHTTPClient()
 	rpcClient := storev1connect.NewCerbosStoreServiceClient(httpClient, baseClient.APIEndpoint, options...)
 
 	return &Client{
