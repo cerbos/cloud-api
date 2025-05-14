@@ -66,6 +66,16 @@ func (m *IngestBatch_Entry) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		}
 		i -= size
 	}
+	if m.Oversized {
+		i--
+		if m.Oversized {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x28
+	}
 	if m.Timestamp != nil {
 		size, err := (*timestamppb.Timestamp)(m.Timestamp).MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
@@ -418,6 +428,9 @@ func (m *IngestBatch_Entry) SizeVT() (n int) {
 	if vtmsg, ok := m.Entry.(interface{ SizeVT() int }); ok {
 		n += vtmsg.SizeVT()
 	}
+	if m.Oversized {
+		n += 2
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -759,6 +772,26 @@ func (m *IngestBatch_Entry) UnmarshalVT(dAtA []byte) error {
 				m.Entry = &IngestBatch_Entry_DecisionLogEntry{DecisionLogEntry: v}
 			}
 			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Oversized", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Oversized = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])

@@ -35,6 +35,7 @@ message IngestBatch {
       cerbos.audit.v1.AccessLogEntry access_log_entry = 3;
       cerbos.audit.v1.DecisionLogEntry decision_log_entry = 4;
     }
+    bool oversized = 5;
   }
 
   string id = 1;

@@ -216,6 +216,9 @@ func cerbos_cloud_logs_v1_IngestBatch_Entry_hashpb_sum(m *IngestBatch_Entry, has
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.logs.v1.IngestBatch.Entry.oversized"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, protowire.EncodeBool(m.GetOversized())))
+	}
 }
 
 func cerbos_cloud_logs_v1_IngestBatch_hashpb_sum(m *IngestBatch, hasher hash.Hash, ignore map[string]struct{}) {

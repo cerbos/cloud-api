@@ -275,6 +275,7 @@ type IngestBatch_Entry struct {
 	//	*IngestBatch_Entry_AccessLogEntry
 	//	*IngestBatch_Entry_DecisionLogEntry
 	Entry         isIngestBatch_Entry_Entry `protobuf_oneof:"entry"`
+	Oversized     bool                      `protobuf:"varint,5,opt,name=oversized,proto3" json:"oversized,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -348,6 +349,13 @@ func (x *IngestBatch_Entry) GetDecisionLogEntry() *v11.DecisionLogEntry {
 	return nil
 }
 
+func (x *IngestBatch_Entry) GetOversized() bool {
+	if x != nil {
+		return x.Oversized
+	}
+	return false
+}
+
 type isIngestBatch_Entry_Entry interface {
 	isIngestBatch_Entry_Entry()
 }
@@ -412,16 +420,17 @@ var File_cerbos_cloud_logs_v1_logs_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x1fcerbos/cloud/logs/v1/logs.proto\x12\x14cerbos.cloud.logs.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a\x1dcerbos/cloud/pdp/v1/pdp.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x04\n" +
+	"\x1fcerbos/cloud/logs/v1/logs.proto\x12\x14cerbos.cloud.logs.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a\x1dcerbos/cloud/pdp/v1/pdp.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb5\x04\n" +
 	"\vIngestBatch\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12N\n" +
-	"\aentries\x18\x02 \x03(\v2'.cerbos.cloud.logs.v1.IngestBatch.EntryB\v\xbaH\b\x92\x01\x05\b\x01\x10\x80\bR\aentries\x1a\xc6\x02\n" +
+	"\aentries\x18\x02 \x03(\v2'.cerbos.cloud.logs.v1.IngestBatch.EntryB\v\xbaH\b\x92\x01\x05\b\x01\x10\x80\bR\aentries\x1a\xe4\x02\n" +
 	"\x05Entry\x12K\n" +
 	"\x04kind\x18\x01 \x01(\x0e2+.cerbos.cloud.logs.v1.IngestBatch.EntryKindB\n" +
 	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02R\x04kind\x12@\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\ttimestamp\x12K\n" +
 	"\x10access_log_entry\x18\x03 \x01(\v2\x1f.cerbos.audit.v1.AccessLogEntryH\x00R\x0eaccessLogEntry\x12Q\n" +
-	"\x12decision_log_entry\x18\x04 \x01(\v2!.cerbos.audit.v1.DecisionLogEntryH\x00R\x10decisionLogEntryB\x0e\n" +
+	"\x12decision_log_entry\x18\x04 \x01(\v2!.cerbos.audit.v1.DecisionLogEntryH\x00R\x10decisionLogEntry\x12\x1c\n" +
+	"\toversized\x18\x05 \x01(\bR\toversizedB\x0e\n" +
 	"\x05entry\x12\x05\xbaH\x02\b\x01\"_\n" +
 	"\tEntryKind\x12\x1a\n" +
 	"\x16ENTRY_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
