@@ -10,7 +10,7 @@ require (
 	connectrpc.com/otelconnect v0.7.2
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
-	github.com/cerbos/cerbos/api/genpb v0.43.0
+	github.com/cerbos/cerbos/api/genpb v0.43.1-0.20250521070153-1d479d0850b2
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
