@@ -107,12 +107,13 @@ func testAuthenticationFailure(creds *credentials.Credentials, fn func(*store.Cl
 func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1connect.CerbosStoreServiceHandler, *store.Client, error) error) func(*testing.T) {
 	return func(t *testing.T) {
 		testCases := []struct {
-			name              string
-			err               *connect.Error
-			details           proto.Message
-			wantKind          store.RPCErrorKind
-			wantIgnored       []string
-			wantValidationErr []*storev1.FileError
+			name                    string
+			err                     *connect.Error
+			details                 proto.Message
+			wantKind                store.RPCErrorKind
+			wantIgnored             []string
+			wantValidationErr       []*storev1.FileError
+			wantCurrentStoreVersion int64
 		}{
 			{
 				name:     "StoreNotFound",
@@ -135,6 +136,13 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				details:     &storev1.ErrDetailNoUsableFiles{IgnoredFiles: []string{"foo"}},
 				wantKind:    store.RPCErrorNoUsableFiles,
 				wantIgnored: []string{"foo"},
+			},
+			{
+				name:                    "OperationDiscarded",
+				err:                     connect.NewError(connect.CodeAlreadyExists, errors.New("operation discarded")),
+				details:                 &storev1.ErrDetailOperationDiscarded{CurrentStoreVersion: 5},
+				wantKind:                store.RPCErrorOperationDiscarded,
+				wantCurrentStoreVersion: 5,
 			},
 			{
 				name: "ValidationFailure",
@@ -186,6 +194,7 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				require.Equal(t, tc.wantKind, haveErr.Kind)
 				require.Equal(t, tc.wantIgnored, haveErr.IgnoredFiles)
 				require.Equal(t, tc.wantValidationErr, haveErr.ValidationErrors)
+				require.Equal(t, tc.wantCurrentStoreVersion, haveErr.CurrentStoreVersion)
 			})
 		}
 	}

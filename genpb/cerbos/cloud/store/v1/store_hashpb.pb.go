@@ -178,6 +178,14 @@ func (m *ErrDetailNoUsableFiles) HashPB(hasher hash.Hash, ignore map[string]stru
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ErrDetailOperationDiscarded) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_store_v1_ErrDetailOperationDiscarded_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *ReplaceFilesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		cerbos_cloud_store_v1_ReplaceFilesResponse_hashpb_sum(m, hasher, ignore)
