@@ -29,10 +29,11 @@ const (
 )
 
 type RPCError struct {
-	Underlying       error
-	IgnoredFiles     []string
-	ValidationErrors []*storev1.FileError
-	Kind             RPCErrorKind
+	Underlying          error
+	IgnoredFiles        []string
+	ValidationErrors    []*storev1.FileError
+	Kind                RPCErrorKind
+	CurrentStoreVersion int64
 }
 
 func (r RPCError) Error() string {
@@ -78,6 +79,18 @@ func newRPCError(err error) RPCError {
 
 		return RPCError{Kind: RPCErrorInvalidRequest, Underlying: connectErr}
 	case connect.CodeAlreadyExists:
+		details := connectErr.Details()
+		for _, d := range details {
+			msg, err := d.Value()
+			if err != nil {
+				continue
+			}
+
+			if discarded, ok := msg.(*storev1.ErrDetailOperationDiscarded); ok {
+				return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr, CurrentStoreVersion: discarded.GetCurrentStoreVersion()}
+			}
+		}
+
 		return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr}
 	default:
 		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
