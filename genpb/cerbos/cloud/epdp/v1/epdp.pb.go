@@ -117,7 +117,8 @@ const file_cerbos_cloud_epdp_v1_epdp_proto_rawDesc = "" +
 	"\x11source_attributes\x18\x05 \x03(\v24.cerbos.cloud.epdp.v1.Metadata.SourceAttributesEntryR\x10sourceAttributes\x1ag\n" +
 	"\x15SourceAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x128\n" +
-	"\x05value\x18\x02 \x01(\v2\".cerbos.policy.v1.SourceAttributesR\x05value:\x028\x01B?Z=github.com/cerbos/cloud-api/genpb/cerbos/cloud/epdp/v1;epdpv1b\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\".cerbos.policy.v1.SourceAttributesR\x05value:\x028\x01Bx\n" +
+	"\x1cdev.cerbos.api.cloud.v1.epdpZ=github.com/cerbos/cloud-api/genpb/cerbos/cloud/epdp/v1;epdpv1\xaa\x02\x18Cerbos.Api.Cloud.V1.Epdpb\x06proto3"
 
 var (
 	file_cerbos_cloud_epdp_v1_epdp_proto_rawDescOnce sync.Once

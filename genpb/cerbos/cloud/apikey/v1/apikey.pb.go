@@ -144,7 +144,8 @@ const file_cerbos_cloud_apikey_v1_apikey_proto_rawDesc = "" +
 	"\n" +
 	"expires_in\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\texpiresIn2\x9e\x01\n" +
 	"\rApiKeyService\x12w\n" +
-	"\x10IssueAccessToken\x12/.cerbos.cloud.apikey.v1.IssueAccessTokenRequest\x1a0.cerbos.cloud.apikey.v1.IssueAccessTokenResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALBCZAgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1;apikeyv1b\x06proto3"
+	"\x10IssueAccessToken\x12/.cerbos.cloud.apikey.v1.IssueAccessTokenRequest\x1a0.cerbos.cloud.apikey.v1.IssueAccessTokenResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB\x80\x01\n" +
+	"\x1edev.cerbos.api.cloud.v1.apikeyZAgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1;apikeyv1\xaa\x02\x1aCerbos.Api.Cloud.V1.ApiKeyb\x06proto3"
 
 var (
 	file_cerbos_cloud_apikey_v1_apikey_proto_rawDescOnce sync.Once

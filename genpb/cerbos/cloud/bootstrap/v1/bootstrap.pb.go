@@ -144,7 +144,8 @@ const file_cerbos_cloud_bootstrap_v1_bootstrap_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tcreatedAt\x12(\n" +
 	"\vcommit_hash\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\n" +
-	"commitHashBIZGgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1;bootstrapv1b\x06proto3"
+	"commitHashB\x8c\x01\n" +
+	"!dev.cerbos.api.cloud.v1.bootstrapZGgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1;bootstrapv1\xaa\x02\x1dCerbos.Api.Cloud.V1.Bootstrapb\x06proto3"
 
 var (
 	file_cerbos_cloud_bootstrap_v1_bootstrap_proto_rawDescOnce sync.Once
