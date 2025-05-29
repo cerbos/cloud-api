@@ -1545,7 +1545,8 @@ const file_cerbos_cloud_store_v1_store_proto_rawDesc = "" +
 	"\tListFiles\x12'.cerbos.cloud.store.v1.ListFilesRequest\x1a(.cerbos.cloud.store.v1.ListFilesResponse\"\x03\x90\x02\x01\x12`\n" +
 	"\bGetFiles\x12&.cerbos.cloud.store.v1.GetFilesRequest\x1a'.cerbos.cloud.store.v1.GetFilesResponse\"\x03\x90\x02\x01\x12f\n" +
 	"\vModifyFiles\x12).cerbos.cloud.store.v1.ModifyFilesRequest\x1a*.cerbos.cloud.store.v1.ModifyFilesResponse\"\x00\x12i\n" +
-	"\fReplaceFiles\x12*.cerbos.cloud.store.v1.ReplaceFilesRequest\x1a+.cerbos.cloud.store.v1.ReplaceFilesResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALBAZ?github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1;storev1b\x06proto3"
+	"\fReplaceFiles\x12*.cerbos.cloud.store.v1.ReplaceFilesRequest\x1a+.cerbos.cloud.store.v1.ReplaceFilesResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB|\n" +
+	"\x1ddev.cerbos.api.cloud.v1.storeZ?github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1;storev1\xaa\x02\x19Cerbos.Api.Cloud.V1.Storeb\x06proto3"
 
 var (
 	file_cerbos_cloud_store_v1_store_proto_rawDescOnce sync.Once

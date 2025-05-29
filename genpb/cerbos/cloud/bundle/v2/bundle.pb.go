@@ -900,7 +900,8 @@ const file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc = "" +
 	"\x03msg\x12\x05\xbaH\x02\b\x012\xfd\x01\n" +
 	"\x13CerbosBundleService\x12b\n" +
 	"\tGetBundle\x12(.cerbos.cloud.bundle.v2.GetBundleRequest\x1a).cerbos.cloud.bundle.v2.GetBundleResponse\"\x00\x12l\n" +
-	"\vWatchBundle\x12*.cerbos.cloud.bundle.v2.WatchBundleRequest\x1a+.cerbos.cloud.bundle.v2.WatchBundleResponse\"\x00(\x010\x01\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALBCZAgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2;bundlev2b\x06proto3"
+	"\vWatchBundle\x12*.cerbos.cloud.bundle.v2.WatchBundleRequest\x1a+.cerbos.cloud.bundle.v2.WatchBundleResponse\"\x00(\x010\x01\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB\x80\x01\n" +
+	"\x1edev.cerbos.api.cloud.v2.bundleZAgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2;bundlev2\xaa\x02\x1aCerbos.Api.Cloud.V2.Bundleb\x06proto3"
 
 var (
 	file_cerbos_cloud_bundle_v2_bundle_proto_rawDescOnce sync.Once

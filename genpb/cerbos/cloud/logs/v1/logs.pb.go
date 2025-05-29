@@ -437,7 +437,8 @@ const file_cerbos_cloud_logs_v1_logs_proto_rawDesc = "" +
 	"\bduration\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\bdurationB\b\n" +
 	"\x06status2\x80\x01\n" +
 	"\x11CerbosLogsService\x12U\n" +
-	"\x06Ingest\x12#.cerbos.cloud.logs.v1.IngestRequest\x1a$.cerbos.cloud.logs.v1.IngestResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB?Z=github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1;logsv1b\x06proto3"
+	"\x06Ingest\x12#.cerbos.cloud.logs.v1.IngestRequest\x1a$.cerbos.cloud.logs.v1.IngestResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALBx\n" +
+	"\x1cdev.cerbos.api.cloud.v1.logsZ=github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1;logsv1\xaa\x02\x18Cerbos.Api.Cloud.V1.Logsb\x06proto3"
 
 var (
 	file_cerbos_cloud_logs_v1_logs_proto_rawDescOnce sync.Once

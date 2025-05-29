@@ -85,7 +85,8 @@ const file_cerbos_cloud_pdp_v1_pdp_proto_rawDesc = "" +
 	"\n" +
 	"Identifier\x12#\n" +
 	"\binstance\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\binstance\x12!\n" +
-	"\aversion\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\aversionB=Z;github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1;pdpv1b\x06proto3"
+	"\aversion\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\aversionBt\n" +
+	"\x1bdev.cerbos.api.cloud.v1.pdpZ;github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1;pdpv1\xaa\x02\x17Cerbos.Api.Cloud.V1.Pdpb\x06proto3"
 
 var (
 	file_cerbos_cloud_pdp_v1_pdp_proto_rawDescOnce sync.Once
