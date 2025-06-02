@@ -75,15 +75,26 @@ type CerbosStoreServiceHandler_GetFiles_Call struct {
 }
 
 // GetFiles is a helper method to define mock.On call
-//   - context1
-//   - request
+//   - context1 context.Context
+//   - request *connect.Request[storev1.GetFilesRequest]
 func (_e *CerbosStoreServiceHandler_Expecter) GetFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_GetFiles_Call {
 	return &CerbosStoreServiceHandler_GetFiles_Call{Call: _e.mock.On("GetFiles", context1, request)}
 }
 
 func (_c *CerbosStoreServiceHandler_GetFiles_Call) Run(run func(context1 context.Context, request *connect.Request[storev1.GetFilesRequest])) *CerbosStoreServiceHandler_GetFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[storev1.GetFilesRequest]))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *connect.Request[storev1.GetFilesRequest]
+		if args[1] != nil {
+			arg1 = args[1].(*connect.Request[storev1.GetFilesRequest])
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -132,15 +143,26 @@ type CerbosStoreServiceHandler_ListFiles_Call struct {
 }
 
 // ListFiles is a helper method to define mock.On call
-//   - context1
-//   - request
+//   - context1 context.Context
+//   - request *connect.Request[storev1.ListFilesRequest]
 func (_e *CerbosStoreServiceHandler_Expecter) ListFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ListFiles_Call {
 	return &CerbosStoreServiceHandler_ListFiles_Call{Call: _e.mock.On("ListFiles", context1, request)}
 }
 
 func (_c *CerbosStoreServiceHandler_ListFiles_Call) Run(run func(context1 context.Context, request *connect.Request[storev1.ListFilesRequest])) *CerbosStoreServiceHandler_ListFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[storev1.ListFilesRequest]))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *connect.Request[storev1.ListFilesRequest]
+		if args[1] != nil {
+			arg1 = args[1].(*connect.Request[storev1.ListFilesRequest])
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -189,15 +211,26 @@ type CerbosStoreServiceHandler_ModifyFiles_Call struct {
 }
 
 // ModifyFiles is a helper method to define mock.On call
-//   - context1
-//   - request
+//   - context1 context.Context
+//   - request *connect.Request[storev1.ModifyFilesRequest]
 func (_e *CerbosStoreServiceHandler_Expecter) ModifyFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ModifyFiles_Call {
 	return &CerbosStoreServiceHandler_ModifyFiles_Call{Call: _e.mock.On("ModifyFiles", context1, request)}
 }
 
 func (_c *CerbosStoreServiceHandler_ModifyFiles_Call) Run(run func(context1 context.Context, request *connect.Request[storev1.ModifyFilesRequest])) *CerbosStoreServiceHandler_ModifyFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[storev1.ModifyFilesRequest]))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *connect.Request[storev1.ModifyFilesRequest]
+		if args[1] != nil {
+			arg1 = args[1].(*connect.Request[storev1.ModifyFilesRequest])
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -246,15 +279,26 @@ type CerbosStoreServiceHandler_ReplaceFiles_Call struct {
 }
 
 // ReplaceFiles is a helper method to define mock.On call
-//   - context1
-//   - request
+//   - context1 context.Context
+//   - request *connect.Request[storev1.ReplaceFilesRequest]
 func (_e *CerbosStoreServiceHandler_Expecter) ReplaceFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ReplaceFiles_Call {
 	return &CerbosStoreServiceHandler_ReplaceFiles_Call{Call: _e.mock.On("ReplaceFiles", context1, request)}
 }
 
 func (_c *CerbosStoreServiceHandler_ReplaceFiles_Call) Run(run func(context1 context.Context, request *connect.Request[storev1.ReplaceFilesRequest])) *CerbosStoreServiceHandler_ReplaceFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[storev1.ReplaceFilesRequest]))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *connect.Request[storev1.ReplaceFilesRequest]
+		if args[1] != nil {
+			arg1 = args[1].(*connect.Request[storev1.ReplaceFilesRequest])
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
