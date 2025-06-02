@@ -75,15 +75,26 @@ type ApiKeyServiceHandler_IssueAccessToken_Call struct {
 }
 
 // IssueAccessToken is a helper method to define mock.On call
-//   - context1
-//   - request
+//   - context1 context.Context
+//   - request *connect.Request[apikeyv1.IssueAccessTokenRequest]
 func (_e *ApiKeyServiceHandler_Expecter) IssueAccessToken(context1 interface{}, request interface{}) *ApiKeyServiceHandler_IssueAccessToken_Call {
 	return &ApiKeyServiceHandler_IssueAccessToken_Call{Call: _e.mock.On("IssueAccessToken", context1, request)}
 }
 
 func (_c *ApiKeyServiceHandler_IssueAccessToken_Call) Run(run func(context1 context.Context, request *connect.Request[apikeyv1.IssueAccessTokenRequest])) *ApiKeyServiceHandler_IssueAccessToken_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*connect.Request[apikeyv1.IssueAccessTokenRequest]))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *connect.Request[apikeyv1.IssueAccessTokenRequest]
+		if args[1] != nil {
+			arg1 = args[1].(*connect.Request[apikeyv1.IssueAccessTokenRequest])
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }

@@ -10,8 +10,8 @@ require (
 	connectrpc.com/otelconnect v0.7.2
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
-	github.com/cerbos/cerbos/api/genpb v0.43.1-0.20250526040459-1fa3df6faf2f
-	github.com/go-logr/logr v1.4.2
+	github.com/cerbos/cerbos/api/genpb v0.43.1-0.20250529080023-666976c05768
+	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/minio/sha256-simd v1.0.1
@@ -23,7 +23,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.38.0
 	golang.org/x/net v0.40.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237
+	google.golang.org/genproto/googleapis/api v0.0.0-20250528174236-200df99c418a
 	google.golang.org/protobuf v1.36.6
 )
 
@@ -61,7 +61,7 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
