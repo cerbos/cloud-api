@@ -20,6 +20,7 @@ type RPCErrorKind int
 
 const (
 	RPCErrorAuthenticationFailed RPCErrorKind = iota
+	RPCErrorCannotModifyGitConnectedStore
 	RPCErrorConditionUnsatisfied
 	RPCErrorInvalidRequest
 	RPCErrorNoUsableFiles
@@ -63,8 +64,11 @@ func newRPCError(err error) RPCError {
 		return RPCError{Kind: RPCErrorStoreNotFound, Underlying: connectErr}
 	case connect.CodeFailedPrecondition:
 		for msg := range details(connectErr) {
-			if unsatisfied, ok := msg.(*storev1.ErrDetailConditionUnsatisfied); ok {
-				return RPCError{Kind: RPCErrorConditionUnsatisfied, Underlying: connectErr, CurrentStoreVersion: unsatisfied.GetCurrentStoreVersion()}
+			switch t := msg.(type) {
+			case *storev1.ErrDetailCannotModifyGitConnectedStore:
+				return RPCError{Kind: RPCErrorCannotModifyGitConnectedStore, Underlying: connectErr}
+			case *storev1.ErrDetailConditionUnsatisfied:
+				return RPCError{Kind: RPCErrorConditionUnsatisfied, Underlying: connectErr, CurrentStoreVersion: t.GetCurrentStoreVersion()}
 			}
 		}
 

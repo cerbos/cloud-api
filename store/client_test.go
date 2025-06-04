@@ -126,6 +126,12 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				wantKind: store.RPCErrorPermissionDenied,
 			},
 			{
+				name:     "CannotModifyGitConnectedStore",
+				err:      connect.NewError(connect.CodeFailedPrecondition, errors.New("can't modify Git-connected store")),
+				details:  &storev1.ErrDetailCannotModifyGitConnectedStore{},
+				wantKind: store.RPCErrorCannotModifyGitConnectedStore,
+			},
+			{
 				name:                    "ConditionUnsatisfied",
 				err:                     connect.NewError(connect.CodeFailedPrecondition, errors.New("condition unsatisfied")),
 				details:                 &storev1.ErrDetailConditionUnsatisfied{CurrentStoreVersion: 5},

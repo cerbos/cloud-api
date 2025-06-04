@@ -1084,6 +1084,42 @@ func (x *ErrDetailOperationDiscarded) GetCurrentStoreVersion() int64 {
 	return 0
 }
 
+type ErrDetailCannotModifyGitConnectedStore struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ErrDetailCannotModifyGitConnectedStore) Reset() {
+	*x = ErrDetailCannotModifyGitConnectedStore{}
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ErrDetailCannotModifyGitConnectedStore) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ErrDetailCannotModifyGitConnectedStore) ProtoMessage() {}
+
+func (x *ErrDetailCannotModifyGitConnectedStore) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ErrDetailCannotModifyGitConnectedStore.ProtoReflect.Descriptor instead.
+func (*ErrDetailCannotModifyGitConnectedStore) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_store_v1_store_proto_rawDescGZIP(), []int{17}
+}
+
 type ReplaceFilesResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	NewStoreVersion int64                  `protobuf:"varint,1,opt,name=new_store_version,json=newStoreVersion,proto3" json:"new_store_version,omitempty"`
@@ -1094,7 +1130,7 @@ type ReplaceFilesResponse struct {
 
 func (x *ReplaceFilesResponse) Reset() {
 	*x = ReplaceFilesResponse{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[17]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1142,7 @@ func (x *ReplaceFilesResponse) String() string {
 func (*ReplaceFilesResponse) ProtoMessage() {}
 
 func (x *ReplaceFilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[17]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1119,7 +1155,7 @@ func (x *ReplaceFilesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceFilesResponse.ProtoReflect.Descriptor instead.
 func (*ReplaceFilesResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_store_v1_store_proto_rawDescGZIP(), []int{17}
+	return file_cerbos_cloud_store_v1_store_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ReplaceFilesResponse) GetNewStoreVersion() int64 {
@@ -1145,7 +1181,7 @@ type StringMatch_InList struct {
 
 func (x *StringMatch_InList) Reset() {
 	*x = StringMatch_InList{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[18]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1157,7 +1193,7 @@ func (x *StringMatch_InList) String() string {
 func (*StringMatch_InList) ProtoMessage() {}
 
 func (x *StringMatch_InList) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[18]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1196,7 +1232,7 @@ type ChangeDetails_Git struct {
 
 func (x *ChangeDetails_Git) Reset() {
 	*x = ChangeDetails_Git{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[19]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1208,7 +1244,7 @@ func (x *ChangeDetails_Git) String() string {
 func (*ChangeDetails_Git) ProtoMessage() {}
 
 func (x *ChangeDetails_Git) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[19]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1290,7 +1326,7 @@ type ChangeDetails_Internal struct {
 
 func (x *ChangeDetails_Internal) Reset() {
 	*x = ChangeDetails_Internal{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[20]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1302,7 +1338,7 @@ func (x *ChangeDetails_Internal) String() string {
 func (*ChangeDetails_Internal) ProtoMessage() {}
 
 func (x *ChangeDetails_Internal) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[20]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1342,7 +1378,7 @@ type ChangeDetails_Uploader struct {
 
 func (x *ChangeDetails_Uploader) Reset() {
 	*x = ChangeDetails_Uploader{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[21]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1354,7 +1390,7 @@ func (x *ChangeDetails_Uploader) String() string {
 func (*ChangeDetails_Uploader) ProtoMessage() {}
 
 func (x *ChangeDetails_Uploader) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[21]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1429,7 @@ type ModifyFilesRequest_Condition struct {
 
 func (x *ModifyFilesRequest_Condition) Reset() {
 	*x = ModifyFilesRequest_Condition{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[24]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1405,7 +1441,7 @@ func (x *ModifyFilesRequest_Condition) String() string {
 func (*ModifyFilesRequest_Condition) ProtoMessage() {}
 
 func (x *ModifyFilesRequest_Condition) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[24]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1437,7 +1473,7 @@ type ReplaceFilesRequest_Condition struct {
 
 func (x *ReplaceFilesRequest_Condition) Reset() {
 	*x = ReplaceFilesRequest_Condition{}
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[25]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1449,7 +1485,7 @@ func (x *ReplaceFilesRequest_Condition) String() string {
 func (*ReplaceFilesRequest_Condition) ProtoMessage() {}
 
 func (x *ReplaceFilesRequest_Condition) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[25]
+	mi := &file_cerbos_cloud_store_v1_store_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1583,7 +1619,8 @@ const file_cerbos_cloud_store_v1_store_proto_rawDesc = "" +
 	"\x1dErrDetailConditionUnsatisfied\x122\n" +
 	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"Q\n" +
 	"\x1bErrDetailOperationDiscarded\x122\n" +
-	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"g\n" +
+	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"(\n" +
+	"&ErrDetailCannotModifyGitConnectedStore\"g\n" +
 	"\x14ReplaceFilesResponse\x12*\n" +
 	"\x11new_store_version\x18\x01 \x01(\x03R\x0fnewStoreVersion\x12#\n" +
 	"\rignored_files\x18\x02 \x03(\tR\fignoredFiles2\xc4\x03\n" +
@@ -1607,60 +1644,61 @@ func file_cerbos_cloud_store_v1_store_proto_rawDescGZIP() []byte {
 }
 
 var file_cerbos_cloud_store_v1_store_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cerbos_cloud_store_v1_store_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_cerbos_cloud_store_v1_store_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_cerbos_cloud_store_v1_store_proto_goTypes = []any{
-	(FileError_Cause)(0),                  // 0: cerbos.cloud.store.v1.FileError.Cause
-	(*StringMatch)(nil),                   // 1: cerbos.cloud.store.v1.StringMatch
-	(*FileFilter)(nil),                    // 2: cerbos.cloud.store.v1.FileFilter
-	(*ListFilesRequest)(nil),              // 3: cerbos.cloud.store.v1.ListFilesRequest
-	(*ListFilesResponse)(nil),             // 4: cerbos.cloud.store.v1.ListFilesResponse
-	(*GetFilesRequest)(nil),               // 5: cerbos.cloud.store.v1.GetFilesRequest
-	(*File)(nil),                          // 6: cerbos.cloud.store.v1.File
-	(*GetFilesResponse)(nil),              // 7: cerbos.cloud.store.v1.GetFilesResponse
-	(*ChangeDetails)(nil),                 // 8: cerbos.cloud.store.v1.ChangeDetails
-	(*FileOp)(nil),                        // 9: cerbos.cloud.store.v1.FileOp
-	(*ModifyFilesRequest)(nil),            // 10: cerbos.cloud.store.v1.ModifyFilesRequest
-	(*FileError)(nil),                     // 11: cerbos.cloud.store.v1.FileError
-	(*ModifyFilesResponse)(nil),           // 12: cerbos.cloud.store.v1.ModifyFilesResponse
-	(*ReplaceFilesRequest)(nil),           // 13: cerbos.cloud.store.v1.ReplaceFilesRequest
-	(*ErrDetailValidationFailure)(nil),    // 14: cerbos.cloud.store.v1.ErrDetailValidationFailure
-	(*ErrDetailNoUsableFiles)(nil),        // 15: cerbos.cloud.store.v1.ErrDetailNoUsableFiles
-	(*ErrDetailConditionUnsatisfied)(nil), // 16: cerbos.cloud.store.v1.ErrDetailConditionUnsatisfied
-	(*ErrDetailOperationDiscarded)(nil),   // 17: cerbos.cloud.store.v1.ErrDetailOperationDiscarded
-	(*ReplaceFilesResponse)(nil),          // 18: cerbos.cloud.store.v1.ReplaceFilesResponse
-	(*StringMatch_InList)(nil),            // 19: cerbos.cloud.store.v1.StringMatch.InList
-	(*ChangeDetails_Git)(nil),             // 20: cerbos.cloud.store.v1.ChangeDetails.Git
-	(*ChangeDetails_Internal)(nil),        // 21: cerbos.cloud.store.v1.ChangeDetails.Internal
-	(*ChangeDetails_Uploader)(nil),        // 22: cerbos.cloud.store.v1.ChangeDetails.Uploader
-	nil,                                   // 23: cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry
-	nil,                                   // 24: cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry
-	(*ModifyFilesRequest_Condition)(nil),  // 25: cerbos.cloud.store.v1.ModifyFilesRequest.Condition
-	(*ReplaceFilesRequest_Condition)(nil), // 26: cerbos.cloud.store.v1.ReplaceFilesRequest.Condition
-	(*timestamppb.Timestamp)(nil),         // 27: google.protobuf.Timestamp
-	(*structpb.Value)(nil),                // 28: google.protobuf.Value
+	(FileError_Cause)(0),                           // 0: cerbos.cloud.store.v1.FileError.Cause
+	(*StringMatch)(nil),                            // 1: cerbos.cloud.store.v1.StringMatch
+	(*FileFilter)(nil),                             // 2: cerbos.cloud.store.v1.FileFilter
+	(*ListFilesRequest)(nil),                       // 3: cerbos.cloud.store.v1.ListFilesRequest
+	(*ListFilesResponse)(nil),                      // 4: cerbos.cloud.store.v1.ListFilesResponse
+	(*GetFilesRequest)(nil),                        // 5: cerbos.cloud.store.v1.GetFilesRequest
+	(*File)(nil),                                   // 6: cerbos.cloud.store.v1.File
+	(*GetFilesResponse)(nil),                       // 7: cerbos.cloud.store.v1.GetFilesResponse
+	(*ChangeDetails)(nil),                          // 8: cerbos.cloud.store.v1.ChangeDetails
+	(*FileOp)(nil),                                 // 9: cerbos.cloud.store.v1.FileOp
+	(*ModifyFilesRequest)(nil),                     // 10: cerbos.cloud.store.v1.ModifyFilesRequest
+	(*FileError)(nil),                              // 11: cerbos.cloud.store.v1.FileError
+	(*ModifyFilesResponse)(nil),                    // 12: cerbos.cloud.store.v1.ModifyFilesResponse
+	(*ReplaceFilesRequest)(nil),                    // 13: cerbos.cloud.store.v1.ReplaceFilesRequest
+	(*ErrDetailValidationFailure)(nil),             // 14: cerbos.cloud.store.v1.ErrDetailValidationFailure
+	(*ErrDetailNoUsableFiles)(nil),                 // 15: cerbos.cloud.store.v1.ErrDetailNoUsableFiles
+	(*ErrDetailConditionUnsatisfied)(nil),          // 16: cerbos.cloud.store.v1.ErrDetailConditionUnsatisfied
+	(*ErrDetailOperationDiscarded)(nil),            // 17: cerbos.cloud.store.v1.ErrDetailOperationDiscarded
+	(*ErrDetailCannotModifyGitConnectedStore)(nil), // 18: cerbos.cloud.store.v1.ErrDetailCannotModifyGitConnectedStore
+	(*ReplaceFilesResponse)(nil),                   // 19: cerbos.cloud.store.v1.ReplaceFilesResponse
+	(*StringMatch_InList)(nil),                     // 20: cerbos.cloud.store.v1.StringMatch.InList
+	(*ChangeDetails_Git)(nil),                      // 21: cerbos.cloud.store.v1.ChangeDetails.Git
+	(*ChangeDetails_Internal)(nil),                 // 22: cerbos.cloud.store.v1.ChangeDetails.Internal
+	(*ChangeDetails_Uploader)(nil),                 // 23: cerbos.cloud.store.v1.ChangeDetails.Uploader
+	nil,                                            // 24: cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry
+	nil,                                            // 25: cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry
+	(*ModifyFilesRequest_Condition)(nil),           // 26: cerbos.cloud.store.v1.ModifyFilesRequest.Condition
+	(*ReplaceFilesRequest_Condition)(nil),          // 27: cerbos.cloud.store.v1.ReplaceFilesRequest.Condition
+	(*timestamppb.Timestamp)(nil),                  // 28: google.protobuf.Timestamp
+	(*structpb.Value)(nil),                         // 29: google.protobuf.Value
 }
 var file_cerbos_cloud_store_v1_store_proto_depIdxs = []int32{
-	19, // 0: cerbos.cloud.store.v1.StringMatch.in:type_name -> cerbos.cloud.store.v1.StringMatch.InList
+	20, // 0: cerbos.cloud.store.v1.StringMatch.in:type_name -> cerbos.cloud.store.v1.StringMatch.InList
 	1,  // 1: cerbos.cloud.store.v1.FileFilter.path:type_name -> cerbos.cloud.store.v1.StringMatch
 	2,  // 2: cerbos.cloud.store.v1.ListFilesRequest.filter:type_name -> cerbos.cloud.store.v1.FileFilter
 	6,  // 3: cerbos.cloud.store.v1.GetFilesResponse.files:type_name -> cerbos.cloud.store.v1.File
-	22, // 4: cerbos.cloud.store.v1.ChangeDetails.uploader:type_name -> cerbos.cloud.store.v1.ChangeDetails.Uploader
-	20, // 5: cerbos.cloud.store.v1.ChangeDetails.git:type_name -> cerbos.cloud.store.v1.ChangeDetails.Git
-	21, // 6: cerbos.cloud.store.v1.ChangeDetails.internal:type_name -> cerbos.cloud.store.v1.ChangeDetails.Internal
+	23, // 4: cerbos.cloud.store.v1.ChangeDetails.uploader:type_name -> cerbos.cloud.store.v1.ChangeDetails.Uploader
+	21, // 5: cerbos.cloud.store.v1.ChangeDetails.git:type_name -> cerbos.cloud.store.v1.ChangeDetails.Git
+	22, // 6: cerbos.cloud.store.v1.ChangeDetails.internal:type_name -> cerbos.cloud.store.v1.ChangeDetails.Internal
 	6,  // 7: cerbos.cloud.store.v1.FileOp.add_or_update:type_name -> cerbos.cloud.store.v1.File
-	25, // 8: cerbos.cloud.store.v1.ModifyFilesRequest.condition:type_name -> cerbos.cloud.store.v1.ModifyFilesRequest.Condition
+	26, // 8: cerbos.cloud.store.v1.ModifyFilesRequest.condition:type_name -> cerbos.cloud.store.v1.ModifyFilesRequest.Condition
 	9,  // 9: cerbos.cloud.store.v1.ModifyFilesRequest.operations:type_name -> cerbos.cloud.store.v1.FileOp
 	8,  // 10: cerbos.cloud.store.v1.ModifyFilesRequest.change_details:type_name -> cerbos.cloud.store.v1.ChangeDetails
 	0,  // 11: cerbos.cloud.store.v1.FileError.cause:type_name -> cerbos.cloud.store.v1.FileError.Cause
-	26, // 12: cerbos.cloud.store.v1.ReplaceFilesRequest.condition:type_name -> cerbos.cloud.store.v1.ReplaceFilesRequest.Condition
+	27, // 12: cerbos.cloud.store.v1.ReplaceFilesRequest.condition:type_name -> cerbos.cloud.store.v1.ReplaceFilesRequest.Condition
 	8,  // 13: cerbos.cloud.store.v1.ReplaceFilesRequest.change_details:type_name -> cerbos.cloud.store.v1.ChangeDetails
 	11, // 14: cerbos.cloud.store.v1.ErrDetailValidationFailure.errors:type_name -> cerbos.cloud.store.v1.FileError
-	27, // 15: cerbos.cloud.store.v1.ChangeDetails.Git.commit_date:type_name -> google.protobuf.Timestamp
-	27, // 16: cerbos.cloud.store.v1.ChangeDetails.Git.author_date:type_name -> google.protobuf.Timestamp
-	23, // 17: cerbos.cloud.store.v1.ChangeDetails.Internal.metadata:type_name -> cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry
-	24, // 18: cerbos.cloud.store.v1.ChangeDetails.Uploader.metadata:type_name -> cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry
-	28, // 19: cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry.value:type_name -> google.protobuf.Value
-	28, // 20: cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry.value:type_name -> google.protobuf.Value
+	28, // 15: cerbos.cloud.store.v1.ChangeDetails.Git.commit_date:type_name -> google.protobuf.Timestamp
+	28, // 16: cerbos.cloud.store.v1.ChangeDetails.Git.author_date:type_name -> google.protobuf.Timestamp
+	24, // 17: cerbos.cloud.store.v1.ChangeDetails.Internal.metadata:type_name -> cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry
+	25, // 18: cerbos.cloud.store.v1.ChangeDetails.Uploader.metadata:type_name -> cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry
+	29, // 19: cerbos.cloud.store.v1.ChangeDetails.Internal.MetadataEntry.value:type_name -> google.protobuf.Value
+	29, // 20: cerbos.cloud.store.v1.ChangeDetails.Uploader.MetadataEntry.value:type_name -> google.protobuf.Value
 	3,  // 21: cerbos.cloud.store.v1.CerbosStoreService.ListFiles:input_type -> cerbos.cloud.store.v1.ListFilesRequest
 	5,  // 22: cerbos.cloud.store.v1.CerbosStoreService.GetFiles:input_type -> cerbos.cloud.store.v1.GetFilesRequest
 	10, // 23: cerbos.cloud.store.v1.CerbosStoreService.ModifyFiles:input_type -> cerbos.cloud.store.v1.ModifyFilesRequest
@@ -1668,7 +1706,7 @@ var file_cerbos_cloud_store_v1_store_proto_depIdxs = []int32{
 	4,  // 25: cerbos.cloud.store.v1.CerbosStoreService.ListFiles:output_type -> cerbos.cloud.store.v1.ListFilesResponse
 	7,  // 26: cerbos.cloud.store.v1.CerbosStoreService.GetFiles:output_type -> cerbos.cloud.store.v1.GetFilesResponse
 	12, // 27: cerbos.cloud.store.v1.CerbosStoreService.ModifyFiles:output_type -> cerbos.cloud.store.v1.ModifyFilesResponse
-	18, // 28: cerbos.cloud.store.v1.CerbosStoreService.ReplaceFiles:output_type -> cerbos.cloud.store.v1.ReplaceFilesResponse
+	19, // 28: cerbos.cloud.store.v1.CerbosStoreService.ReplaceFiles:output_type -> cerbos.cloud.store.v1.ReplaceFilesResponse
 	25, // [25:29] is the sub-list for method output_type
 	21, // [21:25] is the sub-list for method input_type
 	21, // [21:21] is the sub-list for extension type_name
@@ -1704,7 +1742,7 @@ func file_cerbos_cloud_store_v1_store_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_store_v1_store_proto_rawDesc), len(file_cerbos_cloud_store_v1_store_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   26,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
