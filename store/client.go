@@ -6,8 +6,10 @@ package store
 import (
 	"context"
 	"errors"
+	"iter"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/cerbos/cloud-api/base"
 	storev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"
@@ -60,15 +62,15 @@ func newRPCError(err error) RPCError {
 	case connect.CodeNotFound:
 		return RPCError{Kind: RPCErrorStoreNotFound, Underlying: connectErr}
 	case connect.CodeFailedPrecondition:
-		return RPCError{Kind: RPCErrorConditionUnsatisfied, Underlying: connectErr}
-	case connect.CodeInvalidArgument:
-		details := connectErr.Details()
-		for _, d := range details {
-			msg, err := d.Value()
-			if err != nil {
-				continue
+		for msg := range details(connectErr) {
+			if unsatisfied, ok := msg.(*storev1.ErrDetailConditionUnsatisfied); ok {
+				return RPCError{Kind: RPCErrorConditionUnsatisfied, Underlying: connectErr, CurrentStoreVersion: unsatisfied.GetCurrentStoreVersion()}
 			}
+		}
 
+		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
+	case connect.CodeInvalidArgument:
+		for msg := range details(connectErr) {
 			switch t := msg.(type) {
 			case *storev1.ErrDetailNoUsableFiles:
 				return RPCError{Kind: RPCErrorNoUsableFiles, Underlying: connectErr, IgnoredFiles: t.GetIgnoredFiles()}
@@ -79,13 +81,7 @@ func newRPCError(err error) RPCError {
 
 		return RPCError{Kind: RPCErrorInvalidRequest, Underlying: connectErr}
 	case connect.CodeAlreadyExists:
-		details := connectErr.Details()
-		for _, d := range details {
-			msg, err := d.Value()
-			if err != nil {
-				continue
-			}
-
+		for msg := range details(connectErr) {
 			if discarded, ok := msg.(*storev1.ErrDetailOperationDiscarded); ok {
 				return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr, CurrentStoreVersion: discarded.GetCurrentStoreVersion()}
 			}
@@ -94,6 +90,20 @@ func newRPCError(err error) RPCError {
 		return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr}
 	default:
 		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
+	}
+}
+
+func details(err *connect.Error) iter.Seq[proto.Message] {
+	return func(yield func(proto.Message) bool) {
+		for _, d := range err.Details() {
+			msg, err := d.Value()
+			if err != nil {
+				continue
+			}
+			if !yield(msg) {
+				return
+			}
+		}
 	}
 }
 

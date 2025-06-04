@@ -166,6 +166,10 @@ message ErrDetailNoUsableFiles {
   repeated string ignored_files = 1;
 }
 
+message ErrDetailConditionUnsatisfied {
+  int64 current_store_version = 1;
+}
+
 message ErrDetailOperationDiscarded {
   int64 current_store_version = 1;
 }

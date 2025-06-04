@@ -126,9 +126,11 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				wantKind: store.RPCErrorPermissionDenied,
 			},
 			{
-				name:     "ConditionUnsatisfied",
-				err:      connect.NewError(connect.CodeFailedPrecondition, errors.New("condition unsatisfied")),
-				wantKind: store.RPCErrorConditionUnsatisfied,
+				name:                    "ConditionUnsatisfied",
+				err:                     connect.NewError(connect.CodeFailedPrecondition, errors.New("condition unsatisfied")),
+				details:                 &storev1.ErrDetailConditionUnsatisfied{CurrentStoreVersion: 5},
+				wantKind:                store.RPCErrorConditionUnsatisfied,
+				wantCurrentStoreVersion: 5,
 			},
 			{
 				name:        "NoUsableFiles",
