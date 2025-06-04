@@ -101,6 +101,9 @@ func cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m *ChangeDetails, hasher has
 	}
 }
 
+func cerbos_cloud_store_v1_ErrDetailCannotModifyGitConnectedStore_hashpb_sum(m *ErrDetailCannotModifyGitConnectedStore, hasher hash.Hash, ignore map[string]struct{}) {
+}
+
 func cerbos_cloud_store_v1_ErrDetailConditionUnsatisfied_hashpb_sum(m *ErrDetailConditionUnsatisfied, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailConditionUnsatisfied.current_store_version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCurrentStoreVersion())))
