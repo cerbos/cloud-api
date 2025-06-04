@@ -101,6 +101,12 @@ func cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m *ChangeDetails, hasher has
 	}
 }
 
+func cerbos_cloud_store_v1_ErrDetailConditionUnsatisfied_hashpb_sum(m *ErrDetailConditionUnsatisfied, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailConditionUnsatisfied.current_store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCurrentStoreVersion())))
+	}
+}
+
 func cerbos_cloud_store_v1_ErrDetailNoUsableFiles_hashpb_sum(m *ErrDetailNoUsableFiles, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailNoUsableFiles.ignored_files"]; !ok {
 		if len(m.IgnoredFiles) > 0 {
