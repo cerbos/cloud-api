@@ -2,15 +2,15 @@ module github.com/cerbos/cloud-api/tools
 
 go 1.24
 
-toolchain go1.24.3
+toolchain go1.24.4
 
 require (
 	connectrpc.com/connect v1.18.1
 	github.com/bufbuild/buf v1.54.0
-	github.com/cerbos/protoc-gen-go-hashpb v0.4.0
+	github.com/cerbos/protoc-gen-go-hashpb v0.4.1
 	github.com/golangci/golangci-lint/v2 v2.1.6
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
-	github.com/vektra/mockery/v3 v3.3.2
+	github.com/vektra/mockery/v3 v3.3.3
 	google.golang.org/protobuf v1.36.6
 	gotest.tools/gotestsum v1.12.2
 )
@@ -76,7 +76,6 @@ require (
 	github.com/charmbracelet/x/cellbuf v0.0.13-0.20250311204145-2c3ea96c31dd // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/chavacava/garif v0.1.0 // indirect
-	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/ckaznocha/intrange v0.3.1 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
