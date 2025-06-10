@@ -30,6 +30,7 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	}
 
 	opts = []connect.ClientOption{
+		connect.WithSendGzip(),
 		connect.WithCompressMinBytes(1024),
 		connect.WithInterceptors(
 			otelConnect,
