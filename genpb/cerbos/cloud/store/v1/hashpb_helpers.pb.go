@@ -300,6 +300,18 @@ func cerbos_cloud_store_v1_ReplaceFilesRequest_Condition_hashpb_sum(m *ReplaceFi
 	}
 }
 
+func cerbos_cloud_store_v1_ReplaceFilesRequest_Files_hashpb_sum(m *ReplaceFilesRequest_Files, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.Files.files"]; !ok {
+		if len(m.Files) > 0 {
+			for _, v := range m.Files {
+				if v != nil {
+					cerbos_cloud_store_v1_File_hashpb_sum(v, hasher, ignore)
+				}
+			}
+		}
+	}
+}
+
 func cerbos_cloud_store_v1_ReplaceFilesRequest_hashpb_sum(m *ReplaceFilesRequest, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.store_id"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetStoreId()))))
@@ -310,9 +322,18 @@ func cerbos_cloud_store_v1_ReplaceFilesRequest_hashpb_sum(m *ReplaceFilesRequest
 			cerbos_cloud_store_v1_ReplaceFilesRequest_Condition_hashpb_sum(m.GetCondition(), hasher, ignore)
 		}
 	}
-	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.zipped_contents"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetZippedContents()))))
-		_, _ = hasher.Write(m.GetZippedContents())
+	if m.Contents != nil {
+		if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.contents"]; !ok {
+			switch t := m.Contents.(type) {
+			case *ReplaceFilesRequest_ZippedContents:
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(t.ZippedContents))))
+				_, _ = hasher.Write(t.ZippedContents)
+			case *ReplaceFilesRequest_Files_:
+				if t.Files != nil {
+					cerbos_cloud_store_v1_ReplaceFilesRequest_Files_hashpb_sum(t.Files, hasher, ignore)
+				}
+			}
+		}
 	}
 	if _, ok := ignore["cerbos.cloud.store.v1.ReplaceFilesRequest.change_details"]; !ok {
 		if m.GetChangeDetails() != nil {
