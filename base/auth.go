@@ -73,7 +73,6 @@ func (a *authClient) authenticate(ctx context.Context) (string, error) {
 	defer a.mutex.Unlock()
 
 	if a.invalidCredentials {
-		a.mutex.RUnlock()
 		a.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
 		return "", ErrAuthenticationFailed
 	}

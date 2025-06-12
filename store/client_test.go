@@ -395,6 +395,8 @@ func testCircuitBreaker(creds *credentials.Credentials) func(*testing.T) {
 			require.Error(t, lastErr)
 		}
 
-		require.ErrorIs(t, lastErr, base.ErrTooManyFailures)
+		rpcErr := new(store.RPCError)
+		require.ErrorAs(t, lastErr, rpcErr)
+		require.Equal(t, store.RPCErrorTooManyFailures, rpcErr.Kind)
 	}
 }
