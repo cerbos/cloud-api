@@ -26,6 +26,7 @@ import (
 	logsv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	"github.com/cerbos/cloud-api/test"
 	mocklogsv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/logs/v1/logsv1connect"
 	"github.com/cerbos/cloud-api/test/testserver"
 )
@@ -120,7 +121,7 @@ func TestIngest(t *testing.T) {
 		client, err := hub.LogCapClient()
 		require.NoError(t, err)
 
-		_, err = client.Ingest(t.Context(), batch)
+		_, err = client.Ingest(test.Context(t), batch)
 		require.NoError(t, err)
 	})
 
@@ -133,7 +134,7 @@ func TestIngest(t *testing.T) {
 		client, err := hub.LogCapClient()
 		require.NoError(t, err)
 
-		_, err = client.Ingest(t.Context(), &logsv1.IngestBatch{})
+		_, err = client.Ingest(test.Context(t), &logsv1.IngestBatch{})
 		require.Error(t, err)
 		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})

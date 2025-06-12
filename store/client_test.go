@@ -20,6 +20,7 @@ import (
 	storev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1/storev1connect"
 	"github.com/cerbos/cloud-api/store"
+	"github.com/cerbos/cloud-api/test"
 	mockstorev1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/store/v1/storev1connect"
 	"github.com/cerbos/cloud-api/test/testserver"
 )
@@ -65,7 +66,7 @@ func testListFiles(creds *credentials.Credentials) func(*testing.T) {
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
-			haveResp, err := client.ListFiles(t.Context(), wantReq)
+			haveResp, err := client.ListFiles(test.Context(t), wantReq)
 			require.NoError(t, err)
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
@@ -75,12 +76,12 @@ func testListFiles(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
 
-			_, err := client.ListFiles(t.Context(), wantReq)
+			_, err := client.ListFiles(test.Context(t), wantReq)
 			return err
 		}))
 
 		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
-			_, err := c.ListFiles(t.Context(), wantReq)
+			_, err := c.ListFiles(test.Context(t), wantReq)
 			return err
 		}))
 	}
@@ -246,7 +247,7 @@ func testGetFiles(creds *credentials.Credentials) func(*testing.T) {
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
-			haveResp, err := client.GetFiles(t.Context(), wantReq)
+			haveResp, err := client.GetFiles(test.Context(t), wantReq)
 			require.NoError(t, err)
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
@@ -256,12 +257,12 @@ func testGetFiles(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
 
-			_, err := client.GetFiles(t.Context(), wantReq)
+			_, err := client.GetFiles(test.Context(t), wantReq)
 			return err
 		}))
 
 		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
-			_, err := c.GetFiles(t.Context(), wantReq)
+			_, err := c.GetFiles(test.Context(t), wantReq)
 			return err
 		}))
 	}
@@ -300,7 +301,7 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
-			haveResp, err := client.ModifyFiles(t.Context(), wantReq)
+			haveResp, err := client.ModifyFiles(test.Context(t), wantReq)
 			require.NoError(t, err)
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
@@ -310,12 +311,12 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
 
-			_, err := client.ModifyFiles(t.Context(), wantReq)
+			_, err := client.ModifyFiles(test.Context(t), wantReq)
 			return err
 		}))
 
 		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
-			_, err := c.ModifyFiles(t.Context(), wantReq)
+			_, err := c.ModifyFiles(test.Context(t), wantReq)
 			return err
 		}))
 	}
@@ -346,7 +347,7 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
-			haveResp, err := client.ReplaceFiles(t.Context(), wantReq)
+			haveResp, err := client.ReplaceFiles(test.Context(t), wantReq)
 			require.NoError(t, err)
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
@@ -356,12 +357,12 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
 
-			_, err := client.ReplaceFiles(t.Context(), wantReq)
+			_, err := client.ReplaceFiles(test.Context(t), wantReq)
 			return err
 		}))
 
 		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
-			_, err := c.ReplaceFiles(t.Context(), wantReq)
+			_, err := c.ReplaceFiles(test.Context(t), wantReq)
 			return err
 		}))
 	}
