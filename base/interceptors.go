@@ -5,12 +5,15 @@ package base
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime"
 	"runtime/debug"
 
 	"connectrpc.com/connect"
+	"github.com/failsafe-go/failsafe-go"
+	"github.com/failsafe-go/failsafe-go/circuitbreaker"
 )
 
 type userAgentInterceptor struct {
@@ -116,4 +119,42 @@ func (as authStreamingClientConn) Receive(req any) error {
 	}
 
 	return as.StreamingClientConn.Receive(req)
+}
+
+type circuitBreakerInterceptor struct {
+	cb failsafe.Executor[connect.AnyResponse]
+}
+
+func newCircuitBreakerInterceptor() *circuitBreakerInterceptor {
+	circuitBreaker := circuitbreaker.Builder[connect.AnyResponse]().
+		WithFailureThresholdRatio(6, 10).
+		Build()
+
+	return &circuitBreakerInterceptor{
+		cb: failsafe.NewExecutor(circuitBreaker),
+	}
+}
+
+func (cbi *circuitBreakerInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
+	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+		resp, err := cbi.cb.Get(func() (connect.AnyResponse, error) {
+			return next(ctx, req)
+		})
+
+		if errors.Is(err, circuitbreaker.ErrOpen) {
+			return resp, ErrTooManyFailures
+		}
+
+		return resp, err
+	})
+}
+
+func (cbi *circuitBreakerInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
+	return func(ctx context.Context, spec connect.Spec) connect.StreamingClientConn {
+		return next(ctx, spec)
+	}
+}
+
+func (cbi *circuitBreakerInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
+	return next
 }

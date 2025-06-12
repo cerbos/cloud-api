@@ -27,6 +27,7 @@ const (
 	RPCErrorOperationDiscarded
 	RPCErrorPermissionDenied
 	RPCErrorStoreNotFound
+	RPCErrorTooManyFailures
 	RPCErrorUnknown
 	RPCErrorValidationFailure
 )
@@ -50,6 +51,10 @@ func (r RPCError) Unwrap() error {
 func newRPCError(err error) RPCError {
 	if errors.Is(err, base.ErrAuthenticationFailed) {
 		return RPCError{Kind: RPCErrorAuthenticationFailed, Underlying: err}
+	}
+
+	if errors.Is(err, base.ErrTooManyFailures) {
+		return RPCError{Kind: RPCErrorTooManyFailures, Underlying: err}
 	}
 
 	connectErr := new(connect.Error)
