@@ -377,26 +377,53 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 func testCircuitBreaker(creds *credentials.Credentials) func(*testing.T) {
 	return func(t *testing.T) {
 		wantReq := &storev1.ListFilesRequest{StoreId: "B6C0NNZO5VO6"}
-		mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
-		storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
-		mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
-		testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
+		t.Run("ThrottledErrors", func(t *testing.T) {
+			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
+			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
+			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
-		mockStoreSvc.EXPECT().ListFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ListFilesRequest]) bool {
-			return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
-		})).Return(nil, errors.New("failure is inevitable"))
+			mockStoreSvc.EXPECT().ListFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ListFilesRequest]) bool {
+				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
+			})).Return(nil, errors.New("failure is inevitable"))
 
-		client, err := hub.StoreClient()
-		require.NoError(t, err)
+			client, err := hub.StoreClient()
+			require.NoError(t, err)
 
-		var lastErr error
-		for range 15 {
-			_, lastErr = client.ListFiles(test.Context(t), wantReq)
-			require.Error(t, lastErr)
-		}
+			var lastErr error
+			for range 15 {
+				_, lastErr = client.ListFiles(test.Context(t), wantReq)
+				require.Error(t, lastErr)
+			}
 
-		rpcErr := new(store.RPCError)
-		require.ErrorAs(t, lastErr, rpcErr)
-		require.Equal(t, store.RPCErrorTooManyFailures, rpcErr.Kind)
+			rpcErr := new(store.RPCError)
+			require.ErrorAs(t, lastErr, rpcErr)
+			require.Equal(t, store.RPCErrorTooManyFailures, rpcErr.Kind)
+		})
+
+		t.Run("UnthrottledErrors", func(t *testing.T) {
+			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
+			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
+			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
+
+			mockStoreSvc.EXPECT().ListFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ListFilesRequest]) bool {
+				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
+			})).Return(nil, connect.NewError(connect.CodeCanceled, errors.New("canceled")))
+
+			client, err := hub.StoreClient()
+			require.NoError(t, err)
+
+			var lastErr error
+			for range 15 {
+				_, lastErr = client.ListFiles(test.Context(t), wantReq)
+				require.Error(t, lastErr)
+			}
+
+			rpcErr := new(store.RPCError)
+			require.ErrorAs(t, lastErr, rpcErr)
+			require.Equal(t, store.RPCErrorAborted, rpcErr.Kind)
+			require.Equal(t, connect.CodeCanceled, connect.CodeOf(lastErr))
+		})
 	}
 }

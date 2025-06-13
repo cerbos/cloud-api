@@ -19,7 +19,8 @@ import (
 type RPCErrorKind int
 
 const (
-	RPCErrorAuthenticationFailed RPCErrorKind = iota
+	RPCErrorAborted RPCErrorKind = iota
+	RPCErrorAuthenticationFailed
 	RPCErrorCannotModifyGitConnectedStore
 	RPCErrorConditionUnsatisfied
 	RPCErrorInvalidRequest
@@ -97,6 +98,8 @@ func newRPCError(err error) RPCError {
 		}
 
 		return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr}
+	case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded:
+		return RPCError{Kind: RPCErrorAborted, Underlying: connectErr}
 	default:
 		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
 	}

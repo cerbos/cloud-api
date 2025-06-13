@@ -128,6 +128,19 @@ type circuitBreakerInterceptor struct {
 func newCircuitBreakerInterceptor() *circuitBreakerInterceptor {
 	circuitBreaker := circuitbreaker.Builder[connect.AnyResponse]().
 		WithFailureThresholdRatio(6, 10).
+		HandleIf(func(_ connect.AnyResponse, err error) bool {
+			if err == nil {
+				return false
+			}
+
+			code := connect.CodeOf(err)
+			switch code {
+			case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
+				return false
+			default:
+				return true
+			}
+		}).
 		Build()
 
 	return &circuitBreakerInterceptor{
