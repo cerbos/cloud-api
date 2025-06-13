@@ -19,7 +19,8 @@ import (
 type RPCErrorKind int
 
 const (
-	RPCErrorAuthenticationFailed RPCErrorKind = iota
+	RPCErrorAborted RPCErrorKind = iota
+	RPCErrorAuthenticationFailed
 	RPCErrorCannotModifyGitConnectedStore
 	RPCErrorConditionUnsatisfied
 	RPCErrorInvalidRequest
@@ -27,6 +28,7 @@ const (
 	RPCErrorOperationDiscarded
 	RPCErrorPermissionDenied
 	RPCErrorStoreNotFound
+	RPCErrorTooManyFailures
 	RPCErrorUnknown
 	RPCErrorValidationFailure
 )
@@ -50,6 +52,10 @@ func (r RPCError) Unwrap() error {
 func newRPCError(err error) RPCError {
 	if errors.Is(err, base.ErrAuthenticationFailed) {
 		return RPCError{Kind: RPCErrorAuthenticationFailed, Underlying: err}
+	}
+
+	if errors.Is(err, base.ErrTooManyFailures) {
+		return RPCError{Kind: RPCErrorTooManyFailures, Underlying: err}
 	}
 
 	connectErr := new(connect.Error)
@@ -92,6 +98,8 @@ func newRPCError(err error) RPCError {
 		}
 
 		return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr}
+	case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded:
+		return RPCError{Kind: RPCErrorAborted, Underlying: connectErr}
 	default:
 		return RPCError{Kind: RPCErrorUnknown, Underlying: connectErr}
 	}

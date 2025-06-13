@@ -159,7 +159,8 @@ func ExpectAPIKeyFailure(t *testing.T, mockAPIKeySvc *mockapikeyv1connect.ApiKey
 
 	mockAPIKeySvc.EXPECT().
 		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
-		Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated")))
+		Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated"))).
+		Once()
 }
 
 func issueAccessTokenRequest() func(*connect.Request[apikeyv1.IssueAccessTokenRequest]) bool {
