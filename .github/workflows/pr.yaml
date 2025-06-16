@@ -21,7 +21,7 @@ jobs:
           go-version: ${{ matrix.go }}
           check-latest: true
 
-      - name: Checkout
+      - name: Check out code
         uses: actions/checkout@v4
 
       - name: Install just
@@ -44,7 +44,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Install Go
         uses: actions/setup-go@v5
@@ -79,15 +80,8 @@ jobs:
     name: Proto check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Buf
-        uses: bufbuild/buf-setup-action@v1.50.0
-        with:
-          github_token: ${{ github.token }}
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Lint protos
-        uses: bufbuild/buf-lint-action@v1.1.1
-
-      - name: Check formatting
-        run: buf format --diff --exit-code
+        uses: bufbuild/buf-action@v1.2.0

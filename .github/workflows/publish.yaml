@@ -11,13 +11,11 @@ jobs:
     name: Publish Protobufs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Buf
-        uses: bufbuild/buf-setup-action@v1.50.0
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Push to BSR
-        uses: bufbuild/buf-push-action@v1.2.0
+        uses: bufbuild/buf-action@v1.2.0
         with:
-          buf_token: ${{ secrets.BUF_TOKEN }}
           input: protos
+          token: ${{ secrets.BUF_TOKEN }}
