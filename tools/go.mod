@@ -7,10 +7,10 @@ toolchain go1.24.4
 require (
 	connectrpc.com/connect v1.18.1
 	github.com/bufbuild/buf v1.54.0
-	github.com/cerbos/protoc-gen-go-hashpb v0.4.1
+	github.com/cerbos/protoc-gen-go-hashpb v0.4.2
 	github.com/golangci/golangci-lint/v2 v2.1.6
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
-	github.com/vektra/mockery/v3 v3.3.3
+	github.com/vektra/mockery/v3 v3.4.0
 	google.golang.org/protobuf v1.36.6
 	gotest.tools/gotestsum v1.12.2
 )
@@ -157,13 +157,13 @@ require (
 	github.com/kkHAIKE/contextcheck v1.1.6 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/parsers/yaml v0.1.0 // indirect
 	github.com/knadh/koanf/providers/env v1.0.0 // indirect
 	github.com/knadh/koanf/providers/file v1.1.2 // indirect
 	github.com/knadh/koanf/providers/posflag v0.1.0 // indirect
 	github.com/knadh/koanf/providers/structs v0.1.0 // indirect
-	github.com/knadh/koanf/v2 v2.1.2 // indirect
+	github.com/knadh/koanf/v2 v2.2.1 // indirect
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.14 // indirect
 	github.com/lasiar/canonicalheader v1.1.2 // indirect
