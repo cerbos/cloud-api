@@ -4,6 +4,7 @@ package base
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -17,6 +18,8 @@ import (
 
 	"github.com/cerbos/cloud-api/credentials"
 )
+
+var ErrTooManyFailures = errors.New("too many failures: backing off")
 
 type Client struct {
 	HTTPClient *http.Client
@@ -41,7 +44,7 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	retryableHTTPClient := mkRetryableHTTPClient(conf)
 	authClient := newAuthClient(conf, retryableHTTPClient, opts...)
 
-	opts = append(opts, connect.WithInterceptors(newAuthInterceptor(authClient)))
+	opts = append(opts, connect.WithInterceptors(newCircuitBreakerInterceptor(), newAuthInterceptor(authClient)))
 
 	return Client{
 		ClientConf: conf,

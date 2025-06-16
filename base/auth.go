@@ -25,13 +25,14 @@ const (
 var ErrAuthenticationFailed = errors.New("failed to authenticate: invalid credentials")
 
 type authClient struct {
-	expiresAt    time.Time
-	apiKeyClient apikeyv1connect.ApiKeyServiceClient
-	logger       logr.Logger
-	accessToken  string
-	clientID     string
-	clientSecret string
-	mutex        sync.RWMutex
+	expiresAt          time.Time
+	apiKeyClient       apikeyv1connect.ApiKeyServiceClient
+	logger             logr.Logger
+	accessToken        string
+	clientID           string
+	clientSecret       string
+	invalidCredentials bool
+	mutex              sync.RWMutex
 }
 
 func newAuthClient(conf ClientConf, httpClient *http.Client, clientOptions ...connect.ClientOption) *authClient {
@@ -56,6 +57,11 @@ func (a *authClient) SetAuthTokenHeader(ctx context.Context, headers http.Header
 
 func (a *authClient) authenticate(ctx context.Context) (string, error) {
 	a.mutex.RLock()
+	if a.invalidCredentials {
+		a.mutex.RUnlock()
+		a.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
+		return "", ErrAuthenticationFailed
+	}
 	accessToken, ok := a.currentAccessToken()
 	a.mutex.RUnlock()
 	if ok {
@@ -65,6 +71,11 @@ func (a *authClient) authenticate(ctx context.Context) (string, error) {
 
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
+
+	if a.invalidCredentials {
+		a.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
+		return "", ErrAuthenticationFailed
+	}
 
 	accessToken, ok = a.currentAccessToken()
 	if ok {
@@ -80,6 +91,7 @@ func (a *authClient) authenticate(ctx context.Context) (string, error) {
 	if err != nil {
 		a.logger.V(1).Error(err, "Failed to authenticate")
 		if connect.CodeOf(err) == connect.CodeUnauthenticated {
+			a.invalidCredentials = true
 			return "", ErrAuthenticationFailed
 		}
 		return "", fmt.Errorf("failed to authenticate: %w", err)
