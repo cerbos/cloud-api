@@ -17,5 +17,4 @@ jobs:
       - name: Push to BSR
         uses: bufbuild/buf-action@v1.2.0
         with:
-          input: protos
           token: ${{ secrets.BUF_TOKEN }}
