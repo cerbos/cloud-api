@@ -331,8 +331,10 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 	return func(t *testing.T) {
 		wantReq := &storev1.ReplaceFilesRequest{
-			StoreId:        "B6C0NNZO5VO6",
-			ZippedContents: []byte("this is a zip file"),
+			StoreId: "B6C0NNZO5VO6",
+			Contents: &storev1.ReplaceFilesRequest_ZippedContents{
+				ZippedContents: []byte("this is a zip file"),
+			},
 		}
 
 		t.Run("Success", func(t *testing.T) {
