@@ -16,6 +16,12 @@ import (
 	"github.com/failsafe-go/failsafe-go/circuitbreaker"
 )
 
+var sharedCircuitBreakerInterceptor *circuitBreakerInterceptor
+
+func init() {
+	sharedCircuitBreakerInterceptor = newCircuitBreakerInterceptor()
+}
+
 type userAgentInterceptor struct {
 	userAgent string
 }

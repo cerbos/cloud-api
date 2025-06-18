@@ -44,7 +44,7 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	retryableHTTPClient := mkRetryableHTTPClient(conf)
 	authClient := newAuthClient(conf, retryableHTTPClient, opts...)
 
-	opts = append(opts, connect.WithInterceptors(newCircuitBreakerInterceptor(), newAuthInterceptor(authClient)))
+	opts = append(opts, connect.WithInterceptors(sharedCircuitBreakerInterceptor, newAuthInterceptor(authClient)))
 
 	return Client{
 		ClientConf: conf,
