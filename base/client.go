@@ -1,5 +1,6 @@
 // Copyright 2021-2025 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
+
 package base
 
 import (
@@ -22,7 +23,8 @@ import (
 var ErrTooManyFailures = errors.New("too many failures: backing off")
 
 type Client struct {
-	HTTPClient *http.Client
+	HTTPClient     *http.Client
+	circuitBreaker *circuitBreakerInterceptor
 	ClientConf
 }
 
@@ -44,11 +46,13 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	retryableHTTPClient := mkRetryableHTTPClient(conf)
 	authClient := newAuthClient(conf, retryableHTTPClient, opts...)
 
-	opts = append(opts, connect.WithInterceptors(newCircuitBreakerInterceptor(), newAuthInterceptor(authClient)))
+	circuitBreaker := newCircuitBreakerInterceptor()
+	opts = append(opts, connect.WithInterceptors(circuitBreaker, newAuthInterceptor(authClient)))
 
 	return Client{
-		ClientConf: conf,
-		HTTPClient: retryableHTTPClient,
+		ClientConf:     conf,
+		HTTPClient:     retryableHTTPClient,
+		circuitBreaker: circuitBreaker,
 	}, opts, nil
 }
 

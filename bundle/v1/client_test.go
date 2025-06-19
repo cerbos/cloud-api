@@ -1100,6 +1100,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v1.Client, *cr
 		TempDir:  tempDir,
 	})
 	require.NoError(t, err, "Failed to create client")
+	client.BypassCircuitBreaker()
 
 	return client, creds
 }

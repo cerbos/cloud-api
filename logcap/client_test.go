@@ -133,6 +133,7 @@ func TestIngest(t *testing.T) {
 
 		client, err := hub.LogCapClient()
 		require.NoError(t, err)
+		client.BypassCircuitBreaker()
 
 		_, err = client.Ingest(test.Context(t), &logsv1.IngestBatch{})
 		require.Error(t, err)
