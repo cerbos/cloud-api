@@ -16,10 +16,27 @@ import (
 	"github.com/failsafe-go/failsafe-go/circuitbreaker"
 )
 
-var sharedCircuitBreakerInterceptor *circuitBreakerInterceptor
+var circuitBreaker failsafe.Executor[connect.AnyResponse]
 
 func init() {
-	sharedCircuitBreakerInterceptor = newCircuitBreakerInterceptor()
+	circuitBreaker = failsafe.NewExecutor(
+		circuitbreaker.Builder[connect.AnyResponse]().
+			WithFailureThresholdRatio(6, 10).
+			HandleIf(func(_ connect.AnyResponse, err error) bool {
+				if err == nil {
+					return false
+				}
+
+				code := connect.CodeOf(err)
+				switch code {
+				case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
+					return false
+				default:
+					return true
+				}
+			}).
+			Build(),
+	)
 }
 
 type userAgentInterceptor struct {
@@ -128,35 +145,20 @@ func (as authStreamingClientConn) Receive(req any) error {
 }
 
 type circuitBreakerInterceptor struct {
-	cb failsafe.Executor[connect.AnyResponse]
+	enabled bool
 }
 
 func newCircuitBreakerInterceptor() *circuitBreakerInterceptor {
-	circuitBreaker := circuitbreaker.Builder[connect.AnyResponse]().
-		WithFailureThresholdRatio(6, 10).
-		HandleIf(func(_ connect.AnyResponse, err error) bool {
-			if err == nil {
-				return false
-			}
-
-			code := connect.CodeOf(err)
-			switch code {
-			case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
-				return false
-			default:
-				return true
-			}
-		}).
-		Build()
-
-	return &circuitBreakerInterceptor{
-		cb: failsafe.NewExecutor(circuitBreaker),
-	}
+	return &circuitBreakerInterceptor{enabled: true}
 }
 
 func (cbi *circuitBreakerInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		resp, err := cbi.cb.Get(func() (connect.AnyResponse, error) {
+		if !cbi.enabled {
+			return next(ctx, req)
+		}
+
+		resp, err := circuitBreaker.Get(func() (connect.AnyResponse, error) {
 			return next(ctx, req)
 		})
 
