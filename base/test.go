@@ -5,6 +5,10 @@
 
 package base
 
+func ResetCircuitBreaker() {
+	circuitBreaker = newCircuitBreaker()
+}
+
 func (c Client) BypassCircuitBreaker() {
 	c.circuitBreaker.enabled = false
 }

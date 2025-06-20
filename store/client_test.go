@@ -392,6 +392,7 @@ func testCircuitBreaker(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, connect.NewError(connect.CodeCanceled, errors.New("canceled")))
 
+			base.ResetCircuitBreaker()
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
@@ -417,6 +418,7 @@ func testCircuitBreaker(creds *credentials.Credentials) func(*testing.T) {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, errors.New("failure is inevitable"))
 
+			base.ResetCircuitBreaker()
 			client, err := hub.StoreClient()
 			require.NoError(t, err)
 
