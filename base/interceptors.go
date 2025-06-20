@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"runtime"
 	"runtime/debug"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/failsafe-go/failsafe-go"
@@ -19,24 +20,7 @@ import (
 var circuitBreaker failsafe.Executor[connect.AnyResponse]
 
 func init() {
-	circuitBreaker = failsafe.NewExecutor(
-		circuitbreaker.Builder[connect.AnyResponse]().
-			WithFailureThresholdRatio(6, 10).
-			HandleIf(func(_ connect.AnyResponse, err error) bool {
-				if err == nil {
-					return false
-				}
-
-				code := connect.CodeOf(err)
-				switch code {
-				case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
-					return false
-				default:
-					return true
-				}
-			}).
-			Build(),
-	)
+	circuitBreaker = newCircuitBreaker()
 }
 
 type userAgentInterceptor struct {
@@ -178,4 +162,25 @@ func (cbi *circuitBreakerInterceptor) WrapStreamingClient(next connect.Streaming
 
 func (cbi *circuitBreakerInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	return next
+}
+
+func newCircuitBreaker() failsafe.Executor[connect.AnyResponse] {
+	return failsafe.NewExecutor(
+		circuitbreaker.Builder[connect.AnyResponse]().
+			WithFailureRateThreshold(60, 5, 15*time.Second). // open circuit if >=5 requests have been made in the last 15 seconds and >=60% of them have failed
+			HandleIf(func(_ connect.AnyResponse, err error) bool {
+				if err == nil {
+					return false
+				}
+
+				code := connect.CodeOf(err)
+				switch code {
+				case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
+					return false
+				default:
+					return true
+				}
+			}).
+			Build(),
+	)
 }
