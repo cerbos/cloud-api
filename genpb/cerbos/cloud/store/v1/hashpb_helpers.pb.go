@@ -137,6 +137,14 @@ func cerbos_cloud_store_v1_ErrDetailOperationDiscarded_hashpb_sum(m *ErrDetailOp
 	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailOperationDiscarded.current_store_version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetCurrentStoreVersion())))
 	}
+	if _, ok := ignore["cerbos.cloud.store.v1.ErrDetailOperationDiscarded.ignored_files"]; !ok {
+		if len(m.IgnoredFiles) > 0 {
+			for _, v := range m.IgnoredFiles {
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
 }
 
 func cerbos_cloud_store_v1_ErrDetailValidationFailure_hashpb_sum(m *ErrDetailValidationFailure, hasher hash.Hash, ignore map[string]struct{}) {

@@ -1081,6 +1081,7 @@ func (x *ErrDetailConditionUnsatisfied) GetCurrentStoreVersion() int64 {
 type ErrDetailOperationDiscarded struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	CurrentStoreVersion int64                  `protobuf:"varint,1,opt,name=current_store_version,json=currentStoreVersion,proto3" json:"current_store_version,omitempty"`
+	IgnoredFiles        []string               `protobuf:"bytes,2,rep,name=ignored_files,json=ignoredFiles,proto3" json:"ignored_files,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1120,6 +1121,13 @@ func (x *ErrDetailOperationDiscarded) GetCurrentStoreVersion() int64 {
 		return x.CurrentStoreVersion
 	}
 	return 0
+}
+
+func (x *ErrDetailOperationDiscarded) GetIgnoredFiles() []string {
+	if x != nil {
+		return x.IgnoredFiles
+	}
+	return nil
 }
 
 type ErrDetailCannotModifyGitConnectedStore struct {
@@ -1704,9 +1712,10 @@ const file_cerbos_cloud_store_v1_store_proto_rawDesc = "" +
 	"\x16ErrDetailNoUsableFiles\x12#\n" +
 	"\rignored_files\x18\x01 \x03(\tR\fignoredFiles\"S\n" +
 	"\x1dErrDetailConditionUnsatisfied\x122\n" +
-	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"Q\n" +
+	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"v\n" +
 	"\x1bErrDetailOperationDiscarded\x122\n" +
-	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\"(\n" +
+	"\x15current_store_version\x18\x01 \x01(\x03R\x13currentStoreVersion\x12#\n" +
+	"\rignored_files\x18\x02 \x03(\tR\fignoredFiles\"(\n" +
 	"&ErrDetailCannotModifyGitConnectedStore\"g\n" +
 	"\x14ReplaceFilesResponse\x12*\n" +
 	"\x11new_store_version\x18\x01 \x01(\x03R\x0fnewStoreVersion\x12#\n" +

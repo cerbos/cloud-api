@@ -93,7 +93,7 @@ func newRPCError(err error) RPCError {
 	case connect.CodeAlreadyExists:
 		for msg := range details(connectErr) {
 			if discarded, ok := msg.(*storev1.ErrDetailOperationDiscarded); ok {
-				return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr, CurrentStoreVersion: discarded.GetCurrentStoreVersion()}
+				return RPCError{Kind: RPCErrorOperationDiscarded, Underlying: connectErr, CurrentStoreVersion: discarded.GetCurrentStoreVersion(), IgnoredFiles: discarded.GetIgnoredFiles()}
 			}
 		}
 

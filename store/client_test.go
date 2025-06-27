@@ -156,9 +156,10 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 			{
 				name:                    "OperationDiscarded",
 				err:                     connect.NewError(connect.CodeAlreadyExists, errors.New("operation discarded")),
-				details:                 &storev1.ErrDetailOperationDiscarded{CurrentStoreVersion: 5},
+				details:                 &storev1.ErrDetailOperationDiscarded{CurrentStoreVersion: 5, IgnoredFiles: []string{"foo"}},
 				wantKind:                store.RPCErrorOperationDiscarded,
 				wantCurrentStoreVersion: 5,
+				wantIgnored:             []string{"foo"},
 			},
 			{
 				name: "ValidationFailure",
