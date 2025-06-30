@@ -120,16 +120,16 @@ func (m *StringMatch_Equals) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
-func (m *StringMatch_Like) MarshalToVT(dAtA []byte) (int, error) {
+func (m *StringMatch_Contains) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *StringMatch_Like) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *StringMatch_Contains) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
-	i -= len(m.Like)
-	copy(dAtA[i:], m.Like)
-	i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Like)))
+	i -= len(m.Contains)
+	copy(dAtA[i:], m.Contains)
+	i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Contains)))
 	i--
 	dAtA[i] = 0x12
 	return len(dAtA) - i, nil
@@ -1526,13 +1526,13 @@ func (m *StringMatch_Equals) SizeVT() (n int) {
 	n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	return n
 }
-func (m *StringMatch_Like) SizeVT() (n int) {
+func (m *StringMatch_Contains) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Like)
+	l = len(m.Contains)
 	n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	return n
 }
@@ -2232,7 +2232,7 @@ func (m *StringMatch) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Like", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Contains", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2260,7 +2260,7 @@ func (m *StringMatch) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Match = &StringMatch_Like{Like: string(dAtA[iNdEx:postIndex])}
+			m.Match = &StringMatch_Contains{Contains: string(dAtA[iNdEx:postIndex])}
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {

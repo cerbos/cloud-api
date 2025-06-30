@@ -91,7 +91,7 @@ type StringMatch struct {
 	// Types that are valid to be assigned to Match:
 	//
 	//	*StringMatch_Equals
-	//	*StringMatch_Like
+	//	*StringMatch_Contains
 	//	*StringMatch_In
 	Match         isStringMatch_Match `protobuf_oneof:"match"`
 	unknownFields protoimpl.UnknownFields
@@ -144,10 +144,10 @@ func (x *StringMatch) GetEquals() string {
 	return ""
 }
 
-func (x *StringMatch) GetLike() string {
+func (x *StringMatch) GetContains() string {
 	if x != nil {
-		if x, ok := x.Match.(*StringMatch_Like); ok {
-			return x.Like
+		if x, ok := x.Match.(*StringMatch_Contains); ok {
+			return x.Contains
 		}
 	}
 	return ""
@@ -170,8 +170,8 @@ type StringMatch_Equals struct {
 	Equals string `protobuf:"bytes,1,opt,name=equals,proto3,oneof"`
 }
 
-type StringMatch_Like struct {
-	Like string `protobuf:"bytes,2,opt,name=like,proto3,oneof"`
+type StringMatch_Contains struct {
+	Contains string `protobuf:"bytes,2,opt,name=contains,proto3,oneof"`
 }
 
 type StringMatch_In struct {
@@ -180,7 +180,7 @@ type StringMatch_In struct {
 
 func (*StringMatch_Equals) isStringMatch_Match() {}
 
-func (*StringMatch_Like) isStringMatch_Match() {}
+func (*StringMatch_Contains) isStringMatch_Match() {}
 
 func (*StringMatch_In) isStringMatch_Match() {}
 
@@ -1602,10 +1602,10 @@ var File_cerbos_cloud_store_v1_store_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_store_v1_store_proto_rawDesc = "" +
 	"\n" +
-	"!cerbos/cloud/store/v1/store.proto\x12\x15cerbos.cloud.store.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x01\n" +
+	"!cerbos/cloud/store/v1/store.proto\x12\x15cerbos.cloud.store.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc4\x01\n" +
 	"\vStringMatch\x12\x18\n" +
-	"\x06equals\x18\x01 \x01(\tH\x00R\x06equals\x12\x14\n" +
-	"\x04like\x18\x02 \x01(\tH\x00R\x04like\x12;\n" +
+	"\x06equals\x18\x01 \x01(\tH\x00R\x06equals\x12\x1c\n" +
+	"\bcontains\x18\x02 \x01(\tH\x00R\bcontains\x12;\n" +
 	"\x02in\x18\x03 \x01(\v2).cerbos.cloud.store.v1.StringMatch.InListH\x00R\x02in\x1a0\n" +
 	"\x06InList\x12&\n" +
 	"\x06values\x18\x01 \x03(\tB\x0e\xbaH\v\x92\x01\b\x10\n" +
@@ -1820,7 +1820,7 @@ func file_cerbos_cloud_store_v1_store_proto_init() {
 	}
 	file_cerbos_cloud_store_v1_store_proto_msgTypes[0].OneofWrappers = []any{
 		(*StringMatch_Equals)(nil),
-		(*StringMatch_Like)(nil),
+		(*StringMatch_Contains)(nil),
 		(*StringMatch_In)(nil),
 	}
 	file_cerbos_cloud_store_v1_store_proto_msgTypes[1].OneofWrappers = []any{}
