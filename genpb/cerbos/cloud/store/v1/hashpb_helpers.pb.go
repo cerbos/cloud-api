@@ -382,9 +382,9 @@ func cerbos_cloud_store_v1_StringMatch_hashpb_sum(m *StringMatch, hasher hash.Ha
 			case *StringMatch_Equals:
 				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(t.Equals))))
 				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Equals), len(t.Equals)))
-			case *StringMatch_Like:
-				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(t.Like))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Like), len(t.Like)))
+			case *StringMatch_Contains:
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(t.Contains))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Contains), len(t.Contains)))
 			case *StringMatch_In:
 				if t.In != nil {
 					cerbos_cloud_store_v1_StringMatch_InList_hashpb_sum(t.In, hasher, ignore)
