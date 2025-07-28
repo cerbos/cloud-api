@@ -1089,7 +1089,7 @@ func mkProxy(t *testing.T, client *toxiclient.Client, dest string) *toxiclient.P
 }
 
 func getFreeListenAddr() (string, string, error) {
-	lis, err := net.Listen("tcp", "localhost:0")
+	lis, err := net.Listen("tcp", "localhost:0") //nolint:noctx
 	if err != nil {
 		return "", "", err
 	}
