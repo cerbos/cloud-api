@@ -24,7 +24,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.40.0
 	golang.org/x/net v0.42.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250715232539-7130f93afb79
+	google.golang.org/genproto/googleapis/api v0.0.0-20250721164621-a45f3dfb1074
 	google.golang.org/protobuf v1.36.6
 )
 
@@ -63,7 +63,7 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250715232539-7130f93afb79 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
