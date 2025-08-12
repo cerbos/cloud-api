@@ -175,7 +175,7 @@ func newCircuitBreaker() failsafe.Executor[connect.AnyResponse] {
 
 				code := connect.CodeOf(err)
 				switch code {
-				case connect.CodeAborted, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
+				case connect.CodeAborted, connect.CodeAlreadyExists, connect.CodeCanceled, connect.CodeDeadlineExceeded, connect.CodeFailedPrecondition:
 					return false
 				default:
 					return true
