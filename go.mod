@@ -3,7 +3,7 @@ module github.com/cerbos/cloud-api
 go 1.23.4
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.7-20250717185734-6c6e0d3c608e.1
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1
 	buf.build/go/protovalidate v0.14.0
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/grpcreflect v1.3.0
@@ -20,12 +20,12 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/rs/zerolog v1.34.0
 	github.com/sourcegraph/conc v0.3.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250811230008-5f3141c8851a
-	google.golang.org/protobuf v1.36.7
+	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c
+	google.golang.org/protobuf v1.36.8
 )
 
 require (
@@ -63,7 +63,7 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250804133106-a7a43d27e69b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250811230008-5f3141c8851a // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
