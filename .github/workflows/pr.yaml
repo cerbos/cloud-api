@@ -84,4 +84,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint protos
-        uses: bufbuild/buf-action@v1.2.0
+        uses: bufbuild/buf-action@v1.3.0
