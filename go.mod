@@ -1,6 +1,6 @@
 module github.com/cerbos/cloud-api
 
-go 1.23.4
+go 1.24.0
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1
@@ -11,7 +11,7 @@ require (
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.46.0
-	github.com/failsafe-go/failsafe-go v0.6.9
+	github.com/failsafe-go/failsafe-go v0.7.0
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
@@ -20,11 +20,11 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/rs/zerolog v1.34.0
 	github.com/sourcegraph/conc v0.3.0
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c
+	google.golang.org/genproto/googleapis/api v0.0.0-20250826171959-ef028d996bc1
 	google.golang.org/protobuf v1.36.8
 )
 
@@ -32,7 +32,7 @@ require (
 	cel.dev/expr v0.23.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bits-and-blooms/bitset v1.14.3 // indirect
+	github.com/bits-and-blooms/bitset v1.20.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.18.0 // indirect
@@ -63,7 +63,7 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250811230008-5f3141c8851a // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
