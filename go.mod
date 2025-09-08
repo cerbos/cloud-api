@@ -11,7 +11,7 @@ require (
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.46.0
-	github.com/failsafe-go/failsafe-go v0.6.9
+	github.com/failsafe-go/failsafe-go v0.7.0
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
@@ -20,11 +20,11 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/rs/zerolog v1.34.0
 	github.com/sourcegraph/conc v0.3.0
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c
+	google.golang.org/genproto/googleapis/api ef028d996bc1
 	google.golang.org/protobuf v1.36.8
 )
 
