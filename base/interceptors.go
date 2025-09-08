@@ -166,7 +166,7 @@ func (cbi *circuitBreakerInterceptor) WrapStreamingHandler(next connect.Streamin
 
 func newCircuitBreaker() failsafe.Executor[connect.AnyResponse] {
 	return failsafe.NewExecutor(
-		circuitbreaker.Builder[connect.AnyResponse]().
+		circuitbreaker.NewBuilder[connect.AnyResponse]().
 			WithFailureRateThreshold(60, 5, 15*time.Second). // open circuit if >=5 requests have been made in the last 15 seconds and >=60% of them have failed
 			HandleIf(func(_ connect.AnyResponse, err error) bool {
 				if err == nil {
