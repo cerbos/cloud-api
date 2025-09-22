@@ -11,7 +11,7 @@ require (
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.46.0
-	github.com/failsafe-go/failsafe-go v0.8.0
+	github.com/failsafe-go/failsafe-go v0.8.3
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
