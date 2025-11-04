@@ -16,7 +16,7 @@ import (
 type Source interface {
 	String() string
 	ToProto() *bundlev2.Source
-	bootstrapBundleURLPath(*credentials.Credentials) (string, error)
+	bootstrapBundleURLPath(*credentials.Credentials, *bundlev2.BundleType) (string, error)
 }
 
 func sourceFromProto(source *bundlev2.Source) (Source, error) {
@@ -40,8 +40,13 @@ func (d DeploymentID) ToProto() *bundlev2.Source {
 	return &bundlev2.Source{Source: &bundlev2.Source_DeploymentId{DeploymentId: string(d)}}
 }
 
-func (d DeploymentID) bootstrapBundleURLPath(creds *credentials.Credentials) (string, error) {
-	return path.Join("bootstrap/v2", string(d), creds.ClientID, base64.RawURLEncoding.EncodeToString(creds.BootstrapKey)), nil
+func (d DeploymentID) bootstrapBundleURLPath(creds *credentials.Credentials, bundleType *bundlev2.BundleType) (string, error) {
+	prefix := "bootstrap/v2"
+	if bundleType != nil && *bundleType == bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE {
+		prefix = "bootstrap/ruletable"
+	}
+
+	return path.Join(prefix, string(d), creds.ClientID, base64.RawURLEncoding.EncodeToString(creds.BootstrapKey)), nil
 }
 
 type PlaygroundID string
@@ -54,6 +59,6 @@ func (p PlaygroundID) ToProto() *bundlev2.Source {
 	return &bundlev2.Source{Source: &bundlev2.Source_PlaygroundId{PlaygroundId: string(p)}}
 }
 
-func (p PlaygroundID) bootstrapBundleURLPath(*credentials.Credentials) (string, error) {
+func (p PlaygroundID) bootstrapBundleURLPath(*credentials.Credentials, *bundlev2.BundleType) (string, error) {
 	return "", bundle.ErrBootstrappingNotSupported
 }

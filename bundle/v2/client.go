@@ -29,8 +29,9 @@ import (
 )
 
 type Client struct {
-	rpcClient bundlev2connect.CerbosBundleServiceClient
-	cache     *clientcache.ClientCache
+	rpcClient  bundlev2connect.CerbosBundleServiceClient
+	cache      *clientcache.ClientCache
+	bundleType *bundlev2.BundleType
 	base.Client
 }
 
@@ -46,9 +47,10 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 
 	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
 	return &Client{
-		Client:    baseClient,
-		rpcClient: bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
-		cache:     c,
+		Client:     baseClient,
+		rpcClient:  bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
+		cache:      c,
+		bundleType: conf.BundleType,
 	}, nil
 }
 
@@ -57,7 +59,7 @@ func (c *Client) BootstrapBundle(ctx context.Context, source Source) (string, []
 
 	log.V(1).Info("Getting bootstrap bundle response")
 
-	urlPath, err := source.bootstrapBundleURLPath(c.Credentials)
+	urlPath, err := source.bootstrapBundleURLPath(c.Credentials, c.bundleType)
 	if err != nil {
 		return "", nil, err
 	}
@@ -144,7 +146,7 @@ func (c *Client) GetBundle(ctx context.Context, source Source) (string, []byte, 
 	log := c.Logger.WithValues("source", source.String())
 	log.V(1).Info("Calling GetBundle RPC")
 
-	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{PdpId: c.PDPIdentifier, Source: source.ToProto()}))
+	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{PdpId: c.PDPIdentifier, Source: source.ToProto(), BundleType: c.bundleType}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
 		return "", nil, err
@@ -375,7 +377,8 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.Wa
 			PdpId: c.PDPIdentifier,
 			Msg: &bundlev2.WatchBundleRequest_Start_{
 				Start: &bundlev2.WatchBundleRequest_Start{
-					Source: wh.Source.ToProto(),
+					Source:     wh.Source.ToProto(),
+					BundleType: c.bundleType,
 				},
 			},
 		}); err != nil {
@@ -391,6 +394,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.Wa
 					Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 						Timestamp:      timestamppb.Now(),
 						ActiveBundleId: activeBundleID,
+						BundleType:     c.bundleType,
 					},
 				},
 			}); err != nil {

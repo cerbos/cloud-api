@@ -8,11 +8,14 @@ import (
 	"os"
 
 	"go.uber.org/multierr"
+
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 )
 
 type ClientConf struct {
-	CacheDir string
-	TempDir  string
+	BundleType *bundlev2.BundleType
+	CacheDir   string
+	TempDir    string
 }
 
 func (cc ClientConf) Validate() (outErr error) {
