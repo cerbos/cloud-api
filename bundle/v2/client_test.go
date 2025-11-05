@@ -76,7 +76,7 @@ func TestBootstrapBundle(t *testing.T) {
 
 	for _, bundleType := range []bundlev2.BundleType{bundlev2.BundleType_BUNDLE_TYPE_LEGACY, bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE} {
 		t.Run("bundleType="+bundleType.String(), func(t *testing.T) {
-			client, creds := mkClient(t, server.URL, server.Certificate(), &bundleType)
+			client, creds := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 			rootDir := filepath.Join("testdata", "bootstrap")
 			require.NoError(t, os.RemoveAll(rootDir), "Failed to remove bootstrap dir")
@@ -137,16 +137,17 @@ func TestBootstrapBundle(t *testing.T) {
 				require.NoError(t, err, "Failed to marshal")
 				writeBootstrapBundleResponse(t, source, bundleRespBytes)
 
-				file, encryptionKey, err := client.BootstrapBundle(test.Context(t), source)
+				file, haveBundleType, encryptionKey, err := client.BootstrapBundle(test.Context(t), source)
 				require.NoError(t, err)
 				require.Equal(t, bundleResp.BundleInfo.EncryptionKey, encryptionKey)
+				require.Equal(t, bundleType, haveBundleType)
 
 				haveChecksum := checksum(t, file)
 				require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
 			})
 
 			t.Run("failure", func(t *testing.T) {
-				_, _, err := client.BootstrapBundle(test.Context(t), v2.DeploymentID("VQZE8L9LQDML"))
+				_, _, _, err := client.BootstrapBundle(test.Context(t), v2.DeploymentID("VQZE8L9LQDML"))
 				require.Error(t, err)
 			})
 		})
@@ -177,7 +178,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					expectIssueAccessToken(mockAPIKeySvc)
@@ -202,9 +203,10 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file, encryptionKey, err := client.GetBundle(test.Context(t), tc.source)
+						file, haveBundleType, encryptionKey, err := client.GetBundle(test.Context(t), tc.source)
 						require.NoError(t, err)
 						require.Equal(t, wantEncryptionKey, encryptionKey)
+						require.Equal(t, bundleType, haveBundleType)
 
 						haveChecksum := checksum(t, file)
 						require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
@@ -224,7 +226,7 @@ func TestGetBundle(t *testing.T) {
 					server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					expectIssueAccessToken(mockAPIKeySvc)
@@ -250,8 +252,9 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil)
 
-					file, _, err := client.GetBundle(test.Context(t), tc.source)
+					file, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.NoError(t, err)
+					require.Equal(t, bundleType, haveBundleType)
 
 					haveChecksum := checksum(t, file)
 					require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
@@ -267,7 +270,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					expectIssueAccessToken(mockAPIKeySvc)
@@ -299,8 +302,9 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file, _, err := client.GetBundle(test.Context(t), tc.source)
+						file, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
 						require.NoError(t, err)
+						require.Equal(t, bundleType, haveBundleType)
 
 						haveChecksum := checksum(t, file)
 						require.Equal(t, wantChecksum, haveChecksum, "Checksum does not match")
@@ -322,7 +326,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -357,8 +361,9 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file1, _, err := client.GetBundle(test.Context(t), tc.source)
+						file1, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
 						require.NoError(t, err)
+						require.Equal(t, bundleType, haveBundleType)
 
 						haveChecksum1 := checksum(t, file1)
 						require.Equal(t, wantChecksum1, haveChecksum1, "Checksum1 does not match")
@@ -409,8 +414,9 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file2, _, err := client.GetBundle(test.Context(t), tc.source)
+						file2, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
 						require.NoError(t, err)
+						require.Equal(t, bundleType, haveBundleType)
 
 						haveChecksum2 := checksum(t, file2)
 						require.Equal(t, wantChecksum2, haveChecksum2, "Checksum2 does not match")
@@ -437,7 +443,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					expectIssueAccessToken(mockAPIKeySvc)
@@ -464,7 +470,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -479,7 +485,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					expectIssueAccessToken(mockAPIKeySvc)
@@ -512,7 +518,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -527,7 +533,7 @@ func TestGetBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -549,7 +555,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
@@ -562,7 +568,7 @@ func TestGetBundle(t *testing.T) {
 					server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -584,7 +590,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.Error(t, err)
 				})
 
@@ -594,13 +600,13 @@ func TestGetBundle(t *testing.T) {
 					server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					mockAPIKeySvc.EXPECT().
 						IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 						Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-					_, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
 					require.Error(t, err)
 					require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 				})
@@ -656,7 +662,7 @@ func TestWatchBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					bundleID1 := randomCommit()
 					bundleID2 := randomCommit()
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
@@ -670,7 +676,7 @@ func TestWatchBundle(t *testing.T) {
 					require.NoError(t, err, "Failed to call RPC")
 					eventStream := handle.ServerEvents()
 
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, bundleType))
 					mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 						InputHash:     hash("input"),
 						OutputHash:    wantChecksum1,
@@ -696,7 +702,7 @@ func TestWatchBundle(t *testing.T) {
 					require.Equal(t, wantChecksum1, checksum(t, cached1), "Checksum does not match for cached bundle")
 
 					require.NoError(t, handle.ActiveBundleChanged(bundleID1), "Failed to acknowledge bundle swap")
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID1, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID1, bundleType))
 
 					mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 						InputHash:     hash("input"),
@@ -723,7 +729,7 @@ func TestWatchBundle(t *testing.T) {
 					require.Equal(t, wantChecksum2, checksum(t, cached2), "Checksum does not match for cached bundle")
 
 					require.NoError(t, handle.ActiveBundleChanged(bundleID2), "Failed to acknowledge bundle swap")
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID2, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleHeartbeatReq(bundleID2, bundleType))
 				})
 
 				t.Run("BadDownloadURL", func(t *testing.T) {
@@ -732,7 +738,7 @@ func TestWatchBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					ctx, cancelFn := context.WithCancel(test.Context(t))
@@ -743,7 +749,7 @@ func TestWatchBundle(t *testing.T) {
 					require.NoError(t, err, "Failed to call RPC")
 					eventStream := handle.ServerEvents()
 
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, bundleType))
 					mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 						InputHash:     hash("input"),
 						OutputHash:    wantChecksum,
@@ -772,7 +778,7 @@ func TestWatchBundle(t *testing.T) {
 					server, _ := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					ctx, cancelFn := context.WithCancel(test.Context(t))
 					t.Cleanup(cancelFn)
@@ -782,7 +788,7 @@ func TestWatchBundle(t *testing.T) {
 					require.NoError(t, err, "Failed to call RPC")
 					eventStream := handle.ServerEvents()
 
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, bundleType))
 					mockWatchSvc.respondWithError(connect.NewError(connect.CodeNotFound, errors.New(" bundle not found")))
 
 					haveEvent := mustPopFromChan(t, eventStream)
@@ -798,7 +804,7 @@ func TestWatchBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					ctx, cancelFn := context.WithCancel(test.Context(t))
@@ -809,7 +815,7 @@ func TestWatchBundle(t *testing.T) {
 					require.NoError(t, err, "Failed to call RPC")
 					eventStream := handle.ServerEvents()
 
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, bundleType))
 					mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 						InputHash:     hash("input"),
 						OutputHash:    wantChecksum1,
@@ -845,7 +851,7 @@ func TestWatchBundle(t *testing.T) {
 					server, counter := startTestServer(t, mockAPIKeySvc, mockWatchSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
 					ctx, cancelFn := context.WithCancel(test.Context(t))
@@ -856,7 +862,7 @@ func TestWatchBundle(t *testing.T) {
 					require.NoError(t, err, "Failed to call RPC")
 					eventStream := handle.ServerEvents()
 
-					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, &bundleType))
+					mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(tc.source, bundleType))
 					mockWatchSvc.respondWithBundleUpdate(bundleInfo(tc.source, &bundlev2.BundleInfo{
 						InputHash:     hash("input"),
 						OutputHash:    wantChecksum1,
@@ -891,7 +897,7 @@ func TestWatchBundle(t *testing.T) {
 					server, _ := startTestServer(t, mockAPIKeySvc, mockBundleSvc)
 					t.Cleanup(server.Close)
 
-					client, _ := mkClient(t, server.URL, server.Certificate(), &bundleType)
+					client, _ := mkClient(t, server.URL, server.Certificate(), bundleType)
 
 					mockAPIKeySvc.EXPECT().
 						IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
@@ -921,26 +927,26 @@ func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
 	}
 }
 
-func mkWatchBundleStartReq(source v2.Source, bundleType *bundlev2.BundleType) *bundlev2.WatchBundleRequest {
+func mkWatchBundleStartReq(source v2.Source, bundleType bundlev2.BundleType) *bundlev2.WatchBundleRequest {
 	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
 		Msg: &bundlev2.WatchBundleRequest_Start_{
 			Start: &bundlev2.WatchBundleRequest_Start{
 				Source:     source.ToProto(),
-				BundleType: bundleType,
+				BundleType: &bundleType,
 			},
 		},
 	}
 }
 
-func mkWatchBundleHeartbeatReq(bundleID string, bundleType *bundlev2.BundleType) *bundlev2.WatchBundleRequest {
+func mkWatchBundleHeartbeatReq(bundleID string, bundleType bundlev2.BundleType) *bundlev2.WatchBundleRequest {
 	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
 		Msg: &bundlev2.WatchBundleRequest_Heartbeat_{
 			Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 				Timestamp:      timestamppb.Now(),
 				ActiveBundleId: bundleID,
-				BundleType:     bundleType,
+				BundleType:     &bundleType,
 			},
 		},
 	}
@@ -948,7 +954,7 @@ func mkWatchBundleHeartbeatReq(bundleID string, bundleType *bundlev2.BundleType)
 
 func TestGetCachedBundle(t *testing.T) {
 	t.Run("NonExistentDeployment", func(t *testing.T) {
-		client, _ := mkClient(t, "https://localhost", nil, nil)
+		client, _ := mkClient(t, "https://localhost", nil, bundlev2.BundleType_BUNDLE_TYPE_LEGACY)
 		_, err := client.GetCachedBundle(v2.DeploymentID(""))
 		require.Error(t, err)
 	})
@@ -970,7 +976,7 @@ func TestNetworkIssues(t *testing.T) {
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate(), nil)
+		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate(), bundlev2.BundleType_BUNDLE_TYPE_LEGACY)
 		ctx, cancelFn := context.WithCancel(test.Context(t))
 		t.Cleanup(cancelFn)
 
@@ -990,7 +996,7 @@ func TestNetworkIssues(t *testing.T) {
 		proxy := mkProxy(t, toxic, server.Listener.Addr().String())
 		t.Cleanup(func() { _ = proxy.Delete() })
 
-		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate(), nil)
+		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate(), bundlev2.BundleType_BUNDLE_TYPE_LEGACY)
 
 		ctx, cancelFn := context.WithCancel(test.Context(t))
 		t.Cleanup(cancelFn)
@@ -1004,7 +1010,7 @@ func TestNetworkIssues(t *testing.T) {
 
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-		mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(source, nil))
+		mockWatchSvc.requireRequestReceived(t, mkWatchBundleStartReq(source, bundlev2.BundleType_BUNDLE_TYPE_LEGACY))
 		mockWatchSvc.respondWithBundleUpdate(bundleInfo(source, &bundlev2.BundleInfo{
 			InputHash:     hash("input"),
 			OutputHash:    wantChecksum,
@@ -1146,7 +1152,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string, cert *x509.Certificate, bundleType *bundlev2.BundleType) (*v2.Client, *credentials.Credentials) {
+func mkClient(t *testing.T, url string, cert *x509.Certificate, bundleType bundlev2.BundleType) (*v2.Client, *credentials.Credentials) {
 	t.Helper()
 
 	tmp := t.TempDir()

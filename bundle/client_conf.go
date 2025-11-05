@@ -13,9 +13,9 @@ import (
 )
 
 type ClientConf struct {
-	BundleType *bundlev2.BundleType
 	CacheDir   string
 	TempDir    string
+	BundleType bundlev2.BundleType
 }
 
 func (cc ClientConf) Validate() (outErr error) {

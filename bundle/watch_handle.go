@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/sourcegraph/conc/pool"
+
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 )
 
 var _ WatchHandle = (*WatchHandleImpl[string])(nil)
@@ -77,6 +79,7 @@ type ServerEvent struct {
 	EncryptionKey    []byte
 	ReconnectBackoff time.Duration
 	Kind             ServerEventKind
+	BundleType       bundlev2.BundleType
 }
 
 // ClientEventKind represents events sent by the client through the watch stream.
