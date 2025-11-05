@@ -208,6 +208,24 @@ func cerbos_cloud_store_v1_File_hashpb_sum(m *File, hasher hash.Hash, ignore map
 	}
 }
 
+func cerbos_cloud_store_v1_GetCurrentVersionRequest_hashpb_sum(m *GetCurrentVersionRequest, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.GetCurrentVersionRequest.store_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetStoreId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetStoreId()), len(m.GetStoreId())))
+	}
+}
+
+func cerbos_cloud_store_v1_GetCurrentVersionResponse_hashpb_sum(m *GetCurrentVersionResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.store.v1.GetCurrentVersionResponse.store_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetStoreVersion())))
+	}
+	if _, ok := ignore["cerbos.cloud.store.v1.GetCurrentVersionResponse.change_details"]; !ok {
+		if m.GetChangeDetails() != nil {
+			cerbos_cloud_store_v1_ChangeDetails_hashpb_sum(m.GetChangeDetails(), hasher, ignore)
+		}
+	}
+}
+
 func cerbos_cloud_store_v1_GetFilesRequest_hashpb_sum(m *GetFilesRequest, hasher hash.Hash, ignore map[string]struct{}) {
 	if _, ok := ignore["cerbos.cloud.store.v1.GetFilesRequest.store_id"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetStoreId()))))

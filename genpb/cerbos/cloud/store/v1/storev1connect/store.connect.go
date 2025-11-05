@@ -39,6 +39,9 @@ const (
 	// CerbosStoreServiceListFilesProcedure is the fully-qualified name of the CerbosStoreService's
 	// ListFiles RPC.
 	CerbosStoreServiceListFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/ListFiles"
+	// CerbosStoreServiceGetCurrentVersionProcedure is the fully-qualified name of the
+	// CerbosStoreService's GetCurrentVersion RPC.
+	CerbosStoreServiceGetCurrentVersionProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/GetCurrentVersion"
 	// CerbosStoreServiceGetFilesProcedure is the fully-qualified name of the CerbosStoreService's
 	// GetFiles RPC.
 	CerbosStoreServiceGetFilesProcedure = "/cerbos.cloud.store.v1.CerbosStoreService/GetFiles"
@@ -53,6 +56,7 @@ const (
 // CerbosStoreServiceClient is a client for the cerbos.cloud.store.v1.CerbosStoreService service.
 type CerbosStoreServiceClient interface {
 	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
+	GetCurrentVersion(context.Context, *connect.Request[v1.GetCurrentVersionRequest]) (*connect.Response[v1.GetCurrentVersionResponse], error)
 	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
 	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
 	ReplaceFiles(context.Context, *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error)
@@ -73,6 +77,13 @@ func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			httpClient,
 			baseURL+CerbosStoreServiceListFilesProcedure,
 			connect.WithSchema(cerbosStoreServiceMethods.ByName("ListFiles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getCurrentVersion: connect.NewClient[v1.GetCurrentVersionRequest, v1.GetCurrentVersionResponse](
+			httpClient,
+			baseURL+CerbosStoreServiceGetCurrentVersionProcedure,
+			connect.WithSchema(cerbosStoreServiceMethods.ByName("GetCurrentVersion")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -100,15 +111,21 @@ func NewCerbosStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // cerbosStoreServiceClient implements CerbosStoreServiceClient.
 type cerbosStoreServiceClient struct {
-	listFiles    *connect.Client[v1.ListFilesRequest, v1.ListFilesResponse]
-	getFiles     *connect.Client[v1.GetFilesRequest, v1.GetFilesResponse]
-	modifyFiles  *connect.Client[v1.ModifyFilesRequest, v1.ModifyFilesResponse]
-	replaceFiles *connect.Client[v1.ReplaceFilesRequest, v1.ReplaceFilesResponse]
+	listFiles         *connect.Client[v1.ListFilesRequest, v1.ListFilesResponse]
+	getCurrentVersion *connect.Client[v1.GetCurrentVersionRequest, v1.GetCurrentVersionResponse]
+	getFiles          *connect.Client[v1.GetFilesRequest, v1.GetFilesResponse]
+	modifyFiles       *connect.Client[v1.ModifyFilesRequest, v1.ModifyFilesResponse]
+	replaceFiles      *connect.Client[v1.ReplaceFilesRequest, v1.ReplaceFilesResponse]
 }
 
 // ListFiles calls cerbos.cloud.store.v1.CerbosStoreService.ListFiles.
 func (c *cerbosStoreServiceClient) ListFiles(ctx context.Context, req *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error) {
 	return c.listFiles.CallUnary(ctx, req)
+}
+
+// GetCurrentVersion calls cerbos.cloud.store.v1.CerbosStoreService.GetCurrentVersion.
+func (c *cerbosStoreServiceClient) GetCurrentVersion(ctx context.Context, req *connect.Request[v1.GetCurrentVersionRequest]) (*connect.Response[v1.GetCurrentVersionResponse], error) {
+	return c.getCurrentVersion.CallUnary(ctx, req)
 }
 
 // GetFiles calls cerbos.cloud.store.v1.CerbosStoreService.GetFiles.
@@ -130,6 +147,7 @@ func (c *cerbosStoreServiceClient) ReplaceFiles(ctx context.Context, req *connec
 // service.
 type CerbosStoreServiceHandler interface {
 	ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error)
+	GetCurrentVersion(context.Context, *connect.Request[v1.GetCurrentVersionRequest]) (*connect.Response[v1.GetCurrentVersionResponse], error)
 	GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error)
 	ModifyFiles(context.Context, *connect.Request[v1.ModifyFilesRequest]) (*connect.Response[v1.ModifyFilesResponse], error)
 	ReplaceFiles(context.Context, *connect.Request[v1.ReplaceFilesRequest]) (*connect.Response[v1.ReplaceFilesResponse], error)
@@ -146,6 +164,13 @@ func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect
 		CerbosStoreServiceListFilesProcedure,
 		svc.ListFiles,
 		connect.WithSchema(cerbosStoreServiceMethods.ByName("ListFiles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosStoreServiceGetCurrentVersionHandler := connect.NewUnaryHandler(
+		CerbosStoreServiceGetCurrentVersionProcedure,
+		svc.GetCurrentVersion,
+		connect.WithSchema(cerbosStoreServiceMethods.ByName("GetCurrentVersion")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -172,6 +197,8 @@ func NewCerbosStoreServiceHandler(svc CerbosStoreServiceHandler, opts ...connect
 		switch r.URL.Path {
 		case CerbosStoreServiceListFilesProcedure:
 			cerbosStoreServiceListFilesHandler.ServeHTTP(w, r)
+		case CerbosStoreServiceGetCurrentVersionProcedure:
+			cerbosStoreServiceGetCurrentVersionHandler.ServeHTTP(w, r)
 		case CerbosStoreServiceGetFilesProcedure:
 			cerbosStoreServiceGetFilesHandler.ServeHTTP(w, r)
 		case CerbosStoreServiceModifyFilesProcedure:
@@ -189,6 +216,10 @@ type UnimplementedCerbosStoreServiceHandler struct{}
 
 func (UnimplementedCerbosStoreServiceHandler) ListFiles(context.Context, *connect.Request[v1.ListFilesRequest]) (*connect.Response[v1.ListFilesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.ListFiles is not implemented"))
+}
+
+func (UnimplementedCerbosStoreServiceHandler) GetCurrentVersion(context.Context, *connect.Request[v1.GetCurrentVersionRequest]) (*connect.Response[v1.GetCurrentVersionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.store.v1.CerbosStoreService.GetCurrentVersion is not implemented"))
 }
 
 func (UnimplementedCerbosStoreServiceHandler) GetFiles(context.Context, *connect.Request[v1.GetFilesRequest]) (*connect.Response[v1.GetFilesResponse], error) {
