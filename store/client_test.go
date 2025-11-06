@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/credentials"
@@ -30,6 +32,7 @@ func TestStoreClient(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("ListFiles", testListFiles(creds))
+	t.Run("GetCurrentVersion", testGetCurrentVersion(creds))
 	t.Run("GetFiles", testGetFiles(creds))
 	t.Run("ModifyFiles", testModifyFiles(creds))
 	t.Run("ReplaceFiles", testReplaceFiles(creds))
@@ -215,6 +218,66 @@ func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1conne
 				require.Equal(t, tc.wantCurrentStoreVersion, haveErr.CurrentStoreVersion)
 			})
 		}
+	}
+}
+
+func testGetCurrentVersion(creds *credentials.Credentials) func(*testing.T) {
+	return func(t *testing.T) {
+		wantReq := &storev1.GetCurrentVersionRequest{
+			StoreId: "B6C0NNZO5VO6",
+		}
+
+		t.Run("Success", func(t *testing.T) {
+			mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
+			storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
+			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{storePath: testserver.LogRequests(t, storeHandler)}, creds)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
+
+			wantResp := &storev1.GetCurrentVersionResponse{
+				StoreVersion: 2,
+				ChangeDetails: &storev1.ChangeDetails{
+					Description: "Change in inevitable",
+					Origin: &storev1.ChangeDetails_Git_{
+						Git: &storev1.ChangeDetails_Git{
+							Repo:       "cerbos/policy",
+							Ref:        "main",
+							Hash:       "f9fd98bc3ef43498215b6b7be0504638cdde7b9a",
+							Committer:  "foo@cerbos.dev",
+							CommitDate: timestamppb.Now(),
+						},
+					},
+					Uploader: &storev1.ChangeDetails_Uploader{
+						Name:     "cerbosctl",
+						Metadata: map[string]*structpb.Value{"version": structpb.NewStringValue("0.41.0")},
+					},
+				},
+			}
+
+			mockStoreSvc.EXPECT().GetCurrentVersion(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.GetCurrentVersionRequest]) bool {
+				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
+			})).Return(connect.NewResponse(wantResp), nil)
+
+			client, err := hub.StoreClient()
+			require.NoError(t, err)
+
+			haveResp, err := client.GetCurrentVersion(test.Context(t), wantReq)
+			require.NoError(t, err)
+			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
+		})
+
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+			mockStoreSvc.EXPECT().GetCurrentVersion(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.GetCurrentVersionRequest]) bool {
+				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
+			})).Return(nil, wantErr)
+
+			_, err := client.GetCurrentVersion(test.Context(t), wantReq)
+			return err
+		}))
+
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+			_, err := c.GetCurrentVersion(test.Context(t), wantReq)
+			return err
+		}))
 	}
 }
 
