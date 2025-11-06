@@ -143,6 +143,15 @@ func (c *Client) ListFiles(ctx context.Context, req *storev1.ListFilesRequest) (
 	return resp.Msg, nil
 }
 
+func (c *Client) GetCurrentVersion(ctx context.Context, req *storev1.GetCurrentVersionRequest) (*storev1.GetCurrentVersionResponse, error) {
+	resp, err := c.rpcClient.GetCurrentVersion(ctx, connect.NewRequest(req))
+	if err != nil {
+		return nil, newRPCError(err)
+	}
+
+	return resp.Msg, nil
+}
+
 func (c *Client) GetFiles(ctx context.Context, req *storev1.GetFilesRequest) (*storev1.GetFilesResponse, error) {
 	resp, err := c.rpcClient.GetFiles(ctx, connect.NewRequest(req))
 	if err != nil {
