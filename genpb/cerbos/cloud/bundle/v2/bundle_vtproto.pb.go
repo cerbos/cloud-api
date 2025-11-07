@@ -178,6 +178,11 @@ func (m *BundleInfo) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.BundleType != nil {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(*m.BundleType))
+		i--
+		dAtA[i] = 0x30
+	}
 	if len(m.Segments) > 0 {
 		for iNdEx := len(m.Segments) - 1; iNdEx >= 0; iNdEx-- {
 			size, err := m.Segments[iNdEx].MarshalToSizedBufferVT(dAtA[:i])
@@ -379,6 +384,11 @@ func (m *GetBundleRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.BundleType != nil {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(*m.BundleType))
+		i--
+		dAtA[i] = 0x18
+	}
 	if m.Source != nil {
 		size, err := m.Source.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
@@ -487,6 +497,11 @@ func (m *WatchBundleRequest_Start) MarshalToSizedBufferVT(dAtA []byte) (int, err
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.BundleType != nil {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(*m.BundleType))
+		i--
+		dAtA[i] = 0x10
+	}
 	if m.Source != nil {
 		size, err := m.Source.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
@@ -529,6 +544,11 @@ func (m *WatchBundleRequest_Heartbeat) MarshalToSizedBufferVT(dAtA []byte) (int,
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
+	}
+	if m.BundleType != nil {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(*m.BundleType))
+		i--
+		dAtA[i] = 0x18
 	}
 	if len(m.ActiveBundleId) > 0 {
 		i -= len(m.ActiveBundleId)
@@ -938,6 +958,9 @@ func (m *BundleInfo) SizeVT() (n int) {
 			n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 		}
 	}
+	if m.BundleType != nil {
+		n += 1 + protohelpers.SizeOfVarint(uint64(*m.BundleType))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -1012,6 +1035,9 @@ func (m *GetBundleRequest) SizeVT() (n int) {
 		l = m.Source.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
+	if m.BundleType != nil {
+		n += 1 + protohelpers.SizeOfVarint(uint64(*m.BundleType))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -1040,6 +1066,9 @@ func (m *WatchBundleRequest_Start) SizeVT() (n int) {
 		l = m.Source.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
+	if m.BundleType != nil {
+		n += 1 + protohelpers.SizeOfVarint(uint64(*m.BundleType))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -1057,6 +1086,9 @@ func (m *WatchBundleRequest_Heartbeat) SizeVT() (n int) {
 	l = len(m.ActiveBundleId)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
+	if m.BundleType != nil {
+		n += 1 + protohelpers.SizeOfVarint(uint64(*m.BundleType))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -1648,6 +1680,26 @@ func (m *BundleInfo) UnmarshalVT(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleType", wireType)
+			}
+			var v BundleType
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= BundleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.BundleType = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -2172,6 +2224,26 @@ func (m *GetBundleRequest) UnmarshalVT(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleType", wireType)
+			}
+			var v BundleType
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= BundleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.BundleType = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -2346,6 +2418,26 @@ func (m *WatchBundleRequest_Start) UnmarshalVT(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleType", wireType)
+			}
+			var v BundleType
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= BundleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.BundleType = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -2465,6 +2557,26 @@ func (m *WatchBundleRequest_Heartbeat) UnmarshalVT(dAtA []byte) error {
 			}
 			m.ActiveBundleId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BundleType", wireType)
+			}
+			var v BundleType
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= BundleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.BundleType = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])

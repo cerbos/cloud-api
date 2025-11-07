@@ -29,6 +29,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type BundleType int32
+
+const (
+	BundleType_BUNDLE_TYPE_UNSPECIFIED BundleType = 0
+	BundleType_BUNDLE_TYPE_LEGACY      BundleType = 1
+	BundleType_BUNDLE_TYPE_RULE_TABLE  BundleType = 2
+)
+
+// Enum value maps for BundleType.
+var (
+	BundleType_name = map[int32]string{
+		0: "BUNDLE_TYPE_UNSPECIFIED",
+		1: "BUNDLE_TYPE_LEGACY",
+		2: "BUNDLE_TYPE_RULE_TABLE",
+	}
+	BundleType_value = map[string]int32{
+		"BUNDLE_TYPE_UNSPECIFIED": 0,
+		"BUNDLE_TYPE_LEGACY":      1,
+		"BUNDLE_TYPE_RULE_TABLE":  2,
+	}
+)
+
+func (x BundleType) Enum() *BundleType {
+	p := new(BundleType)
+	*p = x
+	return p
+}
+
+func (x BundleType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BundleType) Descriptor() protoreflect.EnumDescriptor {
+	return file_cerbos_cloud_bundle_v2_bundle_proto_enumTypes[0].Descriptor()
+}
+
+func (BundleType) Type() protoreflect.EnumType {
+	return &file_cerbos_cloud_bundle_v2_bundle_proto_enumTypes[0]
+}
+
+func (x BundleType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BundleType.Descriptor instead.
+func (BundleType) EnumDescriptor() ([]byte, []int) {
+	return file_cerbos_cloud_bundle_v2_bundle_proto_rawDescGZIP(), []int{0}
+}
+
 type Source struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Source:
@@ -119,6 +168,7 @@ type BundleInfo struct {
 	OutputHash    []byte                 `protobuf:"bytes,3,opt,name=output_hash,json=outputHash,proto3" json:"output_hash,omitempty"`
 	EncryptionKey []byte                 `protobuf:"bytes,4,opt,name=encryption_key,json=encryptionKey,proto3" json:"encryption_key,omitempty"`
 	Segments      []*BundleInfo_Segment  `protobuf:"bytes,5,rep,name=segments,proto3" json:"segments,omitempty"`
+	BundleType    *BundleType            `protobuf:"varint,6,opt,name=bundle_type,json=bundleType,proto3,enum=cerbos.cloud.bundle.v2.BundleType,oneof" json:"bundle_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -186,6 +236,13 @@ func (x *BundleInfo) GetSegments() []*BundleInfo_Segment {
 		return x.Segments
 	}
 	return nil
+}
+
+func (x *BundleInfo) GetBundleType() BundleType {
+	if x != nil && x.BundleType != nil {
+		return *x.BundleType
+	}
+	return BundleType_BUNDLE_TYPE_UNSPECIFIED
 }
 
 type Meta struct {
@@ -312,6 +369,7 @@ type GetBundleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PdpId         *v1.Identifier         `protobuf:"bytes,1,opt,name=pdp_id,json=pdpId,proto3" json:"pdp_id,omitempty"`
 	Source        *Source                `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	BundleType    *BundleType            `protobuf:"varint,3,opt,name=bundle_type,json=bundleType,proto3,enum=cerbos.cloud.bundle.v2.BundleType,oneof" json:"bundle_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -358,6 +416,13 @@ func (x *GetBundleRequest) GetSource() *Source {
 		return x.Source
 	}
 	return nil
+}
+
+func (x *GetBundleRequest) GetBundleType() BundleType {
+	if x != nil && x.BundleType != nil {
+		return *x.BundleType
+	}
+	return BundleType_BUNDLE_TYPE_UNSPECIFIED
 }
 
 type GetBundleResponse struct {
@@ -655,6 +720,7 @@ func (x *BundleInfo_Segment) GetDownloadUrls() []string {
 type WatchBundleRequest_Start struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Source        *Source                `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
+	BundleType    *BundleType            `protobuf:"varint,2,opt,name=bundle_type,json=bundleType,proto3,enum=cerbos.cloud.bundle.v2.BundleType,oneof" json:"bundle_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -696,10 +762,18 @@ func (x *WatchBundleRequest_Start) GetSource() *Source {
 	return nil
 }
 
+func (x *WatchBundleRequest_Start) GetBundleType() BundleType {
+	if x != nil && x.BundleType != nil {
+		return *x.BundleType
+	}
+	return BundleType_BUNDLE_TYPE_UNSPECIFIED
+}
+
 type WatchBundleRequest_Heartbeat struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Timestamp      *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	ActiveBundleId string                 `protobuf:"bytes,2,opt,name=active_bundle_id,json=activeBundleId,proto3" json:"active_bundle_id,omitempty"`
+	BundleType     *BundleType            `protobuf:"varint,3,opt,name=bundle_type,json=bundleType,proto3,enum=cerbos.cloud.bundle.v2.BundleType,oneof" json:"bundle_type,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -746,6 +820,13 @@ func (x *WatchBundleRequest_Heartbeat) GetActiveBundleId() string {
 		return x.ActiveBundleId
 	}
 	return ""
+}
+
+func (x *WatchBundleRequest_Heartbeat) GetBundleType() BundleType {
+	if x != nil && x.BundleType != nil {
+		return *x.BundleType
+	}
+	return BundleType_BUNDLE_TYPE_UNSPECIFIED
 }
 
 type WatchBundleResponse_Reconnect struct {
@@ -844,7 +925,7 @@ const file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc = "" +
 	"\x06Source\x12/\n" +
 	"\rdeployment_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x98\x01\fH\x00R\fdeploymentId\x12/\n" +
 	"\rplayground_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x98\x01\fH\x00R\fplaygroundIdB\x0f\n" +
-	"\x06source\x12\x05\xbaH\x02\b\x01\"\xa7\x03\n" +
+	"\x06source\x12\x05\xbaH\x02\b\x01\"\x8d\x04\n" +
 	"\n" +
 	"BundleInfo\x12>\n" +
 	"\x06source\x18\x01 \x01(\v2\x1e.cerbos.cloud.bundle.v2.SourceB\x06\xbaH\x03\xc8\x01\x01R\x06source\x12&\n" +
@@ -853,13 +934,17 @@ const file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc = "" +
 	"\voutput_hash\x18\x03 \x01(\fB\a\xbaH\x04z\x02h R\n" +
 	"outputHash\x12%\n" +
 	"\x0eencryption_key\x18\x04 \x01(\fR\rencryptionKey\x12P\n" +
-	"\bsegments\x18\x05 \x03(\v2*.cerbos.cloud.bundle.v2.BundleInfo.SegmentB\b\xbaH\x05\x92\x01\x02\b\x01R\bsegments\x1a\x8d\x01\n" +
+	"\bsegments\x18\x05 \x03(\v2*.cerbos.cloud.bundle.v2.BundleInfo.SegmentB\b\xbaH\x05\x92\x01\x02\b\x01R\bsegments\x12T\n" +
+	"\vbundle_type\x18\x06 \x01(\x0e2\".cerbos.cloud.bundle.v2.BundleTypeB\n" +
+	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02H\x00R\n" +
+	"bundleType\x88\x01\x01\x1a\x8d\x01\n" +
 	"\aSegment\x12&\n" +
 	"\n" +
 	"segment_id\x18\x01 \x01(\rB\a\xbaH\x04*\x02 \x00R\tsegmentId\x12#\n" +
 	"\bchecksum\x18\x02 \x01(\fB\a\xbaH\x04z\x02h R\bchecksum\x125\n" +
 	"\rdownload_urls\x18\x03 \x03(\tB\x10\xbaH\r\x92\x01\n" +
-	"\b\x01\x18\x01\"\x04r\x02\x10\x01R\fdownloadUrls\"E\n" +
+	"\b\x01\x18\x01\"\x04r\x02\x10\x01R\fdownloadUrlsB\x0e\n" +
+	"\f_bundle_type\"E\n" +
 	"\x04Meta\x12%\n" +
 	"\tbundle_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x98\x01\x10R\bbundleId\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\"\x8d\x02\n" +
@@ -871,23 +956,35 @@ const file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc = "" +
 	"\x04meta\x18\x04 \x01(\v2\x1c.cerbos.cloud.bundle.v2.MetaR\x04meta\x1a>\n" +
 	"\x10PolicyIndexEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf8\x01\n" +
 	"\x10GetBundleRequest\x12>\n" +
 	"\x06pdp_id\x18\x01 \x01(\v2\x1f.cerbos.cloud.pdp.v1.IdentifierB\x06\xbaH\x03\xc8\x01\x01R\x05pdpId\x12>\n" +
-	"\x06source\x18\x02 \x01(\v2\x1e.cerbos.cloud.bundle.v2.SourceB\x06\xbaH\x03\xc8\x01\x01R\x06source\"`\n" +
+	"\x06source\x18\x02 \x01(\v2\x1e.cerbos.cloud.bundle.v2.SourceB\x06\xbaH\x03\xc8\x01\x01R\x06source\x12T\n" +
+	"\vbundle_type\x18\x03 \x01(\x0e2\".cerbos.cloud.bundle.v2.BundleTypeB\n" +
+	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02H\x00R\n" +
+	"bundleType\x88\x01\x01B\x0e\n" +
+	"\f_bundle_type\"`\n" +
 	"\x11GetBundleResponse\x12K\n" +
 	"\vbundle_info\x18\x01 \x01(\v2\".cerbos.cloud.bundle.v2.BundleInfoB\x06\xbaH\x03\xc8\x01\x01R\n" +
-	"bundleInfo\"\xcf\x03\n" +
+	"bundleInfo\"\x9c\x05\n" +
 	"\x12WatchBundleRequest\x12>\n" +
 	"\x06pdp_id\x18\x01 \x01(\v2\x1f.cerbos.cloud.pdp.v1.IdentifierB\x06\xbaH\x03\xc8\x01\x01R\x05pdpId\x12H\n" +
 	"\x05start\x18\x02 \x01(\v20.cerbos.cloud.bundle.v2.WatchBundleRequest.StartH\x00R\x05start\x12T\n" +
-	"\theartbeat\x18\x03 \x01(\v24.cerbos.cloud.bundle.v2.WatchBundleRequest.HeartbeatH\x00R\theartbeat\x1aG\n" +
+	"\theartbeat\x18\x03 \x01(\v24.cerbos.cloud.bundle.v2.WatchBundleRequest.HeartbeatH\x00R\theartbeat\x1a\xad\x01\n" +
 	"\x05Start\x12>\n" +
-	"\x06source\x18\x01 \x01(\v2\x1e.cerbos.cloud.bundle.v2.SourceB\x06\xbaH\x03\xc8\x01\x01R\x06source\x1a\x88\x01\n" +
+	"\x06source\x18\x01 \x01(\v2\x1e.cerbos.cloud.bundle.v2.SourceB\x06\xbaH\x03\xc8\x01\x01R\x06source\x12T\n" +
+	"\vbundle_type\x18\x02 \x01(\x0e2\".cerbos.cloud.bundle.v2.BundleTypeB\n" +
+	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02H\x00R\n" +
+	"bundleType\x88\x01\x01B\x0e\n" +
+	"\f_bundle_type\x1a\xee\x01\n" +
 	"\tHeartbeat\x12G\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\r\xbaH\n" +
 	"\xc8\x01\x01\xb2\x01\x04J\x02\b<R\ttimestamp\x122\n" +
-	"\x10active_bundle_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x98\x01\x10R\x0eactiveBundleIdB\x05\n" +
+	"\x10active_bundle_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x98\x01\x10R\x0eactiveBundleId\x12T\n" +
+	"\vbundle_type\x18\x03 \x01(\x0e2\".cerbos.cloud.bundle.v2.BundleTypeB\n" +
+	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02H\x00R\n" +
+	"bundleType\x88\x01\x01B\x0e\n" +
+	"\f_bundle_typeB\x05\n" +
 	"\x03msg\"\x94\x03\n" +
 	"\x13WatchBundleResponse\x12I\n" +
 	"\rbundle_update\x18\x01 \x01(\v2\".cerbos.cloud.bundle.v2.BundleInfoH\x00R\fbundleUpdate\x12U\n" +
@@ -897,7 +994,12 @@ const file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc = "" +
 	"\abackoff\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\abackoff\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x1a\x0f\n" +
 	"\rBundleRemovedB\f\n" +
-	"\x03msg\x12\x05\xbaH\x02\b\x012\xfd\x01\n" +
+	"\x03msg\x12\x05\xbaH\x02\b\x01*]\n" +
+	"\n" +
+	"BundleType\x12\x1b\n" +
+	"\x17BUNDLE_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12BUNDLE_TYPE_LEGACY\x10\x01\x12\x1a\n" +
+	"\x16BUNDLE_TYPE_RULE_TABLE\x10\x022\xfd\x01\n" +
 	"\x13CerbosBundleService\x12b\n" +
 	"\tGetBundle\x12(.cerbos.cloud.bundle.v2.GetBundleRequest\x1a).cerbos.cloud.bundle.v2.GetBundleResponse\"\x00\x12l\n" +
 	"\vWatchBundle\x12*.cerbos.cloud.bundle.v2.WatchBundleRequest\x1a+.cerbos.cloud.bundle.v2.WatchBundleResponse\"\x00(\x010\x01\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB\x80\x01\n" +
@@ -915,52 +1017,58 @@ func file_cerbos_cloud_bundle_v2_bundle_proto_rawDescGZIP() []byte {
 	return file_cerbos_cloud_bundle_v2_bundle_proto_rawDescData
 }
 
+var file_cerbos_cloud_bundle_v2_bundle_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_cerbos_cloud_bundle_v2_bundle_proto_goTypes = []any{
-	(*Source)(nil),                            // 0: cerbos.cloud.bundle.v2.Source
-	(*BundleInfo)(nil),                        // 1: cerbos.cloud.bundle.v2.BundleInfo
-	(*Meta)(nil),                              // 2: cerbos.cloud.bundle.v2.Meta
-	(*Manifest)(nil),                          // 3: cerbos.cloud.bundle.v2.Manifest
-	(*GetBundleRequest)(nil),                  // 4: cerbos.cloud.bundle.v2.GetBundleRequest
-	(*GetBundleResponse)(nil),                 // 5: cerbos.cloud.bundle.v2.GetBundleResponse
-	(*WatchBundleRequest)(nil),                // 6: cerbos.cloud.bundle.v2.WatchBundleRequest
-	(*WatchBundleResponse)(nil),               // 7: cerbos.cloud.bundle.v2.WatchBundleResponse
-	(*BundleInfo_Segment)(nil),                // 8: cerbos.cloud.bundle.v2.BundleInfo.Segment
-	nil,                                       // 9: cerbos.cloud.bundle.v2.Manifest.PolicyIndexEntry
-	(*WatchBundleRequest_Start)(nil),          // 10: cerbos.cloud.bundle.v2.WatchBundleRequest.Start
-	(*WatchBundleRequest_Heartbeat)(nil),      // 11: cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat
-	(*WatchBundleResponse_Reconnect)(nil),     // 12: cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect
-	(*WatchBundleResponse_BundleRemoved)(nil), // 13: cerbos.cloud.bundle.v2.WatchBundleResponse.BundleRemoved
-	(*v1.Identifier)(nil),                     // 14: cerbos.cloud.pdp.v1.Identifier
-	(*timestamppb.Timestamp)(nil),             // 15: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),               // 16: google.protobuf.Duration
+	(BundleType)(0),                           // 0: cerbos.cloud.bundle.v2.BundleType
+	(*Source)(nil),                            // 1: cerbos.cloud.bundle.v2.Source
+	(*BundleInfo)(nil),                        // 2: cerbos.cloud.bundle.v2.BundleInfo
+	(*Meta)(nil),                              // 3: cerbos.cloud.bundle.v2.Meta
+	(*Manifest)(nil),                          // 4: cerbos.cloud.bundle.v2.Manifest
+	(*GetBundleRequest)(nil),                  // 5: cerbos.cloud.bundle.v2.GetBundleRequest
+	(*GetBundleResponse)(nil),                 // 6: cerbos.cloud.bundle.v2.GetBundleResponse
+	(*WatchBundleRequest)(nil),                // 7: cerbos.cloud.bundle.v2.WatchBundleRequest
+	(*WatchBundleResponse)(nil),               // 8: cerbos.cloud.bundle.v2.WatchBundleResponse
+	(*BundleInfo_Segment)(nil),                // 9: cerbos.cloud.bundle.v2.BundleInfo.Segment
+	nil,                                       // 10: cerbos.cloud.bundle.v2.Manifest.PolicyIndexEntry
+	(*WatchBundleRequest_Start)(nil),          // 11: cerbos.cloud.bundle.v2.WatchBundleRequest.Start
+	(*WatchBundleRequest_Heartbeat)(nil),      // 12: cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat
+	(*WatchBundleResponse_Reconnect)(nil),     // 13: cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect
+	(*WatchBundleResponse_BundleRemoved)(nil), // 14: cerbos.cloud.bundle.v2.WatchBundleResponse.BundleRemoved
+	(*v1.Identifier)(nil),                     // 15: cerbos.cloud.pdp.v1.Identifier
+	(*timestamppb.Timestamp)(nil),             // 16: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),               // 17: google.protobuf.Duration
 }
 var file_cerbos_cloud_bundle_v2_bundle_proto_depIdxs = []int32{
-	0,  // 0: cerbos.cloud.bundle.v2.BundleInfo.source:type_name -> cerbos.cloud.bundle.v2.Source
-	8,  // 1: cerbos.cloud.bundle.v2.BundleInfo.segments:type_name -> cerbos.cloud.bundle.v2.BundleInfo.Segment
-	9,  // 2: cerbos.cloud.bundle.v2.Manifest.policy_index:type_name -> cerbos.cloud.bundle.v2.Manifest.PolicyIndexEntry
-	2,  // 3: cerbos.cloud.bundle.v2.Manifest.meta:type_name -> cerbos.cloud.bundle.v2.Meta
-	14, // 4: cerbos.cloud.bundle.v2.GetBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
-	0,  // 5: cerbos.cloud.bundle.v2.GetBundleRequest.source:type_name -> cerbos.cloud.bundle.v2.Source
-	1,  // 6: cerbos.cloud.bundle.v2.GetBundleResponse.bundle_info:type_name -> cerbos.cloud.bundle.v2.BundleInfo
-	14, // 7: cerbos.cloud.bundle.v2.WatchBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
-	10, // 8: cerbos.cloud.bundle.v2.WatchBundleRequest.start:type_name -> cerbos.cloud.bundle.v2.WatchBundleRequest.Start
-	11, // 9: cerbos.cloud.bundle.v2.WatchBundleRequest.heartbeat:type_name -> cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat
-	1,  // 10: cerbos.cloud.bundle.v2.WatchBundleResponse.bundle_update:type_name -> cerbos.cloud.bundle.v2.BundleInfo
-	12, // 11: cerbos.cloud.bundle.v2.WatchBundleResponse.reconnect:type_name -> cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect
-	13, // 12: cerbos.cloud.bundle.v2.WatchBundleResponse.bundle_removed:type_name -> cerbos.cloud.bundle.v2.WatchBundleResponse.BundleRemoved
-	0,  // 13: cerbos.cloud.bundle.v2.WatchBundleRequest.Start.source:type_name -> cerbos.cloud.bundle.v2.Source
-	15, // 14: cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat.timestamp:type_name -> google.protobuf.Timestamp
-	16, // 15: cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect.backoff:type_name -> google.protobuf.Duration
-	4,  // 16: cerbos.cloud.bundle.v2.CerbosBundleService.GetBundle:input_type -> cerbos.cloud.bundle.v2.GetBundleRequest
-	6,  // 17: cerbos.cloud.bundle.v2.CerbosBundleService.WatchBundle:input_type -> cerbos.cloud.bundle.v2.WatchBundleRequest
-	5,  // 18: cerbos.cloud.bundle.v2.CerbosBundleService.GetBundle:output_type -> cerbos.cloud.bundle.v2.GetBundleResponse
-	7,  // 19: cerbos.cloud.bundle.v2.CerbosBundleService.WatchBundle:output_type -> cerbos.cloud.bundle.v2.WatchBundleResponse
-	18, // [18:20] is the sub-list for method output_type
-	16, // [16:18] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	1,  // 0: cerbos.cloud.bundle.v2.BundleInfo.source:type_name -> cerbos.cloud.bundle.v2.Source
+	9,  // 1: cerbos.cloud.bundle.v2.BundleInfo.segments:type_name -> cerbos.cloud.bundle.v2.BundleInfo.Segment
+	0,  // 2: cerbos.cloud.bundle.v2.BundleInfo.bundle_type:type_name -> cerbos.cloud.bundle.v2.BundleType
+	10, // 3: cerbos.cloud.bundle.v2.Manifest.policy_index:type_name -> cerbos.cloud.bundle.v2.Manifest.PolicyIndexEntry
+	3,  // 4: cerbos.cloud.bundle.v2.Manifest.meta:type_name -> cerbos.cloud.bundle.v2.Meta
+	15, // 5: cerbos.cloud.bundle.v2.GetBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	1,  // 6: cerbos.cloud.bundle.v2.GetBundleRequest.source:type_name -> cerbos.cloud.bundle.v2.Source
+	0,  // 7: cerbos.cloud.bundle.v2.GetBundleRequest.bundle_type:type_name -> cerbos.cloud.bundle.v2.BundleType
+	2,  // 8: cerbos.cloud.bundle.v2.GetBundleResponse.bundle_info:type_name -> cerbos.cloud.bundle.v2.BundleInfo
+	15, // 9: cerbos.cloud.bundle.v2.WatchBundleRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	11, // 10: cerbos.cloud.bundle.v2.WatchBundleRequest.start:type_name -> cerbos.cloud.bundle.v2.WatchBundleRequest.Start
+	12, // 11: cerbos.cloud.bundle.v2.WatchBundleRequest.heartbeat:type_name -> cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat
+	2,  // 12: cerbos.cloud.bundle.v2.WatchBundleResponse.bundle_update:type_name -> cerbos.cloud.bundle.v2.BundleInfo
+	13, // 13: cerbos.cloud.bundle.v2.WatchBundleResponse.reconnect:type_name -> cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect
+	14, // 14: cerbos.cloud.bundle.v2.WatchBundleResponse.bundle_removed:type_name -> cerbos.cloud.bundle.v2.WatchBundleResponse.BundleRemoved
+	1,  // 15: cerbos.cloud.bundle.v2.WatchBundleRequest.Start.source:type_name -> cerbos.cloud.bundle.v2.Source
+	0,  // 16: cerbos.cloud.bundle.v2.WatchBundleRequest.Start.bundle_type:type_name -> cerbos.cloud.bundle.v2.BundleType
+	16, // 17: cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat.timestamp:type_name -> google.protobuf.Timestamp
+	0,  // 18: cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat.bundle_type:type_name -> cerbos.cloud.bundle.v2.BundleType
+	17, // 19: cerbos.cloud.bundle.v2.WatchBundleResponse.Reconnect.backoff:type_name -> google.protobuf.Duration
+	5,  // 20: cerbos.cloud.bundle.v2.CerbosBundleService.GetBundle:input_type -> cerbos.cloud.bundle.v2.GetBundleRequest
+	7,  // 21: cerbos.cloud.bundle.v2.CerbosBundleService.WatchBundle:input_type -> cerbos.cloud.bundle.v2.WatchBundleRequest
+	6,  // 22: cerbos.cloud.bundle.v2.CerbosBundleService.GetBundle:output_type -> cerbos.cloud.bundle.v2.GetBundleResponse
+	8,  // 23: cerbos.cloud.bundle.v2.CerbosBundleService.WatchBundle:output_type -> cerbos.cloud.bundle.v2.WatchBundleResponse
+	22, // [22:24] is the sub-list for method output_type
+	20, // [20:22] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_bundle_v2_bundle_proto_init() }
@@ -972,6 +1080,8 @@ func file_cerbos_cloud_bundle_v2_bundle_proto_init() {
 		(*Source_DeploymentId)(nil),
 		(*Source_PlaygroundId)(nil),
 	}
+	file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes[1].OneofWrappers = []any{}
+	file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes[4].OneofWrappers = []any{}
 	file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes[6].OneofWrappers = []any{
 		(*WatchBundleRequest_Start_)(nil),
 		(*WatchBundleRequest_Heartbeat_)(nil),
@@ -981,18 +1091,21 @@ func file_cerbos_cloud_bundle_v2_bundle_proto_init() {
 		(*WatchBundleResponse_Reconnect_)(nil),
 		(*WatchBundleResponse_BundleRemoved_)(nil),
 	}
+	file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes[10].OneofWrappers = []any{}
+	file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc), len(file_cerbos_cloud_bundle_v2_bundle_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_cerbos_cloud_bundle_v2_bundle_proto_goTypes,
 		DependencyIndexes: file_cerbos_cloud_bundle_v2_bundle_proto_depIdxs,
+		EnumInfos:         file_cerbos_cloud_bundle_v2_bundle_proto_enumTypes,
 		MessageInfos:      file_cerbos_cloud_bundle_v2_bundle_proto_msgTypes,
 	}.Build()
 	File_cerbos_cloud_bundle_v2_bundle_proto = out.File

@@ -32,6 +32,7 @@ type Client struct {
 	rpcClient bundlev2connect.CerbosBundleServiceClient
 	cache     *clientcache.ClientCache
 	base.Client
+	bundleType bundlev2.BundleType
 }
 
 func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
@@ -46,31 +47,32 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 
 	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
 	return &Client{
-		Client:    baseClient,
-		rpcClient: bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
-		cache:     c,
+		Client:     baseClient,
+		rpcClient:  bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
+		cache:      c,
+		bundleType: conf.BundleType,
 	}, nil
 }
 
-func (c *Client) BootstrapBundle(ctx context.Context, source Source) (string, []byte, error) {
+func (c *Client) BootstrapBundle(ctx context.Context, source Source) (string, bundlev2.BundleType, []byte, error) {
 	log := c.Logger.WithValues("source", source.String())
 
 	log.V(1).Info("Getting bootstrap bundle response")
 
-	urlPath, err := source.bootstrapBundleURLPath(c.Credentials)
+	urlPath, err := source.bootstrapBundleURLPath(c.Credentials, c.bundleType)
 	if err != nil {
-		return "", nil, err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
 	bundleResponseURL, err := url.JoinPath(c.BootstrapEndpoint, urlPath)
 	if err != nil {
-		return "", nil, fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
 	}
 
 	bundleResponse, err := c.getBundleResponseViaCDN(ctx, bundleResponseURL)
 	if err != nil {
 		log.Error(err, "Failed to download bootstrap bundle response")
-		return "", nil, err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
 	log.Info("Bootstrap bundle response downloaded")
@@ -78,10 +80,10 @@ func (c *Client) BootstrapBundle(ctx context.Context, source Source) (string, []
 
 	path, err := c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
 	if err != nil {
-		return "", nil, err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
-	return path, bundleResponse.BundleInfo.EncryptionKey, nil
+	return path, bundleResponse.GetBundleInfo().GetBundleType(), bundleResponse.BundleInfo.EncryptionKey, nil
 }
 
 func (c *Client) getBundleResponseViaCDN(ctx context.Context, url string) (*bundlev2.GetBundleResponse, error) {
@@ -140,24 +142,24 @@ func (c *Client) parseBundleResponse(bundleResponseBytes []byte) (*bundlev2.GetB
 }
 
 // GetBundle returns the path to the bundle with the given label.
-func (c *Client) GetBundle(ctx context.Context, source Source) (string, []byte, error) {
+func (c *Client) GetBundle(ctx context.Context, source Source) (string, bundlev2.BundleType, []byte, error) {
 	log := c.Logger.WithValues("source", source.String())
 	log.V(1).Info("Calling GetBundle RPC")
 
-	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{PdpId: c.PDPIdentifier, Source: source.ToProto()}))
+	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{PdpId: c.PDPIdentifier, Source: source.ToProto(), BundleType: &c.bundleType}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
-		return "", nil, err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
 
 	path, err := c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
 	if err != nil {
-		return "", nil, err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
-	return path, resp.Msg.BundleInfo.EncryptionKey, nil
+	return path, resp.Msg.GetBundleInfo().GetBundleType(), resp.Msg.BundleInfo.EncryptionKey, nil
 }
 
 func (c *Client) WatchBundle(ctx context.Context, source Source) (bundle.WatchHandle, error) {
@@ -272,7 +274,12 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 					return err
 				}
 
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath, EncryptionKey: m.BundleUpdate.EncryptionKey}); err != nil {
+				if err := publishWatchEvent(bundle.ServerEvent{
+					Kind:          bundle.ServerEventNewBundle,
+					NewBundlePath: bundlePath,
+					EncryptionKey: m.BundleUpdate.EncryptionKey,
+					BundleType:    m.BundleUpdate.GetBundleType(),
+				}); err != nil {
 					return err
 				}
 
@@ -375,7 +382,8 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.Wa
 			PdpId: c.PDPIdentifier,
 			Msg: &bundlev2.WatchBundleRequest_Start_{
 				Start: &bundlev2.WatchBundleRequest_Start{
-					Source: wh.Source.ToProto(),
+					Source:     wh.Source.ToProto(),
+					BundleType: &c.bundleType,
 				},
 			},
 		}); err != nil {
@@ -391,6 +399,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.Wa
 					Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 						Timestamp:      timestamppb.Now(),
 						ActiveBundleId: activeBundleID,
+						BundleType:     &c.bundleType,
 					},
 				},
 			}); err != nil {

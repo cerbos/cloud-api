@@ -59,6 +59,9 @@ func cerbos_cloud_bundle_v2_BundleInfo_hashpb_sum(m *BundleInfo, hasher hash.Has
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.bundle.v2.BundleInfo.bundle_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetBundleType())))
+	}
 }
 
 func cerbos_cloud_bundle_v2_GetBundleRequest_hashpb_sum(m *GetBundleRequest, hasher hash.Hash, ignore map[string]struct{}) {
@@ -71,6 +74,9 @@ func cerbos_cloud_bundle_v2_GetBundleRequest_hashpb_sum(m *GetBundleRequest, has
 		if m.GetSource() != nil {
 			cerbos_cloud_bundle_v2_Source_hashpb_sum(m.GetSource(), hasher, ignore)
 		}
+	}
+	if _, ok := ignore["cerbos.cloud.bundle.v2.GetBundleRequest.bundle_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetBundleType())))
 	}
 }
 
@@ -148,6 +154,9 @@ func cerbos_cloud_bundle_v2_WatchBundleRequest_Heartbeat_hashpb_sum(m *WatchBund
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetActiveBundleId()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetActiveBundleId()), len(m.GetActiveBundleId())))
 	}
+	if _, ok := ignore["cerbos.cloud.bundle.v2.WatchBundleRequest.Heartbeat.bundle_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetBundleType())))
+	}
 }
 
 func cerbos_cloud_bundle_v2_WatchBundleRequest_Start_hashpb_sum(m *WatchBundleRequest_Start, hasher hash.Hash, ignore map[string]struct{}) {
@@ -155,6 +164,9 @@ func cerbos_cloud_bundle_v2_WatchBundleRequest_Start_hashpb_sum(m *WatchBundleRe
 		if m.GetSource() != nil {
 			cerbos_cloud_bundle_v2_Source_hashpb_sum(m.GetSource(), hasher, ignore)
 		}
+	}
+	if _, ok := ignore["cerbos.cloud.bundle.v2.WatchBundleRequest.Start.bundle_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetBundleType())))
 	}
 }
 
