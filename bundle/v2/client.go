@@ -29,10 +29,10 @@ import (
 )
 
 type Client struct {
-	rpcClient  bundlev2connect.CerbosBundleServiceClient
-	cache      *clientcache.ClientCache
-	bundleType bundlev2.BundleType
+	rpcClient bundlev2connect.CerbosBundleServiceClient
+	cache     *clientcache.ClientCache
 	base.Client
+	bundleType bundlev2.BundleType
 }
 
 func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
