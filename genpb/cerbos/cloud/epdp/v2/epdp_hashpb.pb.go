@@ -47,3 +47,19 @@ func (m *Metadata) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 		cerbos_cloud_epdp_v2_Metadata_hashpb_sum(m, hasher, ignore)
 	}
 }
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *CheckResourcesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_epdp_v2_CheckResourcesResponse_hashpb_sum(m, hasher, ignore)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *PlanResourcesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		cerbos_cloud_epdp_v2_PlanResourcesResponse_hashpb_sum(m, hasher, ignore)
+	}
+}
