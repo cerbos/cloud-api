@@ -5,6 +5,7 @@ structname: "{{.InterfaceName}}"
 template: testify
 template-data:
   boilerplate-file: hack/copyright_header.txt
+include-auto-generated: true
 packages:
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect:
     interfaces:
