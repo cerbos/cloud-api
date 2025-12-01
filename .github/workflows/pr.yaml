@@ -24,8 +24,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - name: Install just
-        uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3
+      - name: Set up just
+        uses: extractions/setup-crate@4993624604c307fbca528d28a3c8b60fa5ecc859 # v1
+        with:
+          repo: casey/just
 
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
@@ -53,14 +55,16 @@ jobs:
           go-version: 1.25.x
           check-latest: true
 
-      - name: Install just
-        uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3
+      - name: Set up just
+        uses: extractions/setup-crate@4993624604c307fbca528d28a3c8b60fa5ecc859 # v1
+        with:
+          repo: casey/just
 
       - name: modernize
         run: just lint-modernize
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9.0.0
+        uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
         with:
           version: latest
           args: "--config=.golangci.yaml --fix"
