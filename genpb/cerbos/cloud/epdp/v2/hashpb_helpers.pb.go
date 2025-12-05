@@ -10,6 +10,7 @@ import (
 	v13 "github.com/cerbos/cerbos/api/genpb/cerbos/response/v1"
 	v14 "github.com/cerbos/cerbos/api/genpb/cerbos/schema/v1"
 	protowire "google.golang.org/protobuf/encoding/protowire"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
@@ -30,6 +31,28 @@ func cerbos_audit_v1_AuditTrail_hashpb_sum(m *v1.AuditTrail, hasher hash.Hash, i
 				}
 			}
 		}
+	}
+}
+
+func cerbos_cloud_epdp_v2_Bundle_Metadata_hashpb_sum(m *Bundle_Metadata, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.Bundle.Metadata.bundle_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetBundleId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetBundleId()), len(m.GetBundleId())))
+	}
+	if _, ok := ignore["cerbos.cloud.epdp.v2.Bundle.Metadata.rule_revision"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetRuleRevision())))
+	}
+}
+
+func cerbos_cloud_epdp_v2_Bundle_hashpb_sum(m *Bundle, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.Bundle.metadata"]; !ok {
+		if m.GetMetadata() != nil {
+			cerbos_cloud_epdp_v2_Bundle_Metadata_hashpb_sum(m.GetMetadata(), hasher, ignore)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.epdp.v2.Bundle.contents"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetContents()))))
+		_, _ = hasher.Write(m.GetContents())
 	}
 }
 
@@ -93,6 +116,43 @@ func cerbos_cloud_epdp_v2_Error_hashpb_sum(m *Error, hasher hash.Hash, ignore ma
 	if _, ok := ignore["cerbos.cloud.epdp.v2.Error.message"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetMessage()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetMessage()), len(m.GetMessage())))
+	}
+}
+
+func cerbos_cloud_epdp_v2_GetBundleRequest_hashpb_sum(m *GetBundleRequest, hasher hash.Hash, ignore map[string]struct{}) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.GetBundleRequest.rule_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetRuleId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRuleId()), len(m.GetRuleId())))
+	}
+	if _, ok := ignore["cerbos.cloud.epdp.v2.GetBundleRequest.scopes"]; !ok {
+		if len(m.Scopes) > 0 {
+			for _, v := range m.Scopes {
+				_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.epdp.v2.GetBundleRequest.if_modified_since"]; !ok {
+		if m.GetIfModifiedSince() != nil {
+			cerbos_cloud_epdp_v2_Bundle_Metadata_hashpb_sum(m.GetIfModifiedSince(), hasher, ignore)
+		}
+	}
+}
+
+func cerbos_cloud_epdp_v2_GetBundleResponse_hashpb_sum(m *GetBundleResponse, hasher hash.Hash, ignore map[string]struct{}) {
+	if m.Result != nil {
+		if _, ok := ignore["cerbos.cloud.epdp.v2.GetBundleResponse.result"]; !ok {
+			switch t := m.Result.(type) {
+			case *GetBundleResponse_Bundle:
+				if t.Bundle != nil {
+					cerbos_cloud_epdp_v2_Bundle_hashpb_sum(t.Bundle, hasher, ignore)
+				}
+			case *GetBundleResponse_NotModified:
+				if t.NotModified != nil {
+					google_protobuf_Empty_hashpb_sum(t.NotModified, hasher, ignore)
+				}
+			}
+		}
 	}
 }
 
@@ -397,6 +457,9 @@ func cerbos_schema_v1_ValidationError_hashpb_sum(m *v14.ValidationError, hasher 
 	if _, ok := ignore["cerbos.schema.v1.ValidationError.source"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(m.GetSource())))
 	}
+}
+
+func google_protobuf_Empty_hashpb_sum(m *emptypb.Empty, hasher hash.Hash, ignore map[string]struct{}) {
 }
 
 func google_protobuf_ListValue_hashpb_sum(m *structpb.ListValue, hasher hash.Hash, ignore map[string]struct{}) {
