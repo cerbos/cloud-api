@@ -559,6 +559,7 @@ type Config_Evaluator struct {
 	Globals              map[string]*structpb.Value `protobuf:"bytes,1,rep,name=globals,proto3" json:"globals,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DefaultPolicyVersion string                     `protobuf:"bytes,2,opt,name=default_policy_version,json=defaultPolicyVersion,proto3" json:"default_policy_version,omitempty"`
 	LenientScopeSearch   bool                       `protobuf:"varint,3,opt,name=lenient_scope_search,json=lenientScopeSearch,proto3" json:"lenient_scope_search,omitempty"`
+	DefaultScope         bool                       `protobuf:"varint,4,opt,name=default_scope,json=defaultScope,proto3" json:"default_scope,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -610,6 +611,13 @@ func (x *Config_Evaluator) GetDefaultPolicyVersion() string {
 func (x *Config_Evaluator) GetLenientScopeSearch() bool {
 	if x != nil {
 		return x.LenientScopeSearch
+	}
+	return false
+}
+
+func (x *Config_Evaluator) GetDefaultScope() bool {
+	if x != nil {
+		return x.DefaultScope
 	}
 	return false
 }
@@ -714,14 +722,15 @@ var File_cerbos_cloud_epdp_v2_epdp_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_epdp_v2_epdp_proto_rawDesc = "" +
 	"\n" +
-	"\x1fcerbos/cloud/epdp/v2/epdp.proto\x12\x14cerbos.cloud.epdp.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a!cerbos/response/v1/response.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x15google/rpc/code.proto\"\xf2\x04\n" +
+	"\x1fcerbos/cloud/epdp/v2/epdp.proto\x12\x14cerbos.cloud.epdp.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a!cerbos/response/v1/response.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x15google/rpc/code.proto\"\x97\x05\n" +
 	"\x06Config\x12D\n" +
 	"\tevaluator\x18\x01 \x01(\v2&.cerbos.cloud.epdp.v2.Config.EvaluatorR\tevaluator\x12;\n" +
-	"\x06schema\x18\x02 \x01(\v2#.cerbos.cloud.epdp.v2.Config.SchemaR\x06schema\x1a\x96\x02\n" +
+	"\x06schema\x18\x02 \x01(\v2#.cerbos.cloud.epdp.v2.Config.SchemaR\x06schema\x1a\xbb\x02\n" +
 	"\tEvaluator\x12M\n" +
 	"\aglobals\x18\x01 \x03(\v23.cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntryR\aglobals\x124\n" +
 	"\x16default_policy_version\x18\x02 \x01(\tR\x14defaultPolicyVersion\x120\n" +
-	"\x14lenient_scope_search\x18\x03 \x01(\bR\x12lenientScopeSearch\x1aR\n" +
+	"\x14lenient_scope_search\x18\x03 \x01(\bR\x12lenientScopeSearch\x12#\n" +
+	"\rdefault_scope\x18\x04 \x01(\bR\fdefaultScope\x1aR\n" +
 	"\fGlobalsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a\xcb\x01\n" +
