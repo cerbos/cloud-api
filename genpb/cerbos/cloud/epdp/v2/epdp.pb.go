@@ -559,7 +559,7 @@ type Config_Evaluator struct {
 	Globals              map[string]*structpb.Value `protobuf:"bytes,1,rep,name=globals,proto3" json:"globals,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DefaultPolicyVersion string                     `protobuf:"bytes,2,opt,name=default_policy_version,json=defaultPolicyVersion,proto3" json:"default_policy_version,omitempty"`
 	LenientScopeSearch   bool                       `protobuf:"varint,3,opt,name=lenient_scope_search,json=lenientScopeSearch,proto3" json:"lenient_scope_search,omitempty"`
-	DefaultScope         bool                       `protobuf:"varint,4,opt,name=default_scope,json=defaultScope,proto3" json:"default_scope,omitempty"`
+	DefaultScope         string                     `protobuf:"bytes,4,opt,name=default_scope,json=defaultScope,proto3" json:"default_scope,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -615,11 +615,11 @@ func (x *Config_Evaluator) GetLenientScopeSearch() bool {
 	return false
 }
 
-func (x *Config_Evaluator) GetDefaultScope() bool {
+func (x *Config_Evaluator) GetDefaultScope() string {
 	if x != nil {
 		return x.DefaultScope
 	}
-	return false
+	return ""
 }
 
 type Config_Schema struct {
@@ -730,7 +730,7 @@ const file_cerbos_cloud_epdp_v2_epdp_proto_rawDesc = "" +
 	"\aglobals\x18\x01 \x03(\v23.cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntryR\aglobals\x124\n" +
 	"\x16default_policy_version\x18\x02 \x01(\tR\x14defaultPolicyVersion\x120\n" +
 	"\x14lenient_scope_search\x18\x03 \x01(\bR\x12lenientScopeSearch\x12#\n" +
-	"\rdefault_scope\x18\x04 \x01(\bR\fdefaultScope\x1aR\n" +
+	"\rdefault_scope\x18\x04 \x01(\tR\fdefaultScope\x1aR\n" +
 	"\fGlobalsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a\xcb\x01\n" +

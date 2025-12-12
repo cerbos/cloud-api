@@ -89,7 +89,8 @@ func cerbos_cloud_epdp_v2_Config_Evaluator_hashpb_sum(m *Config_Evaluator, hashe
 		_, _ = hasher.Write(protowire.AppendVarint(nil, protowire.EncodeBool(m.GetLenientScopeSearch())))
 	}
 	if _, ok := ignore["cerbos.cloud.epdp.v2.Config.Evaluator.default_scope"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(nil, protowire.EncodeBool(m.GetDefaultScope())))
+		_, _ = hasher.Write(protowire.AppendVarint(nil, uint64(len(m.GetDefaultScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetDefaultScope()), len(m.GetDefaultScope())))
 	}
 }
 
