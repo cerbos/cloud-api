@@ -10,7 +10,7 @@ require (
 	connectrpc.com/otelconnect v0.8.0
 	filippo.io/age v1.2.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
-	github.com/cerbos/cerbos/api/genpb v0.49.0
+	github.com/cerbos/cerbos/api/genpb v0.50.0
 	github.com/failsafe-go/failsafe-go v0.9.4
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
@@ -24,8 +24,8 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.46.0
 	golang.org/x/net v0.48.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20251213004720-97cd9d5aeac2
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2
+	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b
 	google.golang.org/protobuf v1.36.11
 )
 
