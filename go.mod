@@ -7,7 +7,7 @@ require (
 	buf.build/go/protovalidate v1.1.0
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/grpcreflect v1.3.0
-	connectrpc.com/otelconnect v0.8.0
+	connectrpc.com/otelconnect v0.9.0
 	filippo.io/age v1.3.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.50.0
