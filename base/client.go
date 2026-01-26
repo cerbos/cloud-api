@@ -34,6 +34,7 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 		return c, opts, fmt.Errorf("failed to create otel interceptor: %w", err)
 	}
 
+	//nolint:prealloc
 	opts = []connect.ClientOption{
 		connect.WithSendGzip(),
 		connect.WithCompressMinBytes(1024),
