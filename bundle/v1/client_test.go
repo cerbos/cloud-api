@@ -989,7 +989,7 @@ func startToxiProxy(t *testing.T) *toxiclient.Client {
 			return false
 		}
 
-		resp, err := hc.Do(req)
+		resp, err := hc.Do(req) //nolint:gosec
 		if err != nil {
 			return false
 		}

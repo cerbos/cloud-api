@@ -94,7 +94,7 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 	}
 
 	log.V(1).Info("Sending download request")
-	resp, err := c.HTTPClient.Do(req)
+	resp, err := c.HTTPClient.Do(req) //nolint:gosec
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
 		return nil, fmt.Errorf("failed to send download request: %w", err)
@@ -534,7 +534,7 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 	}
 
 	log.V(1).Info("Sending download request")
-	resp, err := c.HTTPClient.Do(req)
+	resp, err := c.HTTPClient.Do(req) //nolint:gosec
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
 		if r.Size() > 1 && attempt < bundle.MaxDownloadAttempts {
