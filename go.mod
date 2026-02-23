@@ -1,10 +1,10 @@
 module github.com/cerbos/cloud-api
 
-go 1.24.0
+go 1.25.0
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1
-	buf.build/go/protovalidate v1.1.1
+	buf.build/go/protovalidate v1.1.2
 	connectrpc.com/connect v1.19.1
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/otelconnect v0.9.0
@@ -24,8 +24,8 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.48.0
 	golang.org/x/net v0.50.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20260209200024-4cfbd4190f57
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260209200024-4cfbd4190f57
+	google.golang.org/genproto/googleapis/api v0.0.0-20260217215200-42d3e9bedb6d
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260217215200-42d3e9bedb6d
 	google.golang.org/protobuf v1.36.11
 )
 

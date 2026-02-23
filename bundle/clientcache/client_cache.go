@@ -58,7 +58,7 @@ func (c *ClientCache) Add(cacheKey cache.ActionID, in io.Reader) (string, []byte
 	}
 	defer func() {
 		_ = outFile.Close()
-		_ = os.Remove(outFile.Name())
+		_ = os.Remove(outFile.Name()) //nolint:gosec
 	}()
 
 	sum := sha256.New()
