@@ -41,6 +41,8 @@ generate-proto-code: _buf
         cd {{ tools_mod_dir }}
         "${TOOLS_BIN_DIR}/buf" generate --template=buf.gen.yaml --output=..
     )
+    hack/scripts/remove-unused-protobuf-imports.sh
+    go mod tidy
 
 lint: lint-modernize _golangcilint _buf
     @ "${TOOLS_BIN_DIR}/golangci-lint" run --config=.golangci.yaml --fix
