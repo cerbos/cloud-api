@@ -32,7 +32,7 @@ type Credentials struct {
 	recipient    string
 	WorkspaceID  string
 	ClientID     string
-	ClientSecret string //nolint:gosec
+	ClientSecret string
 	BootstrapKey []byte
 }
 

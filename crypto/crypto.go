@@ -1,7 +1,7 @@
 // Copyright 2021-2026 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-package crypto //nolint:revive
+package crypto
 
 import (
 	"fmt"
