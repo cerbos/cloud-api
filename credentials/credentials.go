@@ -33,6 +33,7 @@ type Credentials struct {
 	WorkspaceID  string
 	ClientID     string
 	ClientSecret string
+	DeviceToken  string
 	BootstrapKey []byte
 }
 
@@ -68,6 +69,12 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 		ClientSecret: clientSecret,
 		BootstrapKey: bootstrapKey,
 	}, nil
+}
+
+func NewFromDeviceToken(token string) *Credentials {
+	return &Credentials{
+		DeviceToken: token,
+	}
 }
 
 func (c *Credentials) Encrypt(dst io.Writer) (io.WriteCloser, error) {
