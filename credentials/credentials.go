@@ -13,6 +13,7 @@ import (
 
 	"filippo.io/age"
 	"github.com/minio/sha256-simd"
+	"golang.org/x/oauth2"
 
 	"github.com/cerbos/cloud-api/crypto"
 )
@@ -27,13 +28,19 @@ var (
 	ErrInvalidPrivateKey  = errors.New("invalid private key")
 )
 
+type Source interface {
+	oauth2.TokenSource
+	BootstrapKey() ([]byte, error)
+}
+
 type Credentials struct {
 	identity     *age.X25519Identity
 	recipient    string
 	WorkspaceID  string
+	Source       Source
 	ClientID     string
 	ClientSecret string
-	DeviceToken  string
+	TokenSource  oauth2.TokenSource
 	BootstrapKey []byte
 }
 
@@ -71,9 +78,9 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 	}, nil
 }
 
-func NewFromDeviceToken(token string) *Credentials {
+func NewFromTokenSource(tokenSource oauth2.TokenSource) *Credentials {
 	return &Credentials{
-		DeviceToken: token,
+		TokenSource: tokenSource,
 	}
 }
 

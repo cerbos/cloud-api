@@ -20,6 +20,7 @@ message DeviceToken {
   string access_token = 2 [(buf.validate.field).string.min_len = 1];
   string refresh_token = 3;
   google.protobuf.Timestamp expiry = 4;
+  string token_type = 5;
 }
 
 message SavedCredentials {

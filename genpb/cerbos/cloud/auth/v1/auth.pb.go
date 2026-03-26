@@ -83,6 +83,7 @@ type DeviceToken struct {
 	AccessToken   string                 `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	Expiry        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expiry,proto3" json:"expiry,omitempty"`
+	TokenType     string                 `protobuf:"bytes,5,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -143,6 +144,13 @@ func (x *DeviceToken) GetExpiry() *timestamppb.Timestamp {
 		return x.Expiry
 	}
 	return nil
+}
+
+func (x *DeviceToken) GetTokenType() string {
+	if x != nil {
+		return x.TokenType
+	}
+	return ""
 }
 
 type SavedCredentials struct {
@@ -242,13 +250,15 @@ const file_cerbos_cloud_auth_v1_auth_proto_rawDesc = "" +
 	"\x1fcerbos/cloud/auth/v1/auth.proto\x12\x14cerbos.cloud.auth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
 	"\x11ClientCredentials\x12$\n" +
 	"\tclient_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bclientId\x12,\n" +
-	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\xbc\x01\n" +
+	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\xdb\x01\n" +
 	"\vDeviceToken\x12(\n" +
 	"\vdevice_code\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\n" +
 	"deviceCode\x12*\n" +
 	"\faccess_token\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x122\n" +
-	"\x06expiry\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06expiry\"\xf7\x01\n" +
+	"\x06expiry\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06expiry\x12\x1d\n" +
+	"\n" +
+	"token_type\x18\x05 \x01(\tR\ttokenType\"\xf7\x01\n" +
 	"\x10SavedCredentials\x12+\n" +
 	"\fapi_endpoint\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x80\x02\x01R\vapiEndpoint\x12X\n" +
 	"\x12client_credentials\x18\x02 \x01(\v2'.cerbos.cloud.auth.v1.ClientCredentialsH\x00R\x11clientCredentials\x12F\n" +

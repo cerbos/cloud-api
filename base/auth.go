@@ -5,6 +5,7 @@ package base
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -18,6 +19,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/jdx/go-netrc"
 	"golang.org/x/oauth2"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
@@ -45,8 +47,8 @@ type tokenSetter interface {
 }
 
 func newTokenSetter(conf ClientConf, httpClient *http.Client, clientOptions ...connect.ClientOption) tokenSetter {
-	if conf.Credentials.DeviceToken != "" {
-		return newDeviceTokenSetter(conf.Credentials.DeviceToken)
+	if conf.Credentials.TokenSource != nil {
+		return newDeviceTokenSetter(conf.Credentials.TokenSource)
 	}
 
 	return newAPIKeySetter(conf, httpClient, clientOptions...)
@@ -141,19 +143,33 @@ func (a *apiKeyTokenSetter) currentAccessToken() (string, bool) {
 	return a.accessToken, a.accessToken != "" && a.expiresAt.After(time.Now())
 }
 
-func newDeviceTokenSetter(accessToken string) *deviceTokenSetter {
+func newDeviceTokenSetter(tokenSource oauth2.TokenSource) *deviceTokenSetter {
 	return &deviceTokenSetter{
-		accessToken: accessToken,
+		tokenSource: tokenSource,
 	}
 }
 
 type deviceTokenSetter struct {
-	accessToken string
+	tokenSource oauth2.TokenSource
 }
 
 func (d *deviceTokenSetter) SetHeader(_ context.Context, headers http.Header) error {
-	headers.Set(AuthTokenHeader, d.accessToken)
+	token, err := d.tokenSource.Token()
+	if err != nil {
+		return err
+	}
+	headers.Set(AuthTokenHeader, token.AccessToken)
 	return nil
+}
+
+func DeviceTokenSource(ctx context.Context, authURL, tokenURL, clientID string, deviceToken *authv1.DeviceToken) oauth2.TokenSource {
+	config := makeOauthConfig(authURL, tokenURL, clientID)
+	return config.TokenSource(ctx, &oauth2.Token{
+		AccessToken:  deviceToken.GetAccessToken(),
+		RefreshToken: deviceToken.GetRefreshToken(),
+		Expiry:       deviceToken.GetExpiry().AsTime(),
+		TokenType:    deviceToken.GetTokenType(),
+	})
 }
 
 func GetSavedCredentials(apiEndpoint string) (*authv1.SavedCredentials, error) {
@@ -175,12 +191,20 @@ func GetSavedCredentials(apiEndpoint string) (*authv1.SavedCredentials, error) {
 	login := m.Get("login")
 	password := m.Get("password")
 	if login == "device" {
+		deviceTokenBytes, err := base64.StdEncoding.DecodeString(password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode token: %w", err)
+		}
+
+		deviceToken := &authv1.DeviceToken{}
+		if err := proto.Unmarshal(deviceTokenBytes, deviceToken); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal device token: %w", err)
+		}
+
 		return &authv1.SavedCredentials{
 			ApiEndpoint: apiEndpoint,
 			Credentials: &authv1.SavedCredentials_DeviceToken{
-				DeviceToken: &authv1.DeviceToken{
-					AccessToken: password,
-				},
+				DeviceToken: deviceToken,
 			},
 		}, nil
 	}
@@ -196,16 +220,10 @@ func GetSavedCredentials(apiEndpoint string) (*authv1.SavedCredentials, error) {
 	}, nil
 }
 
-func DeviceLogin(ctx context.Context, apiEndpoint, authURL, clientID string) error {
-	config := &oauth2.Config{
-		ClientID: clientID,
-		Scopes:   []string{"openid"},
-		Endpoint: oauth2.Endpoint{
-			DeviceAuthURL: authURL,
-		},
-	}
+func DeviceLogin(ctx context.Context, apiEndpoint, authURL, tokenURL, clientID, audience string) error {
+	config := makeOauthConfig(authURL, tokenURL, clientID)
 	verifier := oauth2.GenerateVerifier()
-	response, err := config.DeviceAuth(ctx, oauth2.S256ChallengeOption(verifier))
+	response, err := config.DeviceAuth(ctx, oauth2.S256ChallengeOption(verifier), oauth2.SetAuthURLParam("audience", audience))
 	if err != nil {
 		return fmt.Errorf("failed to start auth flow: %w", err)
 	}
@@ -223,9 +241,21 @@ func DeviceLogin(ctx context.Context, apiEndpoint, authURL, clientID string) err
 				AccessToken:  token.AccessToken,
 				RefreshToken: token.RefreshToken,
 				Expiry:       timestamppb.New(token.Expiry),
+				TokenType:    token.Type(),
 			},
 		},
 	})
+}
+
+func makeOauthConfig(authURL, tokenURL, clientID string) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID: clientID,
+		Scopes:   []string{"offline_access"},
+		Endpoint: oauth2.Endpoint{
+			DeviceAuthURL: authURL,
+			TokenURL:      tokenURL,
+		},
+	}
 }
 
 func ClientLogin(ctx context.Context, apiEndpoint, clientID, clientSecret string) error {
@@ -253,7 +283,12 @@ func SaveCredentials(creds *authv1.SavedCredentials) error {
 	case *authv1.SavedCredentials_ClientCredentials:
 		return writeNetrc(creds.GetApiEndpoint(), c.ClientCredentials.GetClientId(), c.ClientCredentials.GetClientSecret())
 	case *authv1.SavedCredentials_DeviceToken:
-		return writeNetrc(creds.GetApiEndpoint(), "device", c.DeviceToken.GetAccessToken())
+		deviceTokenBytes, err := proto.Marshal(c.DeviceToken)
+		if err != nil {
+			return fmt.Errorf("failed to marshal device token: %w", err)
+		}
+		deviceTokenEncoded := base64.StdEncoding.EncodeToString(deviceTokenBytes)
+		return writeNetrc(creds.GetApiEndpoint(), "device", deviceTokenEncoded)
 	default:
 		return fmt.Errorf("unknown credential type %T", c)
 	}

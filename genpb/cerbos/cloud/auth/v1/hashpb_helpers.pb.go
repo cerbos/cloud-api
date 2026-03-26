@@ -64,6 +64,10 @@ func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *DeviceToken, hasher hash.Has
 			google_protobuf_Timestamp_hashpb_sum(m.GetExpiry(), hasher, ignore, b)
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.token_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTokenType()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTokenType()), len(m.GetTokenType())))
+	}
 }
 
 func cerbos_cloud_auth_v1_SavedCredentials_hashpb_sum(m *SavedCredentials, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
