@@ -16,6 +16,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/cerbos/cloud-api/crypto"
+	authv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
 )
 
 const (
@@ -34,14 +35,14 @@ type Source interface {
 }
 
 type Credentials struct {
-	identity     *age.X25519Identity
-	recipient    string
-	WorkspaceID  string
-	Source       Source
-	ClientID     string
-	ClientSecret string
-	TokenSource  oauth2.TokenSource
-	BootstrapKey []byte
+	identity         *age.X25519Identity
+	recipient        string
+	WorkspaceID      string
+	Source           Source
+	ClientID         string
+	ClientSecret     string
+	SavedCredentials *authv1.SavedCredentials
+	BootstrapKey     []byte
 }
 
 func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
@@ -78,9 +79,16 @@ func New(clientID, clientSecret, privateKey string) (*Credentials, error) {
 	}, nil
 }
 
-func NewFromTokenSource(tokenSource oauth2.TokenSource) *Credentials {
-	return &Credentials{
-		TokenSource: tokenSource,
+func NewFromSavedCredentials(credentials *authv1.SavedCredentials) (*Credentials, error) {
+	switch c := credentials.GetCredentials().(type) {
+	case *authv1.SavedCredentials_ClientCredentials:
+		// We don't need to update the refresh token in storage if the saved credentials are just client ID and client secret.
+		// Hence why saved client ID and client secret are treated as they were supplied through the environment.
+		return New(c.ClientCredentials.GetClientId(), c.ClientCredentials.GetClientSecret(), "")
+	case *authv1.SavedCredentials_DeviceToken:
+		return &Credentials{SavedCredentials: credentials}, nil
+	default:
+		return nil, fmt.Errorf("unknown saved credentials type %T", c)
 	}
 }
 

@@ -4,20 +4,21 @@
 package base_test
 
 import (
-	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
+	"github.com/zalando/go-keyring"
 	"google.golang.org/protobuf/testing/protocmp"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/cerbos/cloud-api/base"
 	authv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
 )
 
 func TestSaveAndLoadCredentials(t *testing.T) {
-	tempDir := t.TempDir()
-	t.Setenv("NETRC", filepath.Join(tempDir, ".netrc"))
+	keyring.MockInit()
 
 	t.Run("ClientCredentials", func(t *testing.T) {
 		want := &authv1.SavedCredentials{
@@ -38,16 +39,19 @@ func TestSaveAndLoadCredentials(t *testing.T) {
 
 	t.Run("DeviceToken", func(t *testing.T) {
 		want := &authv1.SavedCredentials{
-			ApiEndpoint: "https://api.example.com",
+			ApiEndpoint: "https://device.example.com",
 			Credentials: &authv1.SavedCredentials_DeviceToken{
 				DeviceToken: &authv1.DeviceToken{
-					AccessToken: "access",
+					AccessToken:  "access",
+					RefreshToken: "refresh",
+					ExpiresIn:    durationpb.New(30 * time.Minute),
+					TokenType:    "Bearer",
 				},
 			},
 		}
 
 		require.NoError(t, base.SaveCredentials(want))
-		have, err := base.GetSavedCredentials("https://api.example.com")
+		have, err := base.GetSavedCredentials("https://device.example.com")
 		require.NoError(t, err)
 		require.Empty(t, cmp.Diff(want, have, protocmp.Transform()))
 	})

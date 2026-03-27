@@ -7,9 +7,9 @@ package authv1
 import (
 	fmt "fmt"
 	protohelpers "github.com/planetscale/vtprotobuf/protohelpers"
-	timestamppb "github.com/planetscale/vtprotobuf/types/known/timestamppb"
+	durationpb "github.com/planetscale/vtprotobuf/types/known/durationpb"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb1 "google.golang.org/protobuf/types/known/timestamppb"
+	durationpb1 "google.golang.org/protobuf/types/known/durationpb"
 	io "io"
 )
 
@@ -102,36 +102,29 @@ func (m *DeviceToken) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.TokenType)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.TokenType)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
-	if m.Expiry != nil {
-		size, err := (*timestamppb.Timestamp)(m.Expiry).MarshalToSizedBufferVT(dAtA[:i])
+	if m.ExpiresIn != nil {
+		size, err := (*durationpb.Duration)(m.ExpiresIn).MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
 		i -= size
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.RefreshToken) > 0 {
 		i -= len(m.RefreshToken)
 		copy(dAtA[i:], m.RefreshToken)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.RefreshToken)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if len(m.AccessToken) > 0 {
 		i -= len(m.AccessToken)
 		copy(dAtA[i:], m.AccessToken)
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.AccessToken)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.DeviceCode) > 0 {
-		i -= len(m.DeviceCode)
-		copy(dAtA[i:], m.DeviceCode)
-		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.DeviceCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -257,10 +250,6 @@ func (m *DeviceToken) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.DeviceCode)
-	if l > 0 {
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
-	}
 	l = len(m.AccessToken)
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
@@ -269,8 +258,8 @@ func (m *DeviceToken) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.Expiry != nil {
-		l = (*timestamppb.Timestamp)(m.Expiry).SizeVT()
+	if m.ExpiresIn != nil {
+		l = (*durationpb.Duration)(m.ExpiresIn).SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	l = len(m.TokenType)
@@ -472,38 +461,6 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DeviceCode", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protohelpers.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DeviceCode = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AccessToken", wireType)
 			}
 			var stringLen uint64
@@ -534,7 +491,7 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 			}
 			m.AccessToken = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RefreshToken", wireType)
 			}
@@ -566,9 +523,9 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 			}
 			m.RefreshToken = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Expiry", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpiresIn", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -595,14 +552,14 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Expiry == nil {
-				m.Expiry = &timestamppb1.Timestamp{}
+			if m.ExpiresIn == nil {
+				m.ExpiresIn = &durationpb1.Duration{}
 			}
-			if err := (*timestamppb.Timestamp)(m.Expiry).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if err := (*durationpb.Duration)(m.ExpiresIn).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TokenType", wireType)
 			}

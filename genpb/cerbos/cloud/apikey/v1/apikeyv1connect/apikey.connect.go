@@ -39,11 +39,19 @@ const (
 	// ApiKeyServiceIssueAccessTokenProcedure is the fully-qualified name of the ApiKeyService's
 	// IssueAccessToken RPC.
 	ApiKeyServiceIssueAccessTokenProcedure = "/cerbos.cloud.apikey.v1.ApiKeyService/IssueAccessToken"
+	// ApiKeyServiceRegisterDeviceProcedure is the fully-qualified name of the ApiKeyService's
+	// RegisterDevice RPC.
+	ApiKeyServiceRegisterDeviceProcedure = "/cerbos.cloud.apikey.v1.ApiKeyService/RegisterDevice"
+	// ApiKeyServiceRefreshDeviceTokenProcedure is the fully-qualified name of the ApiKeyService's
+	// RefreshDeviceToken RPC.
+	ApiKeyServiceRefreshDeviceTokenProcedure = "/cerbos.cloud.apikey.v1.ApiKeyService/RefreshDeviceToken"
 )
 
 // ApiKeyServiceClient is a client for the cerbos.cloud.apikey.v1.ApiKeyService service.
 type ApiKeyServiceClient interface {
 	IssueAccessToken(context.Context, *connect.Request[v1.IssueAccessTokenRequest]) (*connect.Response[v1.IssueAccessTokenResponse], error)
+	RegisterDevice(context.Context, *connect.Request[v1.RegisterDeviceRequest]) (*connect.ServerStreamForClient[v1.RegisterDeviceResponse], error)
+	RefreshDeviceToken(context.Context, *connect.Request[v1.RefreshDeviceTokenRequest]) (*connect.Response[v1.RefreshDeviceTokenResponse], error)
 }
 
 // NewApiKeyServiceClient constructs a client for the cerbos.cloud.apikey.v1.ApiKeyService service.
@@ -63,12 +71,26 @@ func NewApiKeyServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(apiKeyServiceMethods.ByName("IssueAccessToken")),
 			connect.WithClientOptions(opts...),
 		),
+		registerDevice: connect.NewClient[v1.RegisterDeviceRequest, v1.RegisterDeviceResponse](
+			httpClient,
+			baseURL+ApiKeyServiceRegisterDeviceProcedure,
+			connect.WithSchema(apiKeyServiceMethods.ByName("RegisterDevice")),
+			connect.WithClientOptions(opts...),
+		),
+		refreshDeviceToken: connect.NewClient[v1.RefreshDeviceTokenRequest, v1.RefreshDeviceTokenResponse](
+			httpClient,
+			baseURL+ApiKeyServiceRefreshDeviceTokenProcedure,
+			connect.WithSchema(apiKeyServiceMethods.ByName("RefreshDeviceToken")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // apiKeyServiceClient implements ApiKeyServiceClient.
 type apiKeyServiceClient struct {
-	issueAccessToken *connect.Client[v1.IssueAccessTokenRequest, v1.IssueAccessTokenResponse]
+	issueAccessToken   *connect.Client[v1.IssueAccessTokenRequest, v1.IssueAccessTokenResponse]
+	registerDevice     *connect.Client[v1.RegisterDeviceRequest, v1.RegisterDeviceResponse]
+	refreshDeviceToken *connect.Client[v1.RefreshDeviceTokenRequest, v1.RefreshDeviceTokenResponse]
 }
 
 // IssueAccessToken calls cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken.
@@ -76,9 +98,21 @@ func (c *apiKeyServiceClient) IssueAccessToken(ctx context.Context, req *connect
 	return c.issueAccessToken.CallUnary(ctx, req)
 }
 
+// RegisterDevice calls cerbos.cloud.apikey.v1.ApiKeyService.RegisterDevice.
+func (c *apiKeyServiceClient) RegisterDevice(ctx context.Context, req *connect.Request[v1.RegisterDeviceRequest]) (*connect.ServerStreamForClient[v1.RegisterDeviceResponse], error) {
+	return c.registerDevice.CallServerStream(ctx, req)
+}
+
+// RefreshDeviceToken calls cerbos.cloud.apikey.v1.ApiKeyService.RefreshDeviceToken.
+func (c *apiKeyServiceClient) RefreshDeviceToken(ctx context.Context, req *connect.Request[v1.RefreshDeviceTokenRequest]) (*connect.Response[v1.RefreshDeviceTokenResponse], error) {
+	return c.refreshDeviceToken.CallUnary(ctx, req)
+}
+
 // ApiKeyServiceHandler is an implementation of the cerbos.cloud.apikey.v1.ApiKeyService service.
 type ApiKeyServiceHandler interface {
 	IssueAccessToken(context.Context, *connect.Request[v1.IssueAccessTokenRequest]) (*connect.Response[v1.IssueAccessTokenResponse], error)
+	RegisterDevice(context.Context, *connect.Request[v1.RegisterDeviceRequest], *connect.ServerStream[v1.RegisterDeviceResponse]) error
+	RefreshDeviceToken(context.Context, *connect.Request[v1.RefreshDeviceTokenRequest]) (*connect.Response[v1.RefreshDeviceTokenResponse], error)
 }
 
 // NewApiKeyServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -94,10 +128,26 @@ func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(apiKeyServiceMethods.ByName("IssueAccessToken")),
 		connect.WithHandlerOptions(opts...),
 	)
+	apiKeyServiceRegisterDeviceHandler := connect.NewServerStreamHandler(
+		ApiKeyServiceRegisterDeviceProcedure,
+		svc.RegisterDevice,
+		connect.WithSchema(apiKeyServiceMethods.ByName("RegisterDevice")),
+		connect.WithHandlerOptions(opts...),
+	)
+	apiKeyServiceRefreshDeviceTokenHandler := connect.NewUnaryHandler(
+		ApiKeyServiceRefreshDeviceTokenProcedure,
+		svc.RefreshDeviceToken,
+		connect.WithSchema(apiKeyServiceMethods.ByName("RefreshDeviceToken")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/cerbos.cloud.apikey.v1.ApiKeyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ApiKeyServiceIssueAccessTokenProcedure:
 			apiKeyServiceIssueAccessTokenHandler.ServeHTTP(w, r)
+		case ApiKeyServiceRegisterDeviceProcedure:
+			apiKeyServiceRegisterDeviceHandler.ServeHTTP(w, r)
+		case ApiKeyServiceRefreshDeviceTokenProcedure:
+			apiKeyServiceRefreshDeviceTokenHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +159,12 @@ type UnimplementedApiKeyServiceHandler struct{}
 
 func (UnimplementedApiKeyServiceHandler) IssueAccessToken(context.Context, *connect.Request[v1.IssueAccessTokenRequest]) (*connect.Response[v1.IssueAccessTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken is not implemented"))
+}
+
+func (UnimplementedApiKeyServiceHandler) RegisterDevice(context.Context, *connect.Request[v1.RegisterDeviceRequest], *connect.ServerStream[v1.RegisterDeviceResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.apikey.v1.ApiKeyService.RegisterDevice is not implemented"))
+}
+
+func (UnimplementedApiKeyServiceHandler) RefreshDeviceToken(context.Context, *connect.Request[v1.RefreshDeviceTokenRequest]) (*connect.Response[v1.RefreshDeviceTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.apikey.v1.ApiKeyService.RefreshDeviceToken is not implemented"))
 }

@@ -73,10 +73,10 @@ func (uas uaStreamingClientConn) RequestHeader() http.Header {
 }
 
 type authInterceptor struct {
-	tokenSetter tokenSetter
+	tokenSetter *tokenSetter
 }
 
-func newAuthInterceptor(tokenSetter tokenSetter) authInterceptor {
+func newAuthInterceptor(tokenSetter *tokenSetter) authInterceptor {
 	return authInterceptor{tokenSetter: tokenSetter}
 }
 
