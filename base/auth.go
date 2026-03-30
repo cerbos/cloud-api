@@ -55,10 +55,10 @@ func newTokenSetter(conf ClientConf, httpClient *http.Client, clientOptions ...c
 	}
 }
 
-func (a *tokenSetter) SetHeader(ctx context.Context, headers http.Header) error {
-	accessToken, err := a.authenticate(ctx)
+func (ts *tokenSetter) SetHeader(ctx context.Context, headers http.Header) error {
+	accessToken, err := ts.authenticate(ctx)
 	if err != nil {
-		a.logger.V(1).Error(err, "Failed to authenticate")
+		ts.logger.V(1).Error(err, "Failed to authenticate")
 		return err
 	}
 
@@ -66,71 +66,79 @@ func (a *tokenSetter) SetHeader(ctx context.Context, headers http.Header) error 
 	return nil
 }
 
-func (a *tokenSetter) authenticate(ctx context.Context) (string, error) {
-	a.mutex.RLock()
-	if a.invalidCredentials {
-		a.mutex.RUnlock()
-		a.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
+func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
+	ts.mutex.RLock()
+	if ts.invalidCredentials {
+		ts.mutex.RUnlock()
+		ts.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
 		return "", ErrAuthenticationFailed
 	}
-	accessToken, ok := a.currentAccessToken()
-	a.mutex.RUnlock()
+	accessToken, ok := ts.currentAccessToken()
+	ts.mutex.RUnlock()
 	if ok {
-		a.logger.V(4).Info("Using existing token")
+		ts.logger.V(4).Info("Using existing token")
 		return accessToken, nil
 	}
 
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
+	ts.mutex.Lock()
+	defer ts.mutex.Unlock()
 
-	if a.invalidCredentials {
-		a.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
+	if ts.invalidCredentials {
+		ts.logger.V(4).Info("Short-circuiting auth because credentials are invalid")
 		return "", ErrAuthenticationFailed
 	}
 
-	accessToken, ok = a.currentAccessToken()
+	accessToken, ok = ts.currentAccessToken()
 	if ok {
-		a.logger.V(4).Info("Using existing token")
+		ts.logger.V(4).Info("Using existing token")
 		return accessToken, nil
 	}
 
-	a.logger.V(4).Info("Obtaining new access token")
+	ts.logger.V(4).Info("Obtaining new access token")
 	var expiresIn time.Duration
 	var err error
-	if a.savedCredentials != nil {
+	//nolint:nestif
+	if ts.savedCredentials != nil {
 		// Saved credentials can only be device tokens. See credentials/credentials.go:86.
-		var response *connect.Response[apikeyv1.RefreshDeviceTokenResponse]
-		response, err = a.apiKeyClient.RefreshDeviceToken(ctx, connect.NewRequest(&apikeyv1.RefreshDeviceTokenRequest{
-			DeviceToken: a.savedCredentials.GetDeviceToken(),
-		}))
-		if err == nil {
-			a.accessToken = response.Msg.GetDeviceToken().GetAccessToken()
-			a.savedCredentials = &authv1.SavedCredentials{
-				ApiEndpoint: a.savedCredentials.GetApiEndpoint(),
-				Credentials: &authv1.SavedCredentials_DeviceToken{
-					DeviceToken: response.Msg.GetDeviceToken(),
-				},
+		deviceToken := ts.savedCredentials.GetDeviceToken()
+		nowUTC := time.Now().UTC()
+		expiryUTC := deviceToken.GetIssuedAtUtc().AsTime().Add(deviceToken.GetExpiresIn().AsDuration())
+		if expiryUTC.Add(-earlyExpiry).After(nowUTC) {
+			expiresIn = expiryUTC.Sub(nowUTC)
+		} else {
+			var response *connect.Response[apikeyv1.RefreshDeviceTokenResponse]
+			response, err = ts.apiKeyClient.RefreshDeviceToken(ctx, connect.NewRequest(&apikeyv1.RefreshDeviceTokenRequest{
+				DeviceToken: ts.savedCredentials.GetDeviceToken(),
+			}))
+			if err == nil {
+				ts.accessToken = response.Msg.GetDeviceToken().GetAccessToken()
+				ts.savedCredentials = &authv1.SavedCredentials{
+					ApiEndpoint: ts.savedCredentials.GetApiEndpoint(),
+					Credentials: &authv1.SavedCredentials_DeviceToken{
+						DeviceToken: response.Msg.GetDeviceToken(),
+					},
+				}
+				expiresIn = ts.savedCredentials.GetDeviceToken().GetExpiresIn().AsDuration()
+				// Refresh token rotates so we need to save it.
+				_ = SaveCredentials(ts.savedCredentials)
 			}
-			expiresIn = a.savedCredentials.GetDeviceToken().GetExpiresIn().AsDuration()
-			// Refresh token rotates so we need to save it.
-			_ = SaveCredentials(a.savedCredentials)
 		}
 	} else {
 		var response *connect.Response[apikeyv1.IssueAccessTokenResponse]
-		response, err = a.apiKeyClient.IssueAccessToken(ctx, connect.NewRequest(&apikeyv1.IssueAccessTokenRequest{
-			ClientId:     a.clientID,
-			ClientSecret: a.clientSecret,
+		response, err = ts.apiKeyClient.IssueAccessToken(ctx, connect.NewRequest(&apikeyv1.IssueAccessTokenRequest{
+			ClientId:     ts.clientID,
+			ClientSecret: ts.clientSecret,
 		}))
 		if err == nil {
-			a.accessToken = response.Msg.GetAccessToken()
+			ts.accessToken = response.Msg.GetAccessToken()
 			expiresIn = response.Msg.ExpiresIn.AsDuration()
 		}
 	}
 
 	if err != nil {
-		a.logger.V(1).Error(err, "Failed to authenticate")
+		ts.logger.V(1).Error(err, "Failed to authenticate")
 		if connect.CodeOf(err) == connect.CodeUnauthenticated {
-			a.invalidCredentials = true
+			ts.invalidCredentials = true
 			return "", ErrAuthenticationFailed
 		}
 		return "", fmt.Errorf("failed to authenticate: %w", err)
@@ -140,14 +148,14 @@ func (a *tokenSetter) authenticate(ctx context.Context) (string, error) {
 		expiresIn -= earlyExpiry
 	}
 
-	a.expiresAt = time.Now().Add(expiresIn)
-	a.logger.V(4).Info("Obtained new access token")
+	ts.expiresAt = time.Now().Add(expiresIn)
+	ts.logger.V(4).Info("Obtained new access token")
 
-	return a.accessToken, nil
+	return ts.accessToken, nil
 }
 
-func (a *tokenSetter) currentAccessToken() (string, bool) {
-	return a.accessToken, a.accessToken != "" && a.expiresAt.After(time.Now())
+func (ts *tokenSetter) currentAccessToken() (string, bool) {
+	return ts.accessToken, ts.accessToken != "" && ts.expiresAt.After(time.Now())
 }
 
 func DeviceLogin(ctx context.Context, apiEndpoint string, tlsConf *tls.Config) error {
