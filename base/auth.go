@@ -108,7 +108,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 		} else {
 			var response *connect.Response[apikeyv1.RefreshDeviceTokenResponse]
 			response, err = ts.apiKeyClient.RefreshDeviceToken(ctx, connect.NewRequest(&apikeyv1.RefreshDeviceTokenRequest{
-				DeviceToken: ts.savedCredentials.GetDeviceToken(),
+				DeviceToken: deviceToken,
 			}))
 			if err == nil {
 				ts.accessToken = response.Msg.GetDeviceToken().GetAccessToken()

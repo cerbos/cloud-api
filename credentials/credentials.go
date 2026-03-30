@@ -13,7 +13,6 @@ import (
 
 	"filippo.io/age"
 	"github.com/minio/sha256-simd"
-	"golang.org/x/oauth2"
 
 	"github.com/cerbos/cloud-api/crypto"
 	authv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
@@ -29,16 +28,10 @@ var (
 	ErrInvalidPrivateKey  = errors.New("invalid private key")
 )
 
-type Source interface {
-	oauth2.TokenSource
-	BootstrapKey() ([]byte, error)
-}
-
 type Credentials struct {
 	identity         *age.X25519Identity
 	recipient        string
 	WorkspaceID      string
-	Source           Source
 	ClientID         string
 	ClientSecret     string
 	SavedCredentials *authv1.SavedCredentials
