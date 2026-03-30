@@ -36,13 +36,13 @@ var (
 type tokenSetter struct {
 	expiresAt          time.Time
 	apiKeyClient       apikeyv1connect.ApiKeyServiceClient
+	savedCredentials   *authv1.SavedCredentials
 	logger             logr.Logger
 	accessToken        string
 	clientID           string
 	clientSecret       string
-	savedCredentials   *authv1.SavedCredentials
-	invalidCredentials bool
 	mutex              sync.RWMutex
+	invalidCredentials bool
 }
 
 func newTokenSetter(conf ClientConf, httpClient *http.Client, clientOptions ...connect.ClientOption) *tokenSetter {
@@ -183,6 +183,7 @@ func startDeviceRegistrationFlow(ctx context.Context, apiEndpoint string, tlsCon
 						RefreshToken: m.DeviceToken.GetRefreshToken(),
 						ExpiresIn:    m.DeviceToken.GetExpiresIn(),
 						TokenType:    m.DeviceToken.GetTokenType(),
+						IssuedAtUtc:  m.DeviceToken.GetIssuedAtUtc(),
 					},
 				},
 			}, nil

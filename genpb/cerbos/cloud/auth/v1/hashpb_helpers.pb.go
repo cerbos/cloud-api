@@ -6,6 +6,7 @@ package authv1
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sync "sync"
 	unsafe "unsafe"
@@ -64,6 +65,11 @@ func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *DeviceToken, hasher hash.Has
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTokenType()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTokenType()), len(m.GetTokenType())))
 	}
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.issued_at_utc"]; !ok {
+		if m.GetIssuedAtUtc() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetIssuedAtUtc(), hasher, ignore, b)
+		}
+	}
 }
 
 func cerbos_cloud_auth_v1_SavedCredentials_hashpb_sum(m *SavedCredentials, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
@@ -92,6 +98,15 @@ func google_protobuf_Duration_hashpb_sum(m *durationpb.Duration, hasher hash.Has
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
 	}
 	if _, ok := ignore["google.protobuf.Duration.nanos"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
+	}
+}
+
+func google_protobuf_Timestamp_hashpb_sum(m *timestamppb.Timestamp, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["google.protobuf.Timestamp.seconds"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
+	}
+	if _, ok := ignore["google.protobuf.Timestamp.nanos"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
 	}
 }
