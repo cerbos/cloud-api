@@ -104,6 +104,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 		nowUTC := time.Now().UTC()
 		expiryUTC := deviceToken.GetIssuedAtUtc().AsTime().Add(deviceToken.GetExpiresIn().AsDuration())
 		if expiryUTC.Add(-earlyExpiry).After(nowUTC) {
+			ts.accessToken = deviceToken.GetAccessToken()
 			expiresIn = expiryUTC.Sub(nowUTC)
 		} else {
 			var response *connect.Response[apikeyv1.RefreshDeviceTokenResponse]
