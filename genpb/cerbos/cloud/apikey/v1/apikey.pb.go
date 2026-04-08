@@ -10,6 +10,7 @@
 package apikeyv1
 
 import (
+	v1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -129,20 +130,237 @@ func (x *IssueAccessTokenResponse) GetExpiresIn() *durationpb.Duration {
 	return nil
 }
 
+type RegisterDeviceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterDeviceRequest) Reset() {
+	*x = RegisterDeviceRequest{}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterDeviceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterDeviceRequest) ProtoMessage() {}
+
+func (x *RegisterDeviceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterDeviceRequest.ProtoReflect.Descriptor instead.
+func (*RegisterDeviceRequest) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_apikey_v1_apikey_proto_rawDescGZIP(), []int{2}
+}
+
+type RegisterDeviceResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Message:
+	//
+	//	*RegisterDeviceResponse_VerificationUrl
+	//	*RegisterDeviceResponse_DeviceToken
+	Message       isRegisterDeviceResponse_Message `protobuf_oneof:"message"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterDeviceResponse) Reset() {
+	*x = RegisterDeviceResponse{}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterDeviceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterDeviceResponse) ProtoMessage() {}
+
+func (x *RegisterDeviceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterDeviceResponse.ProtoReflect.Descriptor instead.
+func (*RegisterDeviceResponse) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_apikey_v1_apikey_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RegisterDeviceResponse) GetMessage() isRegisterDeviceResponse_Message {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
+func (x *RegisterDeviceResponse) GetVerificationUrl() string {
+	if x != nil {
+		if x, ok := x.Message.(*RegisterDeviceResponse_VerificationUrl); ok {
+			return x.VerificationUrl
+		}
+	}
+	return ""
+}
+
+func (x *RegisterDeviceResponse) GetDeviceToken() *v1.DeviceToken {
+	if x != nil {
+		if x, ok := x.Message.(*RegisterDeviceResponse_DeviceToken); ok {
+			return x.DeviceToken
+		}
+	}
+	return nil
+}
+
+type isRegisterDeviceResponse_Message interface {
+	isRegisterDeviceResponse_Message()
+}
+
+type RegisterDeviceResponse_VerificationUrl struct {
+	VerificationUrl string `protobuf:"bytes,1,opt,name=verification_url,json=verificationUrl,proto3,oneof"`
+}
+
+type RegisterDeviceResponse_DeviceToken struct {
+	DeviceToken *v1.DeviceToken `protobuf:"bytes,2,opt,name=device_token,json=deviceToken,proto3,oneof"`
+}
+
+func (*RegisterDeviceResponse_VerificationUrl) isRegisterDeviceResponse_Message() {}
+
+func (*RegisterDeviceResponse_DeviceToken) isRegisterDeviceResponse_Message() {}
+
+type RefreshDeviceTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceToken   *v1.DeviceToken        `protobuf:"bytes,1,opt,name=device_token,json=deviceToken,proto3" json:"device_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshDeviceTokenRequest) Reset() {
+	*x = RefreshDeviceTokenRequest{}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshDeviceTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshDeviceTokenRequest) ProtoMessage() {}
+
+func (x *RefreshDeviceTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshDeviceTokenRequest.ProtoReflect.Descriptor instead.
+func (*RefreshDeviceTokenRequest) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_apikey_v1_apikey_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RefreshDeviceTokenRequest) GetDeviceToken() *v1.DeviceToken {
+	if x != nil {
+		return x.DeviceToken
+	}
+	return nil
+}
+
+type RefreshDeviceTokenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceToken   *v1.DeviceToken        `protobuf:"bytes,1,opt,name=device_token,json=deviceToken,proto3" json:"device_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshDeviceTokenResponse) Reset() {
+	*x = RefreshDeviceTokenResponse{}
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshDeviceTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshDeviceTokenResponse) ProtoMessage() {}
+
+func (x *RefreshDeviceTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshDeviceTokenResponse.ProtoReflect.Descriptor instead.
+func (*RefreshDeviceTokenResponse) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_apikey_v1_apikey_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RefreshDeviceTokenResponse) GetDeviceToken() *v1.DeviceToken {
+	if x != nil {
+		return x.DeviceToken
+	}
+	return nil
+}
+
 var File_cerbos_cloud_apikey_v1_apikey_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_apikey_v1_apikey_proto_rawDesc = "" +
 	"\n" +
-	"#cerbos/cloud/apikey/v1/apikey.proto\x12\x16cerbos.cloud.apikey.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\"n\n" +
+	"#cerbos/cloud/apikey/v1/apikey.proto\x12\x16cerbos.cloud.apikey.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fcerbos/cloud/auth/v1/auth.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\"n\n" +
 	"\x17IssueAccessTokenRequest\x12%\n" +
 	"\tclient_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x98\x01\fR\bclientId\x12,\n" +
 	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\x88\x01\n" +
 	"\x18IssueAccessTokenResponse\x12*\n" +
 	"\faccess_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\x12@\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\texpiresIn2\x9e\x01\n" +
+	"expires_in\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\texpiresIn\"\x17\n" +
+	"\x15RegisterDeviceRequest\"\x9f\x01\n" +
+	"\x16RegisterDeviceResponse\x12+\n" +
+	"\x10verification_url\x18\x01 \x01(\tH\x00R\x0fverificationUrl\x12F\n" +
+	"\fdevice_token\x18\x02 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenH\x00R\vdeviceTokenB\x10\n" +
+	"\amessage\x12\x05\xbaH\x02\b\x01\"i\n" +
+	"\x19RefreshDeviceTokenRequest\x12L\n" +
+	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenB\x06\xbaH\x03\xc8\x01\x01R\vdeviceToken\"j\n" +
+	"\x1aRefreshDeviceTokenResponse\x12L\n" +
+	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenB\x06\xbaH\x03\xc8\x01\x01R\vdeviceToken2\x92\x03\n" +
 	"\rApiKeyService\x12w\n" +
-	"\x10IssueAccessToken\x12/.cerbos.cloud.apikey.v1.IssueAccessTokenRequest\x1a0.cerbos.cloud.apikey.v1.IssueAccessTokenResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB\x80\x01\n" +
+	"\x10IssueAccessToken\x12/.cerbos.cloud.apikey.v1.IssueAccessTokenRequest\x1a0.cerbos.cloud.apikey.v1.IssueAccessTokenResponse\"\x00\x12s\n" +
+	"\x0eRegisterDevice\x12-.cerbos.cloud.apikey.v1.RegisterDeviceRequest\x1a..cerbos.cloud.apikey.v1.RegisterDeviceResponse\"\x000\x01\x12}\n" +
+	"\x12RefreshDeviceToken\x121.cerbos.cloud.apikey.v1.RefreshDeviceTokenRequest\x1a2.cerbos.cloud.apikey.v1.RefreshDeviceTokenResponse\"\x00\x1a\x14\xfa\xd2\xe4\x93\x02\x0e\x12\fEXPERIMENTALB\x80\x01\n" +
 	"\x1edev.cerbos.api.cloud.v1.apikeyZAgithub.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1;apikeyv1\xaa\x02\x1aCerbos.Api.Cloud.V1.ApiKeyb\x06proto3"
 
 var (
@@ -157,21 +375,33 @@ func file_cerbos_cloud_apikey_v1_apikey_proto_rawDescGZIP() []byte {
 	return file_cerbos_cloud_apikey_v1_apikey_proto_rawDescData
 }
 
-var file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_cerbos_cloud_apikey_v1_apikey_proto_goTypes = []any{
-	(*IssueAccessTokenRequest)(nil),  // 0: cerbos.cloud.apikey.v1.IssueAccessTokenRequest
-	(*IssueAccessTokenResponse)(nil), // 1: cerbos.cloud.apikey.v1.IssueAccessTokenResponse
-	(*durationpb.Duration)(nil),      // 2: google.protobuf.Duration
+	(*IssueAccessTokenRequest)(nil),    // 0: cerbos.cloud.apikey.v1.IssueAccessTokenRequest
+	(*IssueAccessTokenResponse)(nil),   // 1: cerbos.cloud.apikey.v1.IssueAccessTokenResponse
+	(*RegisterDeviceRequest)(nil),      // 2: cerbos.cloud.apikey.v1.RegisterDeviceRequest
+	(*RegisterDeviceResponse)(nil),     // 3: cerbos.cloud.apikey.v1.RegisterDeviceResponse
+	(*RefreshDeviceTokenRequest)(nil),  // 4: cerbos.cloud.apikey.v1.RefreshDeviceTokenRequest
+	(*RefreshDeviceTokenResponse)(nil), // 5: cerbos.cloud.apikey.v1.RefreshDeviceTokenResponse
+	(*durationpb.Duration)(nil),        // 6: google.protobuf.Duration
+	(*v1.DeviceToken)(nil),             // 7: cerbos.cloud.auth.v1.DeviceToken
 }
 var file_cerbos_cloud_apikey_v1_apikey_proto_depIdxs = []int32{
-	2, // 0: cerbos.cloud.apikey.v1.IssueAccessTokenResponse.expires_in:type_name -> google.protobuf.Duration
-	0, // 1: cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken:input_type -> cerbos.cloud.apikey.v1.IssueAccessTokenRequest
-	1, // 2: cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken:output_type -> cerbos.cloud.apikey.v1.IssueAccessTokenResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	6, // 0: cerbos.cloud.apikey.v1.IssueAccessTokenResponse.expires_in:type_name -> google.protobuf.Duration
+	7, // 1: cerbos.cloud.apikey.v1.RegisterDeviceResponse.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
+	7, // 2: cerbos.cloud.apikey.v1.RefreshDeviceTokenRequest.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
+	7, // 3: cerbos.cloud.apikey.v1.RefreshDeviceTokenResponse.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
+	0, // 4: cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken:input_type -> cerbos.cloud.apikey.v1.IssueAccessTokenRequest
+	2, // 5: cerbos.cloud.apikey.v1.ApiKeyService.RegisterDevice:input_type -> cerbos.cloud.apikey.v1.RegisterDeviceRequest
+	4, // 6: cerbos.cloud.apikey.v1.ApiKeyService.RefreshDeviceToken:input_type -> cerbos.cloud.apikey.v1.RefreshDeviceTokenRequest
+	1, // 7: cerbos.cloud.apikey.v1.ApiKeyService.IssueAccessToken:output_type -> cerbos.cloud.apikey.v1.IssueAccessTokenResponse
+	3, // 8: cerbos.cloud.apikey.v1.ApiKeyService.RegisterDevice:output_type -> cerbos.cloud.apikey.v1.RegisterDeviceResponse
+	5, // 9: cerbos.cloud.apikey.v1.ApiKeyService.RefreshDeviceToken:output_type -> cerbos.cloud.apikey.v1.RefreshDeviceTokenResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_apikey_v1_apikey_proto_init() }
@@ -179,13 +409,17 @@ func file_cerbos_cloud_apikey_v1_apikey_proto_init() {
 	if File_cerbos_cloud_apikey_v1_apikey_proto != nil {
 		return
 	}
+	file_cerbos_cloud_apikey_v1_apikey_proto_msgTypes[3].OneofWrappers = []any{
+		(*RegisterDeviceResponse_VerificationUrl)(nil),
+		(*RegisterDeviceResponse_DeviceToken)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_apikey_v1_apikey_proto_rawDesc), len(file_cerbos_cloud_apikey_v1_apikey_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

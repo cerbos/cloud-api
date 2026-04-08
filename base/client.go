@@ -45,10 +45,10 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 	}
 
 	retryableHTTPClient := mkRetryableHTTPClient(conf)
-	authClient := newAuthClient(conf, retryableHTTPClient, opts...)
+	tokenSetter := newTokenSetter(conf, retryableHTTPClient, opts...)
 
 	circuitBreaker := newCircuitBreakerInterceptor()
-	opts = append(opts, connect.WithInterceptors(circuitBreaker, newAuthInterceptor(authClient)))
+	opts = append(opts, connect.WithInterceptors(circuitBreaker, newAuthInterceptor(tokenSetter)))
 
 	return Client{
 		ClientConf:     conf,

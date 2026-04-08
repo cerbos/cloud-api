@@ -4,8 +4,10 @@
 package apikeyv1
 
 import (
+	v1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sync "sync"
 	unsafe "unsafe"
@@ -58,11 +60,75 @@ func cerbos_cloud_apikey_v1_IssueAccessTokenResponse_hashpb_sum(m *IssueAccessTo
 	}
 }
 
+func cerbos_cloud_apikey_v1_RefreshDeviceTokenRequest_hashpb_sum(m *RefreshDeviceTokenRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.apikey.v1.RefreshDeviceTokenRequest.device_token"]; !ok {
+		if m.GetDeviceToken() != nil {
+			cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m.GetDeviceToken(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_apikey_v1_RefreshDeviceTokenResponse_hashpb_sum(m *RefreshDeviceTokenResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.apikey.v1.RefreshDeviceTokenResponse.device_token"]; !ok {
+		if m.GetDeviceToken() != nil {
+			cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m.GetDeviceToken(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_apikey_v1_RegisterDeviceRequest_hashpb_sum(m *RegisterDeviceRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+}
+
+func cerbos_cloud_apikey_v1_RegisterDeviceResponse_hashpb_sum(m *RegisterDeviceResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if m.Message != nil {
+		if _, ok := ignore["cerbos.cloud.apikey.v1.RegisterDeviceResponse.message"]; !ok {
+			switch t := m.Message.(type) {
+			case *RegisterDeviceResponse_VerificationUrl:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.VerificationUrl))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.VerificationUrl), len(t.VerificationUrl)))
+			case *RegisterDeviceResponse_DeviceToken:
+				if t.DeviceToken != nil {
+					cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(t.DeviceToken, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
+func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *v1.DeviceToken, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.access_token"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetAccessToken()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetAccessToken()), len(m.GetAccessToken())))
+	}
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.refresh_token"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRefreshToken()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRefreshToken()), len(m.GetRefreshToken())))
+	}
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_at"]; !ok {
+		if m.GetExpiresAt() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetExpiresAt(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.token_type"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTokenType()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTokenType()), len(m.GetTokenType())))
+	}
+}
+
 func google_protobuf_Duration_hashpb_sum(m *durationpb.Duration, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["google.protobuf.Duration.seconds"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
 	}
 	if _, ok := ignore["google.protobuf.Duration.nanos"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
+	}
+}
+
+func google_protobuf_Timestamp_hashpb_sum(m *timestamppb.Timestamp, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["google.protobuf.Timestamp.seconds"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
+	}
+	if _, ok := ignore["google.protobuf.Timestamp.nanos"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
 	}
 }

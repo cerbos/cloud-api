@@ -25,10 +25,7 @@ const (
 const (
 	DefaultBackoff      = 5 * time.Minute
 	MaxDownloadAttempts = 3
-
-	bufPeekSize      = 256
-	bufSize          = 10 * 1024   // 10 KiB
-	MaxBootstrapSize = 1024 * 1024 // 1MiB
+	MaxBootstrapSize    = 1024 * 1024 // 1MiB
 
 	BundleIDUnknown  = "__unknown__"
 	BundleIDOrphaned = "__orphaned__"

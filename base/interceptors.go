@@ -73,16 +73,16 @@ func (uas uaStreamingClientConn) RequestHeader() http.Header {
 }
 
 type authInterceptor struct {
-	authClient *authClient
+	tokenSetter *tokenSetter
 }
 
-func newAuthInterceptor(authClient *authClient) authInterceptor {
-	return authInterceptor{authClient: authClient}
+func newAuthInterceptor(tokenSetter *tokenSetter) authInterceptor {
+	return authInterceptor{tokenSetter: tokenSetter}
 }
 
 func (ai authInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		err := ai.authClient.SetAuthTokenHeader(ctx, req.Header())
+		err := ai.tokenSetter.SetHeader(ctx, req.Header())
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func (ai authInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 func (ai authInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
 	return func(ctx context.Context, spec connect.Spec) connect.StreamingClientConn {
 		conn := next(ctx, spec)
-		err := ai.authClient.SetAuthTokenHeader(ctx, conn.RequestHeader())
+		err := ai.tokenSetter.SetHeader(ctx, conn.RequestHeader())
 
 		return authStreamingClientConn{
 			StreamingClientConn: conn,
