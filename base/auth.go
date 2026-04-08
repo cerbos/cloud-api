@@ -99,7 +99,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 	var err error
 	//nolint:nestif
 	if ts.savedCredentials != nil {
-		// Saved credentials can only be device tokens. See credentials/credentials.go:86.
+		// Saved credentials can only be device tokens. See credentials.NewFromSavedCredentials.
 		deviceToken := ts.savedCredentials.GetDeviceToken()
 		nowUTC := time.Now().UTC()
 		expiryUTC := deviceToken.GetIssuedAtUtc().AsTime().Add(deviceToken.GetExpiresIn().AsDuration())

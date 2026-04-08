@@ -28,6 +28,7 @@ message RegisterDeviceRequest {}
 
 message RegisterDeviceResponse {
   oneof message {
+    option (buf.validate.oneof).required = true;
     string verification_url = 1;
     cerbos.cloud.auth.v1.DeviceToken device_token = 2;
   }
@@ -38,7 +39,7 @@ message RefreshDeviceTokenRequest {
 }
 
 message RefreshDeviceTokenResponse {
-  cerbos.cloud.auth.v1.DeviceToken device_token = 1;
+  cerbos.cloud.auth.v1.DeviceToken device_token = 1 [(buf.validate.field).required = true];
 }
 
 service ApiKeyService {
