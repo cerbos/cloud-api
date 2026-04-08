@@ -18,7 +18,7 @@ message ClientCredentials {
 message DeviceToken {
   string access_token = 1 [(buf.validate.field).string.min_len = 1];
   string refresh_token = 2 [(buf.validate.field).string.min_len = 1];
-  google.protobuf.Timestamp expires_at_utc = 3 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp expires_at = 3 [(buf.validate.field).required = true];
   string token_type = 4;
 }
 

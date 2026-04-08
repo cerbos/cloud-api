@@ -81,7 +81,7 @@ type DeviceToken struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	ExpiresAtUtc  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at_utc,json=expiresAtUtc,proto3" json:"expires_at_utc,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	TokenType     string                 `protobuf:"bytes,4,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -131,9 +131,9 @@ func (x *DeviceToken) GetRefreshToken() string {
 	return ""
 }
 
-func (x *DeviceToken) GetExpiresAtUtc() *timestamppb.Timestamp {
+func (x *DeviceToken) GetExpiresAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.ExpiresAtUtc
+		return x.ExpiresAt
 	}
 	return nil
 }
@@ -242,11 +242,12 @@ const file_cerbos_cloud_auth_v1_auth_proto_rawDesc = "" +
 	"\x1fcerbos/cloud/auth/v1/auth.proto\x12\x14cerbos.cloud.auth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
 	"\x11ClientCredentials\x12$\n" +
 	"\tclient_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bclientId\x12,\n" +
-	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\xd0\x01\n" +
+	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\xc9\x01\n" +
 	"\vDeviceToken\x12*\n" +
 	"\faccess_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\x12,\n" +
-	"\rrefresh_token\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\frefreshToken\x12H\n" +
-	"\x0eexpires_at_utc\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\fexpiresAtUtc\x12\x1d\n" +
+	"\rrefresh_token\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\frefreshToken\x12A\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\texpiresAt\x12\x1d\n" +
 	"\n" +
 	"token_type\x18\x04 \x01(\tR\ttokenType\"\xf7\x01\n" +
 	"\x10SavedCredentials\x12+\n" +
@@ -275,7 +276,7 @@ var file_cerbos_cloud_auth_v1_auth_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_cerbos_cloud_auth_v1_auth_proto_depIdxs = []int32{
-	3, // 0: cerbos.cloud.auth.v1.DeviceToken.expires_at_utc:type_name -> google.protobuf.Timestamp
+	3, // 0: cerbos.cloud.auth.v1.DeviceToken.expires_at:type_name -> google.protobuf.Timestamp
 	0, // 1: cerbos.cloud.auth.v1.SavedCredentials.client_credentials:type_name -> cerbos.cloud.auth.v1.ClientCredentials
 	1, // 2: cerbos.cloud.auth.v1.SavedCredentials.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
 	3, // [3:3] is the sub-list for method output_type

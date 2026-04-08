@@ -44,7 +44,7 @@ func TestSaveAndLoadCredentials(t *testing.T) {
 				DeviceToken: &authv1.DeviceToken{
 					AccessToken:  "access",
 					RefreshToken: "refresh",
-					ExpiresAtUtc: timestamppb.New(time.Now().UTC().Add(30 * time.Minute)),
+					ExpiresAt:    timestamppb.New(time.Now().UTC().Add(30 * time.Minute)),
 					TokenType:    "Bearer",
 				},
 			},

@@ -104,8 +104,8 @@ func (m *DeviceToken) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
-	if m.ExpiresAtUtc != nil {
-		size, err := (*timestamppb.Timestamp)(m.ExpiresAtUtc).MarshalToSizedBufferVT(dAtA[:i])
+	if m.ExpiresAt != nil {
+		size, err := (*timestamppb.Timestamp)(m.ExpiresAt).MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -258,8 +258,8 @@ func (m *DeviceToken) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
-	if m.ExpiresAtUtc != nil {
-		l = (*timestamppb.Timestamp)(m.ExpiresAtUtc).SizeVT()
+	if m.ExpiresAt != nil {
+		l = (*timestamppb.Timestamp)(m.ExpiresAt).SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	l = len(m.TokenType)
@@ -525,7 +525,7 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ExpiresAtUtc", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpiresAt", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -552,10 +552,10 @@ func (m *DeviceToken) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.ExpiresAtUtc == nil {
-				m.ExpiresAtUtc = &timestamppb1.Timestamp{}
+			if m.ExpiresAt == nil {
+				m.ExpiresAt = &timestamppb1.Timestamp{}
 			}
-			if err := (*timestamppb.Timestamp)(m.ExpiresAtUtc).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if err := (*timestamppb.Timestamp)(m.ExpiresAt).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

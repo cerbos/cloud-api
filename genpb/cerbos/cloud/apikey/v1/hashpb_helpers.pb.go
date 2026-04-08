@@ -104,9 +104,9 @@ func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *v1.DeviceToken, hasher hash.
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRefreshToken()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRefreshToken()), len(m.GetRefreshToken())))
 	}
-	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_at_utc"]; !ok {
-		if m.GetExpiresAtUtc() != nil {
-			google_protobuf_Timestamp_hashpb_sum(m.GetExpiresAtUtc(), hasher, ignore, b)
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_at"]; !ok {
+		if m.GetExpiresAt() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetExpiresAt(), hasher, ignore, b)
 		}
 	}
 	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.token_type"]; !ok {

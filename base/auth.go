@@ -100,7 +100,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 	if ts.savedCredentials != nil {
 		// Saved credentials can only be device tokens. See credentials.NewFromSavedCredentials.
 		deviceToken := ts.savedCredentials.GetDeviceToken()
-		expiresIn = deviceToken.GetExpiresAtUtc().AsTime().Sub(time.Now().UTC())
+		expiresIn = deviceToken.GetExpiresAt().AsTime().Sub(time.Now().UTC())
 		if expiresIn > earlyExpiry {
 			ts.accessToken = deviceToken.GetAccessToken()
 		} else {
@@ -116,7 +116,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 						DeviceToken: response.Msg.GetDeviceToken(),
 					},
 				}
-				expiresIn = ts.savedCredentials.GetDeviceToken().GetExpiresAtUtc().AsTime().Sub(time.Now().UTC())
+				expiresIn = ts.savedCredentials.GetDeviceToken().GetExpiresAt().AsTime().Sub(time.Now().UTC())
 				// Refresh token rotates so we need to save it.
 				_ = SaveCredentials(ts.savedCredentials)
 			}
@@ -187,7 +187,7 @@ func startDeviceRegistrationFlow(ctx context.Context, apiEndpoint string, tlsCon
 					DeviceToken: &authv1.DeviceToken{
 						AccessToken:  m.DeviceToken.GetAccessToken(),
 						RefreshToken: m.DeviceToken.GetRefreshToken(),
-						ExpiresAtUtc: m.DeviceToken.GetExpiresAtUtc(),
+						ExpiresAt:    m.DeviceToken.GetExpiresAt(),
 						TokenType:    m.DeviceToken.GetTokenType(),
 					},
 				},
