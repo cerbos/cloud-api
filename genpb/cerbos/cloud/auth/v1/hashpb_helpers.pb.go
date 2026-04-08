@@ -5,7 +5,6 @@ package authv1
 
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
-	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sync "sync"
@@ -56,19 +55,14 @@ func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *DeviceToken, hasher hash.Has
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRefreshToken()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRefreshToken()), len(m.GetRefreshToken())))
 	}
-	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_in"]; !ok {
-		if m.GetExpiresIn() != nil {
-			google_protobuf_Duration_hashpb_sum(m.GetExpiresIn(), hasher, ignore, b)
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_at_utc"]; !ok {
+		if m.GetExpiresAtUtc() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetExpiresAtUtc(), hasher, ignore, b)
 		}
 	}
 	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.token_type"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTokenType()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTokenType()), len(m.GetTokenType())))
-	}
-	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.issued_at_utc"]; !ok {
-		if m.GetIssuedAtUtc() != nil {
-			google_protobuf_Timestamp_hashpb_sum(m.GetIssuedAtUtc(), hasher, ignore, b)
-		}
 	}
 }
 
@@ -90,15 +84,6 @@ func cerbos_cloud_auth_v1_SavedCredentials_hashpb_sum(m *SavedCredentials, hashe
 				}
 			}
 		}
-	}
-}
-
-func google_protobuf_Duration_hashpb_sum(m *durationpb.Duration, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["google.protobuf.Duration.seconds"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
-	}
-	if _, ok := ignore["google.protobuf.Duration.nanos"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
 	}
 }
 

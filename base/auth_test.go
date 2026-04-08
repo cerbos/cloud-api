@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/zalando/go-keyring"
 	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
 	authv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/auth/v1"
@@ -44,7 +44,7 @@ func TestSaveAndLoadCredentials(t *testing.T) {
 				DeviceToken: &authv1.DeviceToken{
 					AccessToken:  "access",
 					RefreshToken: "refresh",
-					ExpiresIn:    durationpb.New(30 * time.Minute),
+					ExpiresAtUtc: timestamppb.New(time.Now().UTC().Add(30 * time.Minute)),
 					TokenType:    "Bearer",
 				},
 			},

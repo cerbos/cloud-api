@@ -16,7 +16,6 @@ import (
 	"connectrpc.com/connect"
 	"github.com/go-logr/logr"
 	"github.com/zalando/go-keyring"
-	"google.golang.org/protobuf/proto"
 
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
@@ -101,11 +100,9 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 	if ts.savedCredentials != nil {
 		// Saved credentials can only be device tokens. See credentials.NewFromSavedCredentials.
 		deviceToken := ts.savedCredentials.GetDeviceToken()
-		nowUTC := time.Now().UTC()
-		expiryUTC := deviceToken.GetIssuedAtUtc().AsTime().Add(deviceToken.GetExpiresIn().AsDuration())
-		if expiryUTC.Add(-earlyExpiry).After(nowUTC) {
+		expiresIn = deviceToken.GetExpiresAtUtc().AsTime().Sub(time.Now().UTC())
+		if expiresIn > earlyExpiry {
 			ts.accessToken = deviceToken.GetAccessToken()
-			expiresIn = expiryUTC.Sub(nowUTC)
 		} else {
 			var response *connect.Response[apikeyv1.RefreshDeviceTokenResponse]
 			response, err = ts.apiKeyClient.RefreshDeviceToken(ctx, connect.NewRequest(&apikeyv1.RefreshDeviceTokenRequest{
@@ -119,7 +116,7 @@ func (ts *tokenSetter) authenticate(ctx context.Context) (string, error) {
 						DeviceToken: response.Msg.GetDeviceToken(),
 					},
 				}
-				expiresIn = ts.savedCredentials.GetDeviceToken().GetExpiresIn().AsDuration()
+				expiresIn = ts.savedCredentials.GetDeviceToken().GetExpiresAtUtc().AsTime().Sub(time.Now().UTC())
 				// Refresh token rotates so we need to save it.
 				_ = SaveCredentials(ts.savedCredentials)
 			}
@@ -190,9 +187,8 @@ func startDeviceRegistrationFlow(ctx context.Context, apiEndpoint string, tlsCon
 					DeviceToken: &authv1.DeviceToken{
 						AccessToken:  m.DeviceToken.GetAccessToken(),
 						RefreshToken: m.DeviceToken.GetRefreshToken(),
-						ExpiresIn:    m.DeviceToken.GetExpiresIn(),
+						ExpiresAtUtc: m.DeviceToken.GetExpiresAtUtc(),
 						TokenType:    m.DeviceToken.GetTokenType(),
-						IssuedAtUtc:  m.DeviceToken.GetIssuedAtUtc(),
 					},
 				},
 			}, nil
@@ -228,7 +224,7 @@ func ClientLogin(ctx context.Context, apiEndpoint string, tlsConf *tls.Config, c
 }
 
 func SaveCredentials(creds *authv1.SavedCredentials) error {
-	credBytes, err := proto.Marshal(creds)
+	credBytes, err := creds.MarshalVT()
 	if err != nil {
 		return fmt.Errorf("failed to marshal credentials: %w", err)
 	}
@@ -253,7 +249,7 @@ func GetSavedCredentials(apiEndpoint string) (*authv1.SavedCredentials, error) {
 	}
 
 	creds := &authv1.SavedCredentials{}
-	if err := proto.Unmarshal(credBytes, creds); err != nil {
+	if err := creds.UnmarshalVT(credBytes); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal credentials: %w", err)
 	}
 

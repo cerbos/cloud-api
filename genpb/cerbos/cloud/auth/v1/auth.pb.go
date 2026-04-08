@@ -12,7 +12,6 @@ package authv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -82,9 +81,8 @@ type DeviceToken struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	ExpiresIn     *durationpb.Duration   `protobuf:"bytes,3,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`
+	ExpiresAtUtc  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at_utc,json=expiresAtUtc,proto3" json:"expires_at_utc,omitempty"`
 	TokenType     string                 `protobuf:"bytes,4,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	IssuedAtUtc   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=issued_at_utc,json=issuedAtUtc,proto3" json:"issued_at_utc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -133,9 +131,9 @@ func (x *DeviceToken) GetRefreshToken() string {
 	return ""
 }
 
-func (x *DeviceToken) GetExpiresIn() *durationpb.Duration {
+func (x *DeviceToken) GetExpiresAtUtc() *timestamppb.Timestamp {
 	if x != nil {
-		return x.ExpiresIn
+		return x.ExpiresAtUtc
 	}
 	return nil
 }
@@ -145,13 +143,6 @@ func (x *DeviceToken) GetTokenType() string {
 		return x.TokenType
 	}
 	return ""
-}
-
-func (x *DeviceToken) GetIssuedAtUtc() *timestamppb.Timestamp {
-	if x != nil {
-		return x.IssuedAtUtc
-	}
-	return nil
 }
 
 type SavedCredentials struct {
@@ -248,18 +239,16 @@ var File_cerbos_cloud_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x1fcerbos/cloud/auth/v1/auth.proto\x12\x14cerbos.cloud.auth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
+	"\x1fcerbos/cloud/auth/v1/auth.proto\x12\x14cerbos.cloud.auth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
 	"\x11ClientCredentials\x12$\n" +
 	"\tclient_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bclientId\x12,\n" +
-	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\x88\x02\n" +
+	"\rclient_secret\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\fclientSecret\"\xd0\x01\n" +
 	"\vDeviceToken\x12*\n" +
 	"\faccess_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\x12,\n" +
-	"\rrefresh_token\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\frefreshToken\x12@\n" +
+	"\rrefresh_token\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\frefreshToken\x12H\n" +
+	"\x0eexpires_at_utc\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\fexpiresAtUtc\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\texpiresIn\x12\x1d\n" +
-	"\n" +
-	"token_type\x18\x04 \x01(\tR\ttokenType\x12>\n" +
-	"\rissued_at_utc\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vissuedAtUtc\"\xf7\x01\n" +
+	"token_type\x18\x04 \x01(\tR\ttokenType\"\xf7\x01\n" +
 	"\x10SavedCredentials\x12+\n" +
 	"\fapi_endpoint\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x80\x02\x01R\vapiEndpoint\x12X\n" +
 	"\x12client_credentials\x18\x02 \x01(\v2'.cerbos.cloud.auth.v1.ClientCredentialsH\x00R\x11clientCredentials\x12F\n" +
@@ -283,19 +272,17 @@ var file_cerbos_cloud_auth_v1_auth_proto_goTypes = []any{
 	(*ClientCredentials)(nil),     // 0: cerbos.cloud.auth.v1.ClientCredentials
 	(*DeviceToken)(nil),           // 1: cerbos.cloud.auth.v1.DeviceToken
 	(*SavedCredentials)(nil),      // 2: cerbos.cloud.auth.v1.SavedCredentials
-	(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_cerbos_cloud_auth_v1_auth_proto_depIdxs = []int32{
-	3, // 0: cerbos.cloud.auth.v1.DeviceToken.expires_in:type_name -> google.protobuf.Duration
-	4, // 1: cerbos.cloud.auth.v1.DeviceToken.issued_at_utc:type_name -> google.protobuf.Timestamp
-	0, // 2: cerbos.cloud.auth.v1.SavedCredentials.client_credentials:type_name -> cerbos.cloud.auth.v1.ClientCredentials
-	1, // 3: cerbos.cloud.auth.v1.SavedCredentials.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: cerbos.cloud.auth.v1.DeviceToken.expires_at_utc:type_name -> google.protobuf.Timestamp
+	0, // 1: cerbos.cloud.auth.v1.SavedCredentials.client_credentials:type_name -> cerbos.cloud.auth.v1.ClientCredentials
+	1, // 2: cerbos.cloud.auth.v1.SavedCredentials.device_token:type_name -> cerbos.cloud.auth.v1.DeviceToken
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_auth_v1_auth_proto_init() }

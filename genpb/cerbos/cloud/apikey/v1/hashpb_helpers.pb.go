@@ -104,19 +104,14 @@ func cerbos_cloud_auth_v1_DeviceToken_hashpb_sum(m *v1.DeviceToken, hasher hash.
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRefreshToken()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRefreshToken()), len(m.GetRefreshToken())))
 	}
-	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_in"]; !ok {
-		if m.GetExpiresIn() != nil {
-			google_protobuf_Duration_hashpb_sum(m.GetExpiresIn(), hasher, ignore, b)
+	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.expires_at_utc"]; !ok {
+		if m.GetExpiresAtUtc() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetExpiresAtUtc(), hasher, ignore, b)
 		}
 	}
 	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.token_type"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTokenType()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTokenType()), len(m.GetTokenType())))
-	}
-	if _, ok := ignore["cerbos.cloud.auth.v1.DeviceToken.issued_at_utc"]; !ok {
-		if m.GetIssuedAtUtc() != nil {
-			google_protobuf_Timestamp_hashpb_sum(m.GetIssuedAtUtc(), hasher, ignore, b)
-		}
 	}
 }
 

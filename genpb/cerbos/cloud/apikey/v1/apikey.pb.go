@@ -348,15 +348,15 @@ const file_cerbos_cloud_apikey_v1_apikey_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\x12@\n" +
 	"\n" +
 	"expires_in\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\texpiresIn\"\x17\n" +
-	"\x15RegisterDeviceRequest\"\x98\x01\n" +
+	"\x15RegisterDeviceRequest\"\x9f\x01\n" +
 	"\x16RegisterDeviceResponse\x12+\n" +
 	"\x10verification_url\x18\x01 \x01(\tH\x00R\x0fverificationUrl\x12F\n" +
-	"\fdevice_token\x18\x02 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenH\x00R\vdeviceTokenB\t\n" +
-	"\amessage\"i\n" +
+	"\fdevice_token\x18\x02 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenH\x00R\vdeviceTokenB\x10\n" +
+	"\amessage\x12\x05\xbaH\x02\b\x01\"i\n" +
 	"\x19RefreshDeviceTokenRequest\x12L\n" +
-	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenB\x06\xbaH\x03\xc8\x01\x01R\vdeviceToken\"b\n" +
-	"\x1aRefreshDeviceTokenResponse\x12D\n" +
-	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenR\vdeviceToken2\x92\x03\n" +
+	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenB\x06\xbaH\x03\xc8\x01\x01R\vdeviceToken\"j\n" +
+	"\x1aRefreshDeviceTokenResponse\x12L\n" +
+	"\fdevice_token\x18\x01 \x01(\v2!.cerbos.cloud.auth.v1.DeviceTokenB\x06\xbaH\x03\xc8\x01\x01R\vdeviceToken2\x92\x03\n" +
 	"\rApiKeyService\x12w\n" +
 	"\x10IssueAccessToken\x12/.cerbos.cloud.apikey.v1.IssueAccessTokenRequest\x1a0.cerbos.cloud.apikey.v1.IssueAccessTokenResponse\"\x00\x12s\n" +
 	"\x0eRegisterDevice\x12-.cerbos.cloud.apikey.v1.RegisterDeviceRequest\x1a..cerbos.cloud.apikey.v1.RegisterDeviceResponse\"\x000\x01\x12}\n" +
