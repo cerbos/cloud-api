@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up just
-        uses: extractions/setup-crate@4993624604c307fbca528d28a3c8b60fa5ecc859 # v1.4.0
+        uses: extractions/setup-crate@0551596312d4008a6dfbc4d3c38fa20eaef46d2d # v2.0.0
         with:
           repo: casey/just
 
@@ -56,7 +56,7 @@ jobs:
           check-latest: true
 
       - name: Set up just
-        uses: extractions/setup-crate@4993624604c307fbca528d28a3c8b60fa5ecc859 # v1.4.0
+        uses: extractions/setup-crate@0551596312d4008a6dfbc4d3c38fa20eaef46d2d # v2.0.0
         with:
           repo: casey/just
 
