@@ -9,7 +9,7 @@ require (
 	connectrpc.com/otelconnect v0.9.0
 	filippo.io/age v1.3.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
-	github.com/cerbos/cerbos/api/genpb v0.51.0
+	github.com/cerbos/cerbos/api/genpb v0.52.0
 	github.com/failsafe-go/failsafe-go v0.9.6
 	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
@@ -43,7 +43,6 @@ require (
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.4 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
@@ -66,7 +65,7 @@ require (
 	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260217215200-42d3e9bedb6d // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260420184626-e10c466a9529 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
