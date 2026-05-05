@@ -254,6 +254,50 @@ func (x *Metadata) GetBuiltAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type LoadRuleTableResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BundleId      string                 `protobuf:"bytes,1,opt,name=bundle_id,json=bundleId,proto3" json:"bundle_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoadRuleTableResponse) Reset() {
+	*x = LoadRuleTableResponse{}
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoadRuleTableResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoadRuleTableResponse) ProtoMessage() {}
+
+func (x *LoadRuleTableResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoadRuleTableResponse.ProtoReflect.Descriptor instead.
+func (*LoadRuleTableResponse) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LoadRuleTableResponse) GetBundleId() string {
+	if x != nil {
+		return x.BundleId
+	}
+	return ""
+}
+
 type CheckResourcesResponse struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Response      *v1.CheckResourcesResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
@@ -264,7 +308,7 @@ type CheckResourcesResponse struct {
 
 func (x *CheckResourcesResponse) Reset() {
 	*x = CheckResourcesResponse{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[3]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +320,7 @@ func (x *CheckResourcesResponse) String() string {
 func (*CheckResourcesResponse) ProtoMessage() {}
 
 func (x *CheckResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[3]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +333,7 @@ func (x *CheckResourcesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckResourcesResponse.ProtoReflect.Descriptor instead.
 func (*CheckResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{3}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CheckResourcesResponse) GetResponse() *v1.CheckResourcesResponse {
@@ -316,7 +360,7 @@ type PlanResourcesResponse struct {
 
 func (x *PlanResourcesResponse) Reset() {
 	*x = PlanResourcesResponse{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[4]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +372,7 @@ func (x *PlanResourcesResponse) String() string {
 func (*PlanResourcesResponse) ProtoMessage() {}
 
 func (x *PlanResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[4]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +385,7 @@ func (x *PlanResourcesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanResourcesResponse.ProtoReflect.Descriptor instead.
 func (*PlanResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{4}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *PlanResourcesResponse) GetResponse() *v1.PlanResourcesResponse {
@@ -368,7 +412,7 @@ type Bundle struct {
 
 func (x *Bundle) Reset() {
 	*x = Bundle{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[5]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +424,7 @@ func (x *Bundle) String() string {
 func (*Bundle) ProtoMessage() {}
 
 func (x *Bundle) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[5]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +437,7 @@ func (x *Bundle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Bundle.ProtoReflect.Descriptor instead.
 func (*Bundle) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{5}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Bundle) GetMetadata() *Bundle_Metadata {
@@ -421,7 +465,7 @@ type GetBundleRequest struct {
 
 func (x *GetBundleRequest) Reset() {
 	*x = GetBundleRequest{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[6]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +477,7 @@ func (x *GetBundleRequest) String() string {
 func (*GetBundleRequest) ProtoMessage() {}
 
 func (x *GetBundleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[6]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +490,7 @@ func (x *GetBundleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBundleRequest.ProtoReflect.Descriptor instead.
 func (*GetBundleRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{6}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetBundleRequest) GetRuleId() string {
@@ -483,7 +527,7 @@ type GetBundleResponse struct {
 
 func (x *GetBundleResponse) Reset() {
 	*x = GetBundleResponse{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +539,7 @@ func (x *GetBundleResponse) String() string {
 func (*GetBundleResponse) ProtoMessage() {}
 
 func (x *GetBundleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -508,7 +552,7 @@ func (x *GetBundleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBundleResponse.ProtoReflect.Descriptor instead.
 func (*GetBundleResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{7}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetBundleResponse) GetResult() isGetBundleResponse_Result {
@@ -564,7 +608,7 @@ type Config_Evaluator struct {
 
 func (x *Config_Evaluator) Reset() {
 	*x = Config_Evaluator{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[8]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -576,7 +620,7 @@ func (x *Config_Evaluator) String() string {
 func (*Config_Evaluator) ProtoMessage() {}
 
 func (x *Config_Evaluator) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[8]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -629,7 +673,7 @@ type Config_Schema struct {
 
 func (x *Config_Schema) Reset() {
 	*x = Config_Schema{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[9]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +685,7 @@ func (x *Config_Schema) String() string {
 func (*Config_Schema) ProtoMessage() {}
 
 func (x *Config_Schema) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[9]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -674,7 +718,7 @@ type Bundle_Metadata struct {
 
 func (x *Bundle_Metadata) Reset() {
 	*x = Bundle_Metadata{}
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[11]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -686,7 +730,7 @@ func (x *Bundle_Metadata) String() string {
 func (*Bundle_Metadata) ProtoMessage() {}
 
 func (x *Bundle_Metadata) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[11]
+	mi := &file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -699,7 +743,7 @@ func (x *Bundle_Metadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Bundle_Metadata.ProtoReflect.Descriptor instead.
 func (*Bundle_Metadata) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{5, 0}
+	return file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *Bundle_Metadata) GetBundleId() string {
@@ -747,7 +791,9 @@ const file_cerbos_cloud_epdp_v2_epdp_proto_rawDesc = "" +
 	"\x0ecerbos_version\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\rcerbosVersion\x126\n" +
 	"\x12cerbos_commit_hash\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x98\x01(R\x10cerbosCommitHash\x12-\n" +
 	"\rwasm_checksum\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x98\x01@R\fwasmChecksum\x12=\n" +
-	"\bbuilt_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\abuiltAt\"\xae\x01\n" +
+	"\bbuilt_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\abuiltAt\"4\n" +
+	"\x15LoadRuleTableResponse\x12\x1b\n" +
+	"\tbundle_id\x18\x01 \x01(\tR\bbundleId\"\xae\x01\n" +
 	"\x16CheckResourcesResponse\x12N\n" +
 	"\bresponse\x18\x01 \x01(\v2*.cerbos.response.v1.CheckResourcesResponseB\x06\xbaH\x03\xc8\x01\x01R\bresponse\x12D\n" +
 	"\vaudit_trail\x18\x02 \x01(\v2\x1b.cerbos.audit.v1.AuditTrailB\x06\xbaH\x03\xc8\x01\x01R\n" +
@@ -788,47 +834,48 @@ func file_cerbos_cloud_epdp_v2_epdp_proto_rawDescGZIP() []byte {
 }
 
 var file_cerbos_cloud_epdp_v2_epdp_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_cerbos_cloud_epdp_v2_epdp_proto_goTypes = []any{
 	(Config_Schema_Enforcement)(0),    // 0: cerbos.cloud.epdp.v2.Config.Schema.Enforcement
 	(*Config)(nil),                    // 1: cerbos.cloud.epdp.v2.Config
 	(*Error)(nil),                     // 2: cerbos.cloud.epdp.v2.Error
 	(*Metadata)(nil),                  // 3: cerbos.cloud.epdp.v2.Metadata
-	(*CheckResourcesResponse)(nil),    // 4: cerbos.cloud.epdp.v2.CheckResourcesResponse
-	(*PlanResourcesResponse)(nil),     // 5: cerbos.cloud.epdp.v2.PlanResourcesResponse
-	(*Bundle)(nil),                    // 6: cerbos.cloud.epdp.v2.Bundle
-	(*GetBundleRequest)(nil),          // 7: cerbos.cloud.epdp.v2.GetBundleRequest
-	(*GetBundleResponse)(nil),         // 8: cerbos.cloud.epdp.v2.GetBundleResponse
-	(*Config_Evaluator)(nil),          // 9: cerbos.cloud.epdp.v2.Config.Evaluator
-	(*Config_Schema)(nil),             // 10: cerbos.cloud.epdp.v2.Config.Schema
-	nil,                               // 11: cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry
-	(*Bundle_Metadata)(nil),           // 12: cerbos.cloud.epdp.v2.Bundle.Metadata
-	(code.Code)(0),                    // 13: google.rpc.Code
-	(*timestamppb.Timestamp)(nil),     // 14: google.protobuf.Timestamp
-	(*v1.CheckResourcesResponse)(nil), // 15: cerbos.response.v1.CheckResourcesResponse
-	(*v11.AuditTrail)(nil),            // 16: cerbos.audit.v1.AuditTrail
-	(*v1.PlanResourcesResponse)(nil),  // 17: cerbos.response.v1.PlanResourcesResponse
-	(*emptypb.Empty)(nil),             // 18: google.protobuf.Empty
-	(*structpb.Value)(nil),            // 19: google.protobuf.Value
+	(*LoadRuleTableResponse)(nil),     // 4: cerbos.cloud.epdp.v2.LoadRuleTableResponse
+	(*CheckResourcesResponse)(nil),    // 5: cerbos.cloud.epdp.v2.CheckResourcesResponse
+	(*PlanResourcesResponse)(nil),     // 6: cerbos.cloud.epdp.v2.PlanResourcesResponse
+	(*Bundle)(nil),                    // 7: cerbos.cloud.epdp.v2.Bundle
+	(*GetBundleRequest)(nil),          // 8: cerbos.cloud.epdp.v2.GetBundleRequest
+	(*GetBundleResponse)(nil),         // 9: cerbos.cloud.epdp.v2.GetBundleResponse
+	(*Config_Evaluator)(nil),          // 10: cerbos.cloud.epdp.v2.Config.Evaluator
+	(*Config_Schema)(nil),             // 11: cerbos.cloud.epdp.v2.Config.Schema
+	nil,                               // 12: cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry
+	(*Bundle_Metadata)(nil),           // 13: cerbos.cloud.epdp.v2.Bundle.Metadata
+	(code.Code)(0),                    // 14: google.rpc.Code
+	(*timestamppb.Timestamp)(nil),     // 15: google.protobuf.Timestamp
+	(*v1.CheckResourcesResponse)(nil), // 16: cerbos.response.v1.CheckResourcesResponse
+	(*v11.AuditTrail)(nil),            // 17: cerbos.audit.v1.AuditTrail
+	(*v1.PlanResourcesResponse)(nil),  // 18: cerbos.response.v1.PlanResourcesResponse
+	(*emptypb.Empty)(nil),             // 19: google.protobuf.Empty
+	(*structpb.Value)(nil),            // 20: google.protobuf.Value
 }
 var file_cerbos_cloud_epdp_v2_epdp_proto_depIdxs = []int32{
-	9,  // 0: cerbos.cloud.epdp.v2.Config.evaluator:type_name -> cerbos.cloud.epdp.v2.Config.Evaluator
-	10, // 1: cerbos.cloud.epdp.v2.Config.schema:type_name -> cerbos.cloud.epdp.v2.Config.Schema
-	13, // 2: cerbos.cloud.epdp.v2.Error.code:type_name -> google.rpc.Code
-	14, // 3: cerbos.cloud.epdp.v2.Metadata.built_at:type_name -> google.protobuf.Timestamp
-	15, // 4: cerbos.cloud.epdp.v2.CheckResourcesResponse.response:type_name -> cerbos.response.v1.CheckResourcesResponse
-	16, // 5: cerbos.cloud.epdp.v2.CheckResourcesResponse.audit_trail:type_name -> cerbos.audit.v1.AuditTrail
-	17, // 6: cerbos.cloud.epdp.v2.PlanResourcesResponse.response:type_name -> cerbos.response.v1.PlanResourcesResponse
-	16, // 7: cerbos.cloud.epdp.v2.PlanResourcesResponse.audit_trail:type_name -> cerbos.audit.v1.AuditTrail
-	12, // 8: cerbos.cloud.epdp.v2.Bundle.metadata:type_name -> cerbos.cloud.epdp.v2.Bundle.Metadata
-	12, // 9: cerbos.cloud.epdp.v2.GetBundleRequest.if_modified_since:type_name -> cerbos.cloud.epdp.v2.Bundle.Metadata
-	6,  // 10: cerbos.cloud.epdp.v2.GetBundleResponse.bundle:type_name -> cerbos.cloud.epdp.v2.Bundle
-	18, // 11: cerbos.cloud.epdp.v2.GetBundleResponse.not_modified:type_name -> google.protobuf.Empty
-	11, // 12: cerbos.cloud.epdp.v2.Config.Evaluator.globals:type_name -> cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry
+	10, // 0: cerbos.cloud.epdp.v2.Config.evaluator:type_name -> cerbos.cloud.epdp.v2.Config.Evaluator
+	11, // 1: cerbos.cloud.epdp.v2.Config.schema:type_name -> cerbos.cloud.epdp.v2.Config.Schema
+	14, // 2: cerbos.cloud.epdp.v2.Error.code:type_name -> google.rpc.Code
+	15, // 3: cerbos.cloud.epdp.v2.Metadata.built_at:type_name -> google.protobuf.Timestamp
+	16, // 4: cerbos.cloud.epdp.v2.CheckResourcesResponse.response:type_name -> cerbos.response.v1.CheckResourcesResponse
+	17, // 5: cerbos.cloud.epdp.v2.CheckResourcesResponse.audit_trail:type_name -> cerbos.audit.v1.AuditTrail
+	18, // 6: cerbos.cloud.epdp.v2.PlanResourcesResponse.response:type_name -> cerbos.response.v1.PlanResourcesResponse
+	17, // 7: cerbos.cloud.epdp.v2.PlanResourcesResponse.audit_trail:type_name -> cerbos.audit.v1.AuditTrail
+	13, // 8: cerbos.cloud.epdp.v2.Bundle.metadata:type_name -> cerbos.cloud.epdp.v2.Bundle.Metadata
+	13, // 9: cerbos.cloud.epdp.v2.GetBundleRequest.if_modified_since:type_name -> cerbos.cloud.epdp.v2.Bundle.Metadata
+	7,  // 10: cerbos.cloud.epdp.v2.GetBundleResponse.bundle:type_name -> cerbos.cloud.epdp.v2.Bundle
+	19, // 11: cerbos.cloud.epdp.v2.GetBundleResponse.not_modified:type_name -> google.protobuf.Empty
+	12, // 12: cerbos.cloud.epdp.v2.Config.Evaluator.globals:type_name -> cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry
 	0,  // 13: cerbos.cloud.epdp.v2.Config.Schema.enforcement:type_name -> cerbos.cloud.epdp.v2.Config.Schema.Enforcement
-	19, // 14: cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry.value:type_name -> google.protobuf.Value
-	7,  // 15: cerbos.cloud.epdp.v2.BundleService.GetBundle:input_type -> cerbos.cloud.epdp.v2.GetBundleRequest
-	8,  // 16: cerbos.cloud.epdp.v2.BundleService.GetBundle:output_type -> cerbos.cloud.epdp.v2.GetBundleResponse
+	20, // 14: cerbos.cloud.epdp.v2.Config.Evaluator.GlobalsEntry.value:type_name -> google.protobuf.Value
+	8,  // 15: cerbos.cloud.epdp.v2.BundleService.GetBundle:input_type -> cerbos.cloud.epdp.v2.GetBundleRequest
+	9,  // 16: cerbos.cloud.epdp.v2.BundleService.GetBundle:output_type -> cerbos.cloud.epdp.v2.GetBundleResponse
 	16, // [16:17] is the sub-list for method output_type
 	15, // [15:16] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
@@ -841,8 +888,8 @@ func file_cerbos_cloud_epdp_v2_epdp_proto_init() {
 	if File_cerbos_cloud_epdp_v2_epdp_proto != nil {
 		return
 	}
-	file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[6].OneofWrappers = []any{}
-	file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7].OneofWrappers = []any{
+	file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[7].OneofWrappers = []any{}
+	file_cerbos_cloud_epdp_v2_epdp_proto_msgTypes[8].OneofWrappers = []any{
 		(*GetBundleResponse_Bundle)(nil),
 		(*GetBundleResponse_NotModified)(nil),
 	}
@@ -852,7 +899,7 @@ func file_cerbos_cloud_epdp_v2_epdp_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_epdp_v2_epdp_proto_rawDesc), len(file_cerbos_cloud_epdp_v2_epdp_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

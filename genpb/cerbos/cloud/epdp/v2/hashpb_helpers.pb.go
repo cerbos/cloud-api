@@ -217,6 +217,13 @@ func cerbos_cloud_epdp_v2_GetBundleResponse_hashpb_sum(m *GetBundleResponse, has
 	}
 }
 
+func cerbos_cloud_epdp_v2_LoadRuleTableResponse_hashpb_sum(m *LoadRuleTableResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.LoadRuleTableResponse.bundle_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetBundleId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetBundleId()), len(m.GetBundleId())))
+	}
+}
+
 func cerbos_cloud_epdp_v2_Metadata_hashpb_sum(m *Metadata, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.epdp.v2.Metadata.cerbos_version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetCerbosVersion()))))
