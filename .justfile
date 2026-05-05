@@ -6,6 +6,7 @@ genpb_dir := join(justfile_directory(), "genpb")
 tools_mod_dir := join(justfile_directory(), "tools")
 
 export TOOLS_BIN_DIR := join(env_var_or_default("XDG_CACHE_HOME", join(env_var("HOME"), ".cache")), "cerbos-cloud-api/bin")
+export PATH := TOOLS_BIN_DIR + ":" + env_var("PATH")
 
 default:
     @ just --list
@@ -20,7 +21,7 @@ cover PKG='./...' TEST='.*': _cover
     COVERFILE="$(mktemp -t cloud-api-XXXXX)"
     trap 'rm -rf "$COVERFILE"' EXIT
     go test -tags=tests,integration -coverprofile="$COVERFILE" -count=1 -run='{{ TEST }}' '{{ PKG }}'
-    "${TOOLS_BIN_DIR}/cover" -p "$COVERFILE"
+    cover -p "$COVERFILE"
 
 generate: generate-proto-code generate-mocks
 
@@ -29,28 +30,28 @@ generate-mocks QUIET='--log-level=""': _mockery
     set -euo pipefail
     cd {{ justfile_directory() }}
     rm -rf {{ genmocks_dir }}
-    "${TOOLS_BIN_DIR}/mockery" {{ QUIET }}
+    mockery {{ QUIET }}
 
 generate-proto-code: _buf
     #!/usr/bin/env bash
     set -euo pipefail
     cd {{ justfile_directory() }}
-    "${TOOLS_BIN_DIR}/buf" format -w
+    buf format -w
     rm -rf {{ genpb_dir }}
     (
         cd {{ tools_mod_dir }}
-        "${TOOLS_BIN_DIR}/buf" generate --template=buf.gen.yaml --output=..
+        buf generate --template=buf.gen.yaml --output=..
     )
     hack/scripts/remove-unused-protobuf-imports.sh
     go mod tidy
 
 lint: lint-modernize _golangcilint _buf
-    @ "${TOOLS_BIN_DIR}/golangci-lint" run --config=.golangci.yaml --fix
-    @ "${TOOLS_BIN_DIR}/buf" lint
-    @ "${TOOLS_BIN_DIR}/buf" format --diff --exit-code
+    @ golangci-lint run --config=.golangci.yaml --fix
+    @ buf lint
+    @ buf format --diff --exit-code
 
-lint-modernize:
-    @ GOFLAGS=-tags=tests,integration go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
+lint-modernize: _modernize
+    @ GOFLAGS=-tags=tests,integration modernize -fix -test ./...
 
 pre-commit: generate lint tests
 
@@ -58,21 +59,25 @@ test PKG='./...' TEST='.*':
     @ go test -v -tags=tests,integration -failfast -cover -count=1 -run='{{ TEST }}' '{{ PKG }}'
 
 tests PKG='./...' TEST='.*': _gotestsum
-    @ "${TOOLS_BIN_DIR}/gotestsum" --format=dots-v2 --format-hide-empty-pkg -- -tags=tests,integration -failfast -count=1 -run='{{ TEST }}' '{{ PKG }}'
+    @ gotestsum --format=dots-v2 --format-hide-empty-pkg -- -tags=tests,integration -failfast -count=1 -run='{{ TEST }}' '{{ PKG }}'
 
 # Executables
 
-_buf: (_install "buf" "github.com/bufbuild/buf" "cmd/buf")
+_buf: (_install "buf")
 
-_cover: (_install "cover" "nikand.dev/go/cover@master" )
+_cover: (_go-install "cover" "nikand.dev/go/cover")
 
-_golangcilint: (_install "golangci-lint" "github.com/golangci/golangci-lint/v2" "cmd/golangci-lint")
+_golangcilint: (_install "golangci-lint")
 
-_gotestsum: (_install "gotestsum" "gotest.tools/gotestsum")
+_gotestsum: (_go-install "gotestsum" "gotest.tools/gotestsum")
 
-_mockery: (_install "mockery" "github.com/vektra/mockery/v3")
+_install-tools: (_go-install "install-tools" "github.com/cerbos/actions" "cmd/install-tools")
 
-_install EXECUTABLE MODULE CMD_PKG="":
+_mockery: (_go-install "mockery" "github.com/vektra/mockery/v3")
+
+_modernize: (_go-install "modernize" "golang.org/x/tools" "go/analysis/passes/modernize/cmd/modernize")
+
+_go-install EXECUTABLE MODULE CMD_PKG="":
     #!/usr/bin/env bash
     set -euo pipefail
     cd {{ tools_mod_dir }}
@@ -84,11 +89,23 @@ _install EXECUTABLE MODULE CMD_PKG="":
       echo "Installing $SYMLINK" 1>&2
       mkdir -p "$TOOLS_BIN_DIR"
       find "${TOOLS_BIN_DIR}" -lname "$BINARY" -delete
-      if [[ "{{ EXECUTABLE }}" == "golangci-lint" ]]; then
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$TOOLS_BIN_DIR"
-      else
-        export CGO_ENABLED={{ if EXECUTABLE =~ "(^sql|^tbls)" { "1" } else { "0" } }}
-        GOWORK=off GOBIN="$TOOLS_BIN_DIR" go install {{ if CMD_PKG != "" { MODULE + "/" + CMD_PKG } else { MODULE } }}
-      fi
+      export CGO_ENABLED={{ if EXECUTABLE =~ "(^sql|^tbls)" { "1" } else { "0" } }}
+      GOWORK=off GOBIN="$TOOLS_BIN_DIR" go install {{ if CMD_PKG != "" { MODULE + "/" + CMD_PKG } else { MODULE } }}
       ln -s "$BINARY" "$SYMLINK"
     fi
+
+[positional-arguments]
+_install *EXECUTABLES:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  if [[ "${CI:-}" = "true" ]]; then
+    for executable in "$@"; do
+      if ! hash "${executable}" 2>/dev/null; then
+        printf "\e[31m%s not found\e[0m\nUse cerbos/actions/install-tools to install it\n" "${executable}"
+      fi
+    done
+  else
+    just _install-tools
+    cd "${TOOLS_BIN_DIR}"
+    install-tools "$@"
+  fi
