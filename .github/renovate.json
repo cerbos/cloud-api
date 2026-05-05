@@ -37,6 +37,14 @@
                 "gomodTidy",
                 "gomodUpdateImportPaths"
             ]
+        },
+        {
+            "matchPackageNames": [
+                "cerbos/actions",
+                "github.com/cerbos/actions"
+            ],
+            "groupName": "cerbos/actions",
+            "groupSlug": "cerbos-actions"
         }
     ],
     "labels": [

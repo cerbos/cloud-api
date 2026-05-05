@@ -2,6 +2,8 @@ module github.com/cerbos/cloud-api
 
 go 1.25.0
 
+toolchain go1.26.2
+
 require (
 	buf.build/go/protovalidate v1.2.0
 	connectrpc.com/connect v1.19.2
