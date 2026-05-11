@@ -26,7 +26,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.50.0
 	golang.org/x/net v0.53.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260420184626-e10c466a9529
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260504160031-60b97b32f348
 	google.golang.org/protobuf v1.36.11
 )
 
