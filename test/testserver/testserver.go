@@ -118,11 +118,13 @@ func newHub(t *testing.T, server *httptest.Server, creds *credentials.Credential
 	return h
 }
 
+const expectedAuthToken = "access-token"
+
 type authCheck struct{}
 
 func (ac authCheck) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		if req.Header().Get(base.AuthTokenHeader) != "access-token" {
+		if req.Header().Get(base.AuthTokenHeader) != expectedAuthToken {
 			return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 		return next(ctx, req)
@@ -135,7 +137,7 @@ func (ac authCheck) WrapStreamingClient(next connect.StreamingClientFunc) connec
 
 func (ac authCheck) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
 	return connect.StreamingHandlerFunc(func(ctx context.Context, conn connect.StreamingHandlerConn) error {
-		if conn.RequestHeader().Get(base.AuthTokenHeader) != "access-token" {
+		if conn.RequestHeader().Get(base.AuthTokenHeader) != expectedAuthToken {
 			return connect.NewError(connect.CodeUnauthenticated, errors.New("invalid or missing access token"))
 		}
 
@@ -149,7 +151,7 @@ func ExpectAPIKeySuccess(t *testing.T, mockAPIKeySvc *mockapikeyv1connect.ApiKey
 	mockAPIKeySvc.EXPECT().
 		IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 		Return(connect.NewResponse(&apikeyv1.IssueAccessTokenResponse{
-			AccessToken: "access-token",
+			AccessToken: expectedAuthToken,
 			ExpiresIn:   durationpb.New(1 * time.Minute),
 		}), nil)
 }

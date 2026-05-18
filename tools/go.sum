@@ -4,8 +4,8 @@ github.com/bitfield/gotestdox v0.2.2 h1:x6RcPAbBbErKLnapz1QeAlf3ospg8efBsedU93CD
 github.com/bitfield/gotestdox v0.2.2/go.mod h1:D+gwtS0urjBrzguAkTM2wodsTQYFHdpx8eqRJ3N+9pY=
 github.com/brunoga/deep v1.3.1 h1:bSrL6FhAZa6JlVv4vsi7Hg8SLwroDb1kgDERRVipBCo=
 github.com/brunoga/deep v1.3.1/go.mod h1:GDV6dnXqn80ezsLSZ5Wlv1PdKAWAO4L5PnKYtv2dgaI=
-github.com/cerbos/actions v0.0.0-20260505190950-b65bfbd7621d h1:a7NijPLthdw2f3DIIY5Wl+ROH9GnJXvOIamfX7a1ZUI=
-github.com/cerbos/actions v0.0.0-20260505190950-b65bfbd7621d/go.mod h1:Oez+ZLwg55HZZmPRFCfE54aNL8/zGNl8LJa3KHk4QAY=
+github.com/cerbos/actions v0.0.0-20260515102558-e0522b0533b6 h1:wCwPJflxb7n25PTiBVRZA00ucbpysPjlW++BCMJdzf0=
+github.com/cerbos/actions v0.0.0-20260515102558-e0522b0533b6/go.mod h1:eExHaISF7LBw4Q0GkGL5Xj8ac6l7V7m910yRnj2Mx4c=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.0 h1:eRxAGfPtAPIwuEu/5TwUM//iE2DLxPRv6MYcKTk+Vqg=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.0/go.mod h1:2xx4aHivI/LQZA2iusGwPwsg/EOKxRX59BZZbojy2OM=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
@@ -149,8 +149,8 @@ golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.12.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.43.0 h1:Rlag2XtaFTxp19wS8MXlJwTvoh8ArU6ezoyFsMyCTNI=
-golang.org/x/sys v0.43.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
+golang.org/x/sys v0.44.0 h1:ildZl3J4uzeKP07r2F++Op7E9B29JRUy+a27EibtBTQ=
+golang.org/x/sys v0.44.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
 golang.org/x/term v0.42.0 h1:UiKe+zDFmJobeJ5ggPwOshJIVt6/Ft0rcfrXZDLWAWY=
