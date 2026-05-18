@@ -6,7 +6,7 @@ toolchain go1.26.2
 
 require (
 	connectrpc.com/connect v1.19.2
-	github.com/cerbos/actions v0.0.0-20260505190950-b65bfbd7621d
+	github.com/cerbos/actions v0.0.0-20260515102558-e0522b0533b6
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.0
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/vektra/mockery/v3 v3.7.0
@@ -56,7 +56,7 @@ require (
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/term v0.42.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
