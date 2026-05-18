@@ -19,8 +19,6 @@ import (
 	"github.com/go-logr/logr/testr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/cerbos/cloud-api/base"
@@ -59,7 +57,11 @@ func Start(t *testing.T, handlers map[string]http.Handler, creds *credentials.Cr
 		mux.Handle(path, handler)
 	}
 
-	s := httptest.NewUnstartedServer(h2c.NewHandler(mux, &http2.Server{}))
+	s := httptest.NewUnstartedServer(mux)
+	protocols := new(http.Protocols)
+	protocols.SetHTTP2(true)
+	protocols.SetUnencryptedHTTP2(true)
+	s.Config.Protocols = protocols
 	s.EnableHTTP2 = true
 	s.StartTLS()
 

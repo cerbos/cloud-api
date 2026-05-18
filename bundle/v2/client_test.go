@@ -38,8 +38,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"google.golang.org/protobuf/testing/protocmp"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -1067,7 +1065,11 @@ func startTestServer(t *testing.T, mockAPIKeySvc apikeyv1connect.ApiKeyServiceHa
 		compress1KB,
 	))
 
-	s := httptest.NewUnstartedServer(h2c.NewHandler(mux, &http2.Server{}))
+	s := httptest.NewUnstartedServer(mux)
+	protocols := new(http.Protocols)
+	protocols.SetHTTP2(true)
+	protocols.SetUnencryptedHTTP2(true)
+	s.Config.Protocols = protocols
 	s.EnableHTTP2 = true
 	s.StartTLS()
 
