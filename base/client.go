@@ -13,7 +13,6 @@ import (
 	"connectrpc.com/otelconnect"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-retryablehttp"
-	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
@@ -66,9 +65,16 @@ func (c Client) HubCredentials() *credentials.Credentials {
 }
 
 func mkHTTPClient(conf ClientConf) *http.Client {
+	protocols := new(http.Protocols)
+	protocols.SetHTTP1(true)
+	protocols.SetHTTP2(true)
+	protocols.SetUnencryptedHTTP2(true)
+
 	return &http.Client{
-		Transport: &http2.Transport{
+		Transport: &http.Transport{
 			TLSClientConfig: conf.TLS.Clone(),
+			Proxy:           http.ProxyFromEnvironment,
+			Protocols:       protocols,
 		},
 	}
 }
