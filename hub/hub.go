@@ -12,6 +12,7 @@ import (
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/logcap"
+	"github.com/cerbos/cloud-api/provision"
 	"github.com/cerbos/cloud-api/store"
 )
 
@@ -72,4 +73,8 @@ func (h *Hub) LogCapClient() (*logcap.Client, error) {
 
 func (h *Hub) StoreClient() (*store.Client, error) {
 	return store.NewClient(h.client, h.opts)
+}
+
+func (h *Hub) ProvisionClient() (*provision.ClientImpl, error) {
+	return provision.NewClient(h.client, h.opts)
 }
