@@ -1,0 +1,225 @@
+// Copyright 2021-2026 Zenauth Ltd.
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package cerbos.cloud.provision.v1;
+
+import "buf/validate/validate.proto";
+import "cerbos/cloud/auth/v1/auth.proto";
+import "google/api/visibility.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Cerbos.Api.Cloud.V1.Provision";
+option go_package = "github.com/cerbos/cloud-api/genpb/cerbos/cloud/provision/v1;provisionv1";
+option java_package = "dev.cerbos.api.cloud.v1.provision";
+
+message Resource {
+  message Organization {
+    string id = 1 [(buf.validate.field).string.len = 12];
+  }
+
+  message Workspace {
+    string organization_id = 1 [(buf.validate.field).string.len = 12];
+    string id = 2 [(buf.validate.field).string.len = 12];
+  }
+
+  message Playground {
+    string organization_id = 1 [(buf.validate.field).string.len = 12];
+    string id = 2 [(buf.validate.field).string.len = 12];
+  }
+
+  message Store {
+    string organization_id = 1 [(buf.validate.field).string.len = 12];
+    string workspace_id = 2 [(buf.validate.field).string.len = 12];
+    string id = 3 [(buf.validate.field).string.len = 12];
+  }
+
+  message Deployment {
+    string organization_id = 1 [(buf.validate.field).string.len = 12];
+    string workspace_id = 2 [(buf.validate.field).string.len = 12];
+    string id = 3 [(buf.validate.field).string.len = 12];
+  }
+
+  oneof kind {
+    option (buf.validate.oneof).required = true;
+    Organization organization = 1;
+    Workspace workspace = 2;
+    Playground playground = 3;
+    Store store = 4;
+    Deployment deployment = 5;
+  }
+}
+
+message Organization {
+  Resource.Organization resource_id = 1;
+  string name = 2;
+}
+
+message Workspace {
+  Resource.Workspace resource_id = 1;
+  string name = 2;
+}
+
+message Store {
+  Resource.Store resource_id = 1;
+  string name = 2;
+  int64 version = 3;
+}
+
+message CreateOrganizationRequest {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 128
+  }];
+}
+
+message CreateOrganizationResponse {
+  Organization organization = 1;
+}
+
+message ReadOrganizationRequest {
+  Resource.Organization resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message ReadOrganizationResponse {
+  Organization organization = 1;
+}
+
+message UpdateOrganizationRequest {
+  Resource.Organization resource_id = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 3
+    max_len: 128
+  }];
+}
+
+message UpdateOrganizationResponse {
+  Organization organization = 1;
+}
+
+message DeleteOrganizationRequest {
+  Resource.Organization resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message DeleteOrganizationResponse {}
+
+message CreateWorkspaceRequest {
+  Resource.Organization organization = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message CreateWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message ReadWorkspaceRequest {
+  Resource.Workspace resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message ReadWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message UpdateWorkspaceRequest {
+  Resource.Workspace resource_id = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message UpdateWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message DeleteWorkspaceRequest {
+  Resource.Workspace resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message DeleteWorkspaceResponse {}
+
+message CreateStoreRequest {
+  message StoreSource {
+    string id = 1 [(buf.validate.field).string.len = 12];
+    int64 version = 2;
+  }
+
+  message GitHubSource {
+    int64 repo_id = 1 [(buf.validate.field).int64.gt = 0];
+    int64 app_installation_id = 2 [(buf.validate.field).int64.gt = 0];
+    oneof ref {
+      option (buf.validate.oneof).required = true;
+      string branch = 3;
+      string tag = 4;
+    }
+    string subdirectory = 5;
+  }
+
+  Resource.Workspace workspace = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  oneof source {
+    google.protobuf.Empty empty = 3;
+    StoreSource store = 4;
+    GitHubSource github = 5;
+  }
+}
+
+message CreateStoreResponse {
+  Store store = 1;
+}
+
+message ReadStoreRequest {
+  Resource.Store resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message ReadStoreResponse {
+  Store store = 1;
+}
+
+message UpdateStoreRequest {
+  Resource.Store resource_id = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message UpdateStoreResponse {
+  Store store = 1;
+}
+
+message DeleteStoreRequest {
+  Resource.Store resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message DeleteStoreResponse {}
+
+service CerbosHubProvisioningService {
+  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {}
+  rpc ReadOrganization(ReadOrganizationRequest) returns (ReadOrganizationResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {}
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {}
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
+  rpc ReadWorkspace(ReadWorkspaceRequest) returns (ReadWorkspaceResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
+  rpc CreateStore(CreateStoreRequest) returns (CreateStoreResponse) {}
+  rpc ReadStore(ReadStoreRequest) returns (ReadStoreResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc UpdateStore(UpdateStoreRequest) returns (UpdateStoreResponse) {}
+  rpc DeleteStore(DeleteStoreRequest) returns (DeleteStoreResponse) {}
+}
