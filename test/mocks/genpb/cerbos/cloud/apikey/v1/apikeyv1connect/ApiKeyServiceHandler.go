@@ -78,7 +78,7 @@ type ApiKeyServiceHandler_IssueAccessToken_Call struct {
 // IssueAccessToken is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[apikeyv1.IssueAccessTokenRequest]
-func (_e *ApiKeyServiceHandler_Expecter) IssueAccessToken(context1 interface{}, request interface{}) *ApiKeyServiceHandler_IssueAccessToken_Call {
+func (_e *ApiKeyServiceHandler_Expecter) IssueAccessToken(context1 any, request any) *ApiKeyServiceHandler_IssueAccessToken_Call {
 	return &ApiKeyServiceHandler_IssueAccessToken_Call{Call: _e.mock.On("IssueAccessToken", context1, request)}
 }
 
@@ -146,7 +146,7 @@ type ApiKeyServiceHandler_RefreshDeviceToken_Call struct {
 // RefreshDeviceToken is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[apikeyv1.RefreshDeviceTokenRequest]
-func (_e *ApiKeyServiceHandler_Expecter) RefreshDeviceToken(context1 interface{}, request interface{}) *ApiKeyServiceHandler_RefreshDeviceToken_Call {
+func (_e *ApiKeyServiceHandler_Expecter) RefreshDeviceToken(context1 any, request any) *ApiKeyServiceHandler_RefreshDeviceToken_Call {
 	return &ApiKeyServiceHandler_RefreshDeviceToken_Call{Call: _e.mock.On("RefreshDeviceToken", context1, request)}
 }
 
@@ -204,7 +204,7 @@ type ApiKeyServiceHandler_RegisterDevice_Call struct {
 //   - context1 context.Context
 //   - request *connect.Request[apikeyv1.RegisterDeviceRequest]
 //   - serverStream *connect.ServerStream[apikeyv1.RegisterDeviceResponse]
-func (_e *ApiKeyServiceHandler_Expecter) RegisterDevice(context1 interface{}, request interface{}, serverStream interface{}) *ApiKeyServiceHandler_RegisterDevice_Call {
+func (_e *ApiKeyServiceHandler_Expecter) RegisterDevice(context1 any, request any, serverStream any) *ApiKeyServiceHandler_RegisterDevice_Call {
 	return &ApiKeyServiceHandler_RegisterDevice_Call{Call: _e.mock.On("RegisterDevice", context1, request, serverStream)}
 }
 

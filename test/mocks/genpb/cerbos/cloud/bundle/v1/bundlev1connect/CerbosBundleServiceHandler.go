@@ -78,7 +78,7 @@ type CerbosBundleServiceHandler_GetBundle_Call struct {
 // GetBundle is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[bundlev1.GetBundleRequest]
-func (_e *CerbosBundleServiceHandler_Expecter) GetBundle(context1 interface{}, request interface{}) *CerbosBundleServiceHandler_GetBundle_Call {
+func (_e *CerbosBundleServiceHandler_Expecter) GetBundle(context1 any, request any) *CerbosBundleServiceHandler_GetBundle_Call {
 	return &CerbosBundleServiceHandler_GetBundle_Call{Call: _e.mock.On("GetBundle", context1, request)}
 }
 
@@ -135,7 +135,7 @@ type CerbosBundleServiceHandler_WatchBundle_Call struct {
 // WatchBundle is a helper method to define mock.On call
 //   - context1 context.Context
 //   - bidiStream *connect.BidiStream[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse]
-func (_e *CerbosBundleServiceHandler_Expecter) WatchBundle(context1 interface{}, bidiStream interface{}) *CerbosBundleServiceHandler_WatchBundle_Call {
+func (_e *CerbosBundleServiceHandler_Expecter) WatchBundle(context1 any, bidiStream any) *CerbosBundleServiceHandler_WatchBundle_Call {
 	return &CerbosBundleServiceHandler_WatchBundle_Call{Call: _e.mock.On("WatchBundle", context1, bidiStream)}
 }
 

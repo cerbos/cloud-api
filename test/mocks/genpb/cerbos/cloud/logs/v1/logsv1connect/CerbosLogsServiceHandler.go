@@ -78,7 +78,7 @@ type CerbosLogsServiceHandler_Ingest_Call struct {
 // Ingest is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[logsv1.IngestRequest]
-func (_e *CerbosLogsServiceHandler_Expecter) Ingest(context1 interface{}, request interface{}) *CerbosLogsServiceHandler_Ingest_Call {
+func (_e *CerbosLogsServiceHandler_Expecter) Ingest(context1 any, request any) *CerbosLogsServiceHandler_Ingest_Call {
 	return &CerbosLogsServiceHandler_Ingest_Call{Call: _e.mock.On("Ingest", context1, request)}
 }
 
