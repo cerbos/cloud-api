@@ -78,7 +78,7 @@ type CerbosStoreServiceHandler_GetCurrentVersion_Call struct {
 // GetCurrentVersion is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[storev1.GetCurrentVersionRequest]
-func (_e *CerbosStoreServiceHandler_Expecter) GetCurrentVersion(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_GetCurrentVersion_Call {
+func (_e *CerbosStoreServiceHandler_Expecter) GetCurrentVersion(context1 any, request any) *CerbosStoreServiceHandler_GetCurrentVersion_Call {
 	return &CerbosStoreServiceHandler_GetCurrentVersion_Call{Call: _e.mock.On("GetCurrentVersion", context1, request)}
 }
 
@@ -146,7 +146,7 @@ type CerbosStoreServiceHandler_GetFiles_Call struct {
 // GetFiles is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[storev1.GetFilesRequest]
-func (_e *CerbosStoreServiceHandler_Expecter) GetFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_GetFiles_Call {
+func (_e *CerbosStoreServiceHandler_Expecter) GetFiles(context1 any, request any) *CerbosStoreServiceHandler_GetFiles_Call {
 	return &CerbosStoreServiceHandler_GetFiles_Call{Call: _e.mock.On("GetFiles", context1, request)}
 }
 
@@ -214,7 +214,7 @@ type CerbosStoreServiceHandler_ListFiles_Call struct {
 // ListFiles is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[storev1.ListFilesRequest]
-func (_e *CerbosStoreServiceHandler_Expecter) ListFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ListFiles_Call {
+func (_e *CerbosStoreServiceHandler_Expecter) ListFiles(context1 any, request any) *CerbosStoreServiceHandler_ListFiles_Call {
 	return &CerbosStoreServiceHandler_ListFiles_Call{Call: _e.mock.On("ListFiles", context1, request)}
 }
 
@@ -282,7 +282,7 @@ type CerbosStoreServiceHandler_ModifyFiles_Call struct {
 // ModifyFiles is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[storev1.ModifyFilesRequest]
-func (_e *CerbosStoreServiceHandler_Expecter) ModifyFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ModifyFiles_Call {
+func (_e *CerbosStoreServiceHandler_Expecter) ModifyFiles(context1 any, request any) *CerbosStoreServiceHandler_ModifyFiles_Call {
 	return &CerbosStoreServiceHandler_ModifyFiles_Call{Call: _e.mock.On("ModifyFiles", context1, request)}
 }
 
@@ -350,7 +350,7 @@ type CerbosStoreServiceHandler_ReplaceFiles_Call struct {
 // ReplaceFiles is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request *connect.Request[storev1.ReplaceFilesRequest]
-func (_e *CerbosStoreServiceHandler_Expecter) ReplaceFiles(context1 interface{}, request interface{}) *CerbosStoreServiceHandler_ReplaceFiles_Call {
+func (_e *CerbosStoreServiceHandler_Expecter) ReplaceFiles(context1 any, request any) *CerbosStoreServiceHandler_ReplaceFiles_Call {
 	return &CerbosStoreServiceHandler_ReplaceFiles_Call{Call: _e.mock.On("ReplaceFiles", context1, request)}
 }
 
