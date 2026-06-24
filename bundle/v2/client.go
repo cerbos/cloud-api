@@ -149,7 +149,14 @@ func (c *Client) GetBundle(ctx context.Context, source Source) (string, bundlev2
 	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{PdpId: c.PDPIdentifier, Source: source.ToProto(), BundleType: &c.bundleType}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
-		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
+		switch connect.CodeOf(err) {
+		case connect.CodeNotFound:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, bundle.ErrBundleNotFound
+		case connect.CodePermissionDenied:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, bundle.ErrPermissionDenied
+		default:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
+		}
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
@@ -318,15 +325,20 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.Wa
 						return r.err
 					}
 
-					if connect.CodeOf(r.err) == connect.CodeNotFound {
+					switch connect.CodeOf(r.err) {
+					case connect.CodeNotFound:
 						log.V(1).Error(r.err, "Label does not exist")
 						_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: bundle.ErrBundleNotFound})
 						return bundle.ErrBundleNotFound
+					case connect.CodePermissionDenied:
+						log.V(1).Error(r.err, "Permission denied")
+						_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: bundle.ErrPermissionDenied})
+						return bundle.ErrPermissionDenied
+					default:
+						log.V(1).Error(r.err, "Error receiving message")
+						_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: r.err})
+						return r.err
 					}
-
-					log.V(1).Error(r.err, "Error receiving message")
-					_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: r.err})
-					return r.err
 				}
 
 				if r.msg != nil {
@@ -448,7 +460,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) 
 		return "", err
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(binfo.OutputHash))
+	bdlCacheKey := *(*cache.ActionID)(binfo.OutputHash)
 	defer func() {
 		if outErr == nil && outPath != "" {
 			source, err := sourceFromProto(binfo.GetSource())
@@ -580,7 +592,7 @@ func (c *Client) GetCachedBundle(source Source) (string, error) {
 		return "", fmt.Errorf("no cache entry for %s: %w", source, err)
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(entry))
+	bdlCacheKey := *(*cache.ActionID)(entry)
 	bdlEntry, err := c.cache.Get(bdlCacheKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to find bundle in cache: %w", err)

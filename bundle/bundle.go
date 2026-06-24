@@ -41,6 +41,7 @@ var (
 	ErrDownloadFailed                  = errors.New("download failed")
 	ErrNoSegmentDownloadURL            = errors.New("no download URLs")
 	ErrInvalidResponse                 = errors.New("invalid response from server")
+	ErrPermissionDenied                = errors.New("permission denied")
 	ErrStreamEnded                     = errors.New("stream ended")
 )
 
