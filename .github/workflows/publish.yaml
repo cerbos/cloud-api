@@ -21,6 +21,6 @@ jobs:
           persist-credentials: false
 
       - name: Push to BSR
-        uses: cerbos/actions/buf@3e513163c6e062721f84cd58125a5dfa5293e3b2 # main
+        uses: cerbos/actions/buf@d5b49896c2cc22445a5167142912282a987ff9ae # main
         with:
           token: ${{ secrets.BUF_TOKEN }}
