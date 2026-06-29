@@ -25,7 +25,7 @@ require (
 	github.com/zalando/go-keyring v0.2.8
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.53.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260511170946-3700d4141b60
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d
 	google.golang.org/protobuf v1.36.11
 )
 
