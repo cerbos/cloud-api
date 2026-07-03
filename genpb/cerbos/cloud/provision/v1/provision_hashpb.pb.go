@@ -100,6 +100,36 @@ func (m *Store) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *StoreGitHubConnection) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *Deployment) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_Deployment_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListOrganizationsResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListOrganizationsResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *CreateOrganizationRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
@@ -164,6 +194,26 @@ func (m *DeleteOrganizationRequest) HashPB(hasher hash.Hash, ignore map[string]s
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
 		cerbos_cloud_provision_v1_DeleteOrganizationRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListWorkspacesRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListWorkspacesRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListWorkspacesResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListWorkspacesResponse_hashpb_sum(m, hasher, ignore, b)
 		hashpb_bufPool.Put(b)
 	}
 }
@@ -240,30 +290,30 @@ func (m *DeleteWorkspaceRequest) HashPB(hasher hash.Hash, ignore map[string]stru
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListStoresRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListStoresRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListStoresResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListStoresResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *CreateStoreRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
 		cerbos_cloud_provision_v1_CreateStoreRequest_hashpb_sum(m, hasher, ignore, b)
-		hashpb_bufPool.Put(b)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *CreateStoreRequest_StoreSource) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		b := hashpb_bufPool.Get().(*[10]byte)
-		cerbos_cloud_provision_v1_CreateStoreRequest_StoreSource_hashpb_sum(m, hasher, ignore, b)
-		hashpb_bufPool.Put(b)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *CreateStoreRequest_GitHubSource) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		b := hashpb_bufPool.Get().(*[10]byte)
-		cerbos_cloud_provision_v1_CreateStoreRequest_GitHubSource_hashpb_sum(m, hasher, ignore, b)
 		hashpb_bufPool.Put(b)
 	}
 }
@@ -324,6 +374,96 @@ func (m *DeleteStoreRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
 		cerbos_cloud_provision_v1_DeleteStoreRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListDeploymentsRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListDeploymentsRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ListDeploymentsResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ListDeploymentsResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *CreateDeploymentRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_CreateDeploymentRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *CreateDeploymentResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_CreateDeploymentResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ReadDeploymentRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ReadDeploymentRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *ReadDeploymentResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_ReadDeploymentResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *UpdateDeploymentRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_UpdateDeploymentRequest_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *UpdateDeploymentResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_UpdateDeploymentResponse_hashpb_sum(m, hasher, ignore, b)
+		hashpb_bufPool.Put(b)
+	}
+}
+
+// HashPB computes a hash of the message using the given hash function
+// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
+func (m *DeleteDeploymentRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
+	if m != nil {
+		b := hashpb_bufPool.Get().(*[10]byte)
+		cerbos_cloud_provision_v1_DeleteDeploymentRequest_hashpb_sum(m, hasher, ignore, b)
 		hashpb_bufPool.Put(b)
 	}
 }
