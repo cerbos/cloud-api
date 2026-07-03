@@ -37,6 +37,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// CerbosHubProvisioningServiceListOrganizationsProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's ListOrganizations RPC.
+	CerbosHubProvisioningServiceListOrganizationsProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/ListOrganizations"
 	// CerbosHubProvisioningServiceCreateOrganizationProcedure is the fully-qualified name of the
 	// CerbosHubProvisioningService's CreateOrganization RPC.
 	CerbosHubProvisioningServiceCreateOrganizationProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/CreateOrganization"
@@ -49,6 +52,9 @@ const (
 	// CerbosHubProvisioningServiceDeleteOrganizationProcedure is the fully-qualified name of the
 	// CerbosHubProvisioningService's DeleteOrganization RPC.
 	CerbosHubProvisioningServiceDeleteOrganizationProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/DeleteOrganization"
+	// CerbosHubProvisioningServiceListWorkspacesProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's ListWorkspaces RPC.
+	CerbosHubProvisioningServiceListWorkspacesProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/ListWorkspaces"
 	// CerbosHubProvisioningServiceCreateWorkspaceProcedure is the fully-qualified name of the
 	// CerbosHubProvisioningService's CreateWorkspace RPC.
 	CerbosHubProvisioningServiceCreateWorkspaceProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/CreateWorkspace"
@@ -61,6 +67,24 @@ const (
 	// CerbosHubProvisioningServiceDeleteWorkspaceProcedure is the fully-qualified name of the
 	// CerbosHubProvisioningService's DeleteWorkspace RPC.
 	CerbosHubProvisioningServiceDeleteWorkspaceProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/DeleteWorkspace"
+	// CerbosHubProvisioningServiceListDeploymentsProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's ListDeployments RPC.
+	CerbosHubProvisioningServiceListDeploymentsProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/ListDeployments"
+	// CerbosHubProvisioningServiceCreateDeploymentProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's CreateDeployment RPC.
+	CerbosHubProvisioningServiceCreateDeploymentProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/CreateDeployment"
+	// CerbosHubProvisioningServiceReadDeploymentProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's ReadDeployment RPC.
+	CerbosHubProvisioningServiceReadDeploymentProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/ReadDeployment"
+	// CerbosHubProvisioningServiceUpdateDeploymentProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's UpdateDeployment RPC.
+	CerbosHubProvisioningServiceUpdateDeploymentProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/UpdateDeployment"
+	// CerbosHubProvisioningServiceDeleteDeploymentProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's DeleteDeployment RPC.
+	CerbosHubProvisioningServiceDeleteDeploymentProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/DeleteDeployment"
+	// CerbosHubProvisioningServiceListStoresProcedure is the fully-qualified name of the
+	// CerbosHubProvisioningService's ListStores RPC.
+	CerbosHubProvisioningServiceListStoresProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/ListStores"
 	// CerbosHubProvisioningServiceCreateStoreProcedure is the fully-qualified name of the
 	// CerbosHubProvisioningService's CreateStore RPC.
 	CerbosHubProvisioningServiceCreateStoreProcedure = "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/CreateStore"
@@ -78,14 +102,22 @@ const (
 // CerbosHubProvisioningServiceClient is a client for the
 // cerbos.cloud.provision.v1.CerbosHubProvisioningService service.
 type CerbosHubProvisioningServiceClient interface {
+	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.CreateOrganizationResponse], error)
 	ReadOrganization(context.Context, *connect.Request[v1.ReadOrganizationRequest]) (*connect.Response[v1.ReadOrganizationResponse], error)
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.UpdateOrganizationResponse], error)
 	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error)
+	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
 	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.CreateWorkspaceResponse], error)
 	ReadWorkspace(context.Context, *connect.Request[v1.ReadWorkspaceRequest]) (*connect.Response[v1.ReadWorkspaceResponse], error)
 	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.UpdateWorkspaceResponse], error)
 	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[v1.DeleteWorkspaceResponse], error)
+	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
+	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	ReadDeployment(context.Context, *connect.Request[v1.ReadDeploymentRequest]) (*connect.Response[v1.ReadDeploymentResponse], error)
+	UpdateDeployment(context.Context, *connect.Request[v1.UpdateDeploymentRequest]) (*connect.Response[v1.UpdateDeploymentResponse], error)
+	DeleteDeployment(context.Context, *connect.Request[v1.DeleteDeploymentRequest]) (*connect.Response[v1.DeleteDeploymentResponse], error)
+	ListStores(context.Context, *connect.Request[v1.ListStoresRequest]) (*connect.Response[v1.ListStoresResponse], error)
 	CreateStore(context.Context, *connect.Request[v1.CreateStoreRequest]) (*connect.Response[v1.CreateStoreResponse], error)
 	ReadStore(context.Context, *connect.Request[v1.ReadStoreRequest]) (*connect.Response[v1.ReadStoreResponse], error)
 	UpdateStore(context.Context, *connect.Request[v1.UpdateStoreRequest]) (*connect.Response[v1.UpdateStoreResponse], error)
@@ -104,6 +136,13 @@ func NewCerbosHubProvisioningServiceClient(httpClient connect.HTTPClient, baseUR
 	baseURL = strings.TrimRight(baseURL, "/")
 	cerbosHubProvisioningServiceMethods := v1.File_cerbos_cloud_provision_v1_provision_proto.Services().ByName("CerbosHubProvisioningService").Methods()
 	return &cerbosHubProvisioningServiceClient{
+		listOrganizations: connect.NewClient[v1.ListOrganizationsRequest, v1.ListOrganizationsResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceListOrganizationsProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListOrganizations")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		createOrganization: connect.NewClient[v1.CreateOrganizationRequest, v1.CreateOrganizationResponse](
 			httpClient,
 			baseURL+CerbosHubProvisioningServiceCreateOrganizationProcedure,
@@ -129,6 +168,13 @@ func NewCerbosHubProvisioningServiceClient(httpClient connect.HTTPClient, baseUR
 			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteOrganization")),
 			connect.WithClientOptions(opts...),
 		),
+		listWorkspaces: connect.NewClient[v1.ListWorkspacesRequest, v1.ListWorkspacesResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceListWorkspacesProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListWorkspaces")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		createWorkspace: connect.NewClient[v1.CreateWorkspaceRequest, v1.CreateWorkspaceResponse](
 			httpClient,
 			baseURL+CerbosHubProvisioningServiceCreateWorkspaceProcedure,
@@ -152,6 +198,45 @@ func NewCerbosHubProvisioningServiceClient(httpClient connect.HTTPClient, baseUR
 			httpClient,
 			baseURL+CerbosHubProvisioningServiceDeleteWorkspaceProcedure,
 			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteWorkspace")),
+			connect.WithClientOptions(opts...),
+		),
+		listDeployments: connect.NewClient[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceListDeploymentsProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListDeployments")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		createDeployment: connect.NewClient[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceCreateDeploymentProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("CreateDeployment")),
+			connect.WithClientOptions(opts...),
+		),
+		readDeployment: connect.NewClient[v1.ReadDeploymentRequest, v1.ReadDeploymentResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceReadDeploymentProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ReadDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		updateDeployment: connect.NewClient[v1.UpdateDeploymentRequest, v1.UpdateDeploymentResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceUpdateDeploymentProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("UpdateDeployment")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteDeployment: connect.NewClient[v1.DeleteDeploymentRequest, v1.DeleteDeploymentResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceDeleteDeploymentProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteDeployment")),
+			connect.WithClientOptions(opts...),
+		),
+		listStores: connect.NewClient[v1.ListStoresRequest, v1.ListStoresResponse](
+			httpClient,
+			baseURL+CerbosHubProvisioningServiceListStoresProcedure,
+			connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListStores")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createStore: connect.NewClient[v1.CreateStoreRequest, v1.CreateStoreResponse](
@@ -184,18 +269,31 @@ func NewCerbosHubProvisioningServiceClient(httpClient connect.HTTPClient, baseUR
 
 // cerbosHubProvisioningServiceClient implements CerbosHubProvisioningServiceClient.
 type cerbosHubProvisioningServiceClient struct {
+	listOrganizations  *connect.Client[v1.ListOrganizationsRequest, v1.ListOrganizationsResponse]
 	createOrganization *connect.Client[v1.CreateOrganizationRequest, v1.CreateOrganizationResponse]
 	readOrganization   *connect.Client[v1.ReadOrganizationRequest, v1.ReadOrganizationResponse]
 	updateOrganization *connect.Client[v1.UpdateOrganizationRequest, v1.UpdateOrganizationResponse]
 	deleteOrganization *connect.Client[v1.DeleteOrganizationRequest, v1.DeleteOrganizationResponse]
+	listWorkspaces     *connect.Client[v1.ListWorkspacesRequest, v1.ListWorkspacesResponse]
 	createWorkspace    *connect.Client[v1.CreateWorkspaceRequest, v1.CreateWorkspaceResponse]
 	readWorkspace      *connect.Client[v1.ReadWorkspaceRequest, v1.ReadWorkspaceResponse]
 	updateWorkspace    *connect.Client[v1.UpdateWorkspaceRequest, v1.UpdateWorkspaceResponse]
 	deleteWorkspace    *connect.Client[v1.DeleteWorkspaceRequest, v1.DeleteWorkspaceResponse]
+	listDeployments    *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	createDeployment   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
+	readDeployment     *connect.Client[v1.ReadDeploymentRequest, v1.ReadDeploymentResponse]
+	updateDeployment   *connect.Client[v1.UpdateDeploymentRequest, v1.UpdateDeploymentResponse]
+	deleteDeployment   *connect.Client[v1.DeleteDeploymentRequest, v1.DeleteDeploymentResponse]
+	listStores         *connect.Client[v1.ListStoresRequest, v1.ListStoresResponse]
 	createStore        *connect.Client[v1.CreateStoreRequest, v1.CreateStoreResponse]
 	readStore          *connect.Client[v1.ReadStoreRequest, v1.ReadStoreResponse]
 	updateStore        *connect.Client[v1.UpdateStoreRequest, v1.UpdateStoreResponse]
 	deleteStore        *connect.Client[v1.DeleteStoreRequest, v1.DeleteStoreResponse]
+}
+
+// ListOrganizations calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations.
+func (c *cerbosHubProvisioningServiceClient) ListOrganizations(ctx context.Context, req *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error) {
+	return c.listOrganizations.CallUnary(ctx, req)
 }
 
 // CreateOrganization calls
@@ -221,6 +319,11 @@ func (c *cerbosHubProvisioningServiceClient) DeleteOrganization(ctx context.Cont
 	return c.deleteOrganization.CallUnary(ctx, req)
 }
 
+// ListWorkspaces calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces.
+func (c *cerbosHubProvisioningServiceClient) ListWorkspaces(ctx context.Context, req *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error) {
+	return c.listWorkspaces.CallUnary(ctx, req)
+}
+
 // CreateWorkspace calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace.
 func (c *cerbosHubProvisioningServiceClient) CreateWorkspace(ctx context.Context, req *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.CreateWorkspaceResponse], error) {
 	return c.createWorkspace.CallUnary(ctx, req)
@@ -239,6 +342,36 @@ func (c *cerbosHubProvisioningServiceClient) UpdateWorkspace(ctx context.Context
 // DeleteWorkspace calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace.
 func (c *cerbosHubProvisioningServiceClient) DeleteWorkspace(ctx context.Context, req *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[v1.DeleteWorkspaceResponse], error) {
 	return c.deleteWorkspace.CallUnary(ctx, req)
+}
+
+// ListDeployments calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments.
+func (c *cerbosHubProvisioningServiceClient) ListDeployments(ctx context.Context, req *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error) {
+	return c.listDeployments.CallUnary(ctx, req)
+}
+
+// CreateDeployment calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment.
+func (c *cerbosHubProvisioningServiceClient) CreateDeployment(ctx context.Context, req *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
+	return c.createDeployment.CallUnary(ctx, req)
+}
+
+// ReadDeployment calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment.
+func (c *cerbosHubProvisioningServiceClient) ReadDeployment(ctx context.Context, req *connect.Request[v1.ReadDeploymentRequest]) (*connect.Response[v1.ReadDeploymentResponse], error) {
+	return c.readDeployment.CallUnary(ctx, req)
+}
+
+// UpdateDeployment calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment.
+func (c *cerbosHubProvisioningServiceClient) UpdateDeployment(ctx context.Context, req *connect.Request[v1.UpdateDeploymentRequest]) (*connect.Response[v1.UpdateDeploymentResponse], error) {
+	return c.updateDeployment.CallUnary(ctx, req)
+}
+
+// DeleteDeployment calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment.
+func (c *cerbosHubProvisioningServiceClient) DeleteDeployment(ctx context.Context, req *connect.Request[v1.DeleteDeploymentRequest]) (*connect.Response[v1.DeleteDeploymentResponse], error) {
+	return c.deleteDeployment.CallUnary(ctx, req)
+}
+
+// ListStores calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores.
+func (c *cerbosHubProvisioningServiceClient) ListStores(ctx context.Context, req *connect.Request[v1.ListStoresRequest]) (*connect.Response[v1.ListStoresResponse], error) {
+	return c.listStores.CallUnary(ctx, req)
 }
 
 // CreateStore calls cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore.
@@ -264,14 +397,22 @@ func (c *cerbosHubProvisioningServiceClient) DeleteStore(ctx context.Context, re
 // CerbosHubProvisioningServiceHandler is an implementation of the
 // cerbos.cloud.provision.v1.CerbosHubProvisioningService service.
 type CerbosHubProvisioningServiceHandler interface {
+	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.CreateOrganizationResponse], error)
 	ReadOrganization(context.Context, *connect.Request[v1.ReadOrganizationRequest]) (*connect.Response[v1.ReadOrganizationResponse], error)
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.UpdateOrganizationResponse], error)
 	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[v1.DeleteOrganizationResponse], error)
+	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
 	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.CreateWorkspaceResponse], error)
 	ReadWorkspace(context.Context, *connect.Request[v1.ReadWorkspaceRequest]) (*connect.Response[v1.ReadWorkspaceResponse], error)
 	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.UpdateWorkspaceResponse], error)
 	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[v1.DeleteWorkspaceResponse], error)
+	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
+	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	ReadDeployment(context.Context, *connect.Request[v1.ReadDeploymentRequest]) (*connect.Response[v1.ReadDeploymentResponse], error)
+	UpdateDeployment(context.Context, *connect.Request[v1.UpdateDeploymentRequest]) (*connect.Response[v1.UpdateDeploymentResponse], error)
+	DeleteDeployment(context.Context, *connect.Request[v1.DeleteDeploymentRequest]) (*connect.Response[v1.DeleteDeploymentResponse], error)
+	ListStores(context.Context, *connect.Request[v1.ListStoresRequest]) (*connect.Response[v1.ListStoresResponse], error)
 	CreateStore(context.Context, *connect.Request[v1.CreateStoreRequest]) (*connect.Response[v1.CreateStoreResponse], error)
 	ReadStore(context.Context, *connect.Request[v1.ReadStoreRequest]) (*connect.Response[v1.ReadStoreResponse], error)
 	UpdateStore(context.Context, *connect.Request[v1.UpdateStoreRequest]) (*connect.Response[v1.UpdateStoreResponse], error)
@@ -285,6 +426,13 @@ type CerbosHubProvisioningServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	cerbosHubProvisioningServiceMethods := v1.File_cerbos_cloud_provision_v1_provision_proto.Services().ByName("CerbosHubProvisioningService").Methods()
+	cerbosHubProvisioningServiceListOrganizationsHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceListOrganizationsProcedure,
+		svc.ListOrganizations,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListOrganizations")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cerbosHubProvisioningServiceCreateOrganizationHandler := connect.NewUnaryHandler(
 		CerbosHubProvisioningServiceCreateOrganizationProcedure,
 		svc.CreateOrganization,
@@ -310,6 +458,13 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteOrganization")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cerbosHubProvisioningServiceListWorkspacesHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceListWorkspacesProcedure,
+		svc.ListWorkspaces,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListWorkspaces")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cerbosHubProvisioningServiceCreateWorkspaceHandler := connect.NewUnaryHandler(
 		CerbosHubProvisioningServiceCreateWorkspaceProcedure,
 		svc.CreateWorkspace,
@@ -333,6 +488,45 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 		CerbosHubProvisioningServiceDeleteWorkspaceProcedure,
 		svc.DeleteWorkspace,
 		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteWorkspace")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceListDeploymentsHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceListDeploymentsProcedure,
+		svc.ListDeployments,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListDeployments")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceCreateDeploymentHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceCreateDeploymentProcedure,
+		svc.CreateDeployment,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("CreateDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceReadDeploymentHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceReadDeploymentProcedure,
+		svc.ReadDeployment,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ReadDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceUpdateDeploymentHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceUpdateDeploymentProcedure,
+		svc.UpdateDeployment,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("UpdateDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceDeleteDeploymentHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceDeleteDeploymentProcedure,
+		svc.DeleteDeployment,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("DeleteDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cerbosHubProvisioningServiceListStoresHandler := connect.NewUnaryHandler(
+		CerbosHubProvisioningServiceListStoresProcedure,
+		svc.ListStores,
+		connect.WithSchema(cerbosHubProvisioningServiceMethods.ByName("ListStores")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cerbosHubProvisioningServiceCreateStoreHandler := connect.NewUnaryHandler(
@@ -362,6 +556,8 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 	)
 	return "/cerbos.cloud.provision.v1.CerbosHubProvisioningService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case CerbosHubProvisioningServiceListOrganizationsProcedure:
+			cerbosHubProvisioningServiceListOrganizationsHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceCreateOrganizationProcedure:
 			cerbosHubProvisioningServiceCreateOrganizationHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceReadOrganizationProcedure:
@@ -370,6 +566,8 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 			cerbosHubProvisioningServiceUpdateOrganizationHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceDeleteOrganizationProcedure:
 			cerbosHubProvisioningServiceDeleteOrganizationHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceListWorkspacesProcedure:
+			cerbosHubProvisioningServiceListWorkspacesHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceCreateWorkspaceProcedure:
 			cerbosHubProvisioningServiceCreateWorkspaceHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceReadWorkspaceProcedure:
@@ -378,6 +576,18 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 			cerbosHubProvisioningServiceUpdateWorkspaceHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceDeleteWorkspaceProcedure:
 			cerbosHubProvisioningServiceDeleteWorkspaceHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceListDeploymentsProcedure:
+			cerbosHubProvisioningServiceListDeploymentsHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceCreateDeploymentProcedure:
+			cerbosHubProvisioningServiceCreateDeploymentHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceReadDeploymentProcedure:
+			cerbosHubProvisioningServiceReadDeploymentHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceUpdateDeploymentProcedure:
+			cerbosHubProvisioningServiceUpdateDeploymentHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceDeleteDeploymentProcedure:
+			cerbosHubProvisioningServiceDeleteDeploymentHandler.ServeHTTP(w, r)
+		case CerbosHubProvisioningServiceListStoresProcedure:
+			cerbosHubProvisioningServiceListStoresHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceCreateStoreProcedure:
 			cerbosHubProvisioningServiceCreateStoreHandler.ServeHTTP(w, r)
 		case CerbosHubProvisioningServiceReadStoreProcedure:
@@ -395,6 +605,10 @@ func NewCerbosHubProvisioningServiceHandler(svc CerbosHubProvisioningServiceHand
 // UnimplementedCerbosHubProvisioningServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCerbosHubProvisioningServiceHandler struct{}
 
+func (UnimplementedCerbosHubProvisioningServiceHandler) ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations is not implemented"))
+}
+
 func (UnimplementedCerbosHubProvisioningServiceHandler) CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.CreateOrganizationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateOrganization is not implemented"))
 }
@@ -411,6 +625,10 @@ func (UnimplementedCerbosHubProvisioningServiceHandler) DeleteOrganization(conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteOrganization is not implemented"))
 }
 
+func (UnimplementedCerbosHubProvisioningServiceHandler) ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces is not implemented"))
+}
+
 func (UnimplementedCerbosHubProvisioningServiceHandler) CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.CreateWorkspaceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace is not implemented"))
 }
@@ -425,6 +643,30 @@ func (UnimplementedCerbosHubProvisioningServiceHandler) UpdateWorkspace(context.
 
 func (UnimplementedCerbosHubProvisioningServiceHandler) DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[v1.DeleteWorkspaceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) ReadDeployment(context.Context, *connect.Request[v1.ReadDeploymentRequest]) (*connect.Response[v1.ReadDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) UpdateDeployment(context.Context, *connect.Request[v1.UpdateDeploymentRequest]) (*connect.Response[v1.UpdateDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) DeleteDeployment(context.Context, *connect.Request[v1.DeleteDeploymentRequest]) (*connect.Response[v1.DeleteDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment is not implemented"))
+}
+
+func (UnimplementedCerbosHubProvisioningServiceHandler) ListStores(context.Context, *connect.Request[v1.ListStoresRequest]) (*connect.Response[v1.ListStoresResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores is not implemented"))
 }
 
 func (UnimplementedCerbosHubProvisioningServiceHandler) CreateStore(context.Context, *connect.Request[v1.CreateStoreRequest]) (*connect.Response[v1.CreateStoreResponse], error) {

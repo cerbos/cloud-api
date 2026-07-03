@@ -5,7 +5,7 @@ package provisionv1
 
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sync "sync"
 	unsafe "unsafe"
@@ -35,6 +35,34 @@ var hashpb_uint64KeyPool = sync.Pool{
 	New: func() any { return make([]uint64, 0, 32) },
 }
 
+func cerbos_cloud_provision_v1_CreateDeploymentRequest_hashpb_sum(m *CreateDeploymentRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateDeploymentRequest.workspace"]; !ok {
+		if m.GetWorkspace() != nil {
+			cerbos_cloud_provision_v1_Resource_Workspace_hashpb_sum(m.GetWorkspace(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateDeploymentRequest.name"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateDeploymentRequest.stores"]; !ok {
+		if len(m.Stores) > 0 {
+			for _, v := range m.Stores {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_CreateDeploymentResponse_hashpb_sum(m *CreateDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateDeploymentResponse.deployment"]; !ok {
+		if m.GetDeployment() != nil {
+			cerbos_cloud_provision_v1_Deployment_hashpb_sum(m.GetDeployment(), hasher, ignore, b)
+		}
+	}
+}
+
 func cerbos_cloud_provision_v1_CreateOrganizationRequest_hashpb_sum(m *CreateOrganizationRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.CreateOrganizationRequest.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
@@ -50,41 +78,6 @@ func cerbos_cloud_provision_v1_CreateOrganizationResponse_hashpb_sum(m *CreateOr
 	}
 }
 
-func cerbos_cloud_provision_v1_CreateStoreRequest_GitHubSource_hashpb_sum(m *CreateStoreRequest_GitHubSource, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.GitHubSource.repo_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetRepoId())))
-	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.GitHubSource.app_installation_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetAppInstallationId())))
-	}
-	if m.Ref != nil {
-		if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.GitHubSource.ref"]; !ok {
-			switch t := m.Ref.(type) {
-			case *CreateStoreRequest_GitHubSource_Branch:
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.Branch))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Branch), len(t.Branch)))
-			case *CreateStoreRequest_GitHubSource_Tag:
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.Tag))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Tag), len(t.Tag)))
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.GitHubSource.subdirectory"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetSubdirectory()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetSubdirectory()), len(m.GetSubdirectory())))
-	}
-}
-
-func cerbos_cloud_provision_v1_CreateStoreRequest_StoreSource_hashpb_sum(m *CreateStoreRequest_StoreSource, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.StoreSource.id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetId()), len(m.GetId())))
-	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.StoreSource.version"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetVersion())))
-	}
-}
-
 func cerbos_cloud_provision_v1_CreateStoreRequest_hashpb_sum(m *CreateStoreRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.workspace"]; !ok {
 		if m.GetWorkspace() != nil {
@@ -95,22 +88,9 @@ func cerbos_cloud_provision_v1_CreateStoreRequest_hashpb_sum(m *CreateStoreReque
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
 	}
-	if m.Source != nil {
-		if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.source"]; !ok {
-			switch t := m.Source.(type) {
-			case *CreateStoreRequest_Empty:
-				if t.Empty != nil {
-					google_protobuf_Empty_hashpb_sum(t.Empty, hasher, ignore, b)
-				}
-			case *CreateStoreRequest_Store:
-				if t.Store != nil {
-					cerbos_cloud_provision_v1_CreateStoreRequest_StoreSource_hashpb_sum(t.Store, hasher, ignore, b)
-				}
-			case *CreateStoreRequest_Github:
-				if t.Github != nil {
-					cerbos_cloud_provision_v1_CreateStoreRequest_GitHubSource_hashpb_sum(t.Github, hasher, ignore, b)
-				}
-			}
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.github_connection"]; !ok {
+		if m.GetGithubConnection() != nil {
+			cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m.GetGithubConnection(), hasher, ignore, b)
 		}
 	}
 }
@@ -141,6 +121,17 @@ func cerbos_cloud_provision_v1_CreateWorkspaceResponse_hashpb_sum(m *CreateWorks
 			cerbos_cloud_provision_v1_Workspace_hashpb_sum(m.GetWorkspace(), hasher, ignore, b)
 		}
 	}
+}
+
+func cerbos_cloud_provision_v1_DeleteDeploymentRequest_hashpb_sum(m *DeleteDeploymentRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeleteDeploymentRequest.resource_id"]; !ok {
+		if m.GetResourceId() != nil {
+			cerbos_cloud_provision_v1_Resource_Deployment_hashpb_sum(m.GetResourceId(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_DeleteDeploymentResponse_hashpb_sum(m *DeleteDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 }
 
 func cerbos_cloud_provision_v1_DeleteOrganizationRequest_hashpb_sum(m *DeleteOrganizationRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
@@ -176,6 +167,110 @@ func cerbos_cloud_provision_v1_DeleteWorkspaceRequest_hashpb_sum(m *DeleteWorksp
 func cerbos_cloud_provision_v1_DeleteWorkspaceResponse_hashpb_sum(m *DeleteWorkspaceResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 }
 
+func cerbos_cloud_provision_v1_Deployment_hashpb_sum(m *Deployment, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.resource_id"]; !ok {
+		if m.GetResourceId() != nil {
+			cerbos_cloud_provision_v1_Resource_Deployment_hashpb_sum(m.GetResourceId(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.name"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.stores"]; !ok {
+		if len(m.Stores) > 0 {
+			for _, v := range m.Stores {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.last_successful_build"]; !ok {
+		if m.GetLastSuccessfulBuild() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetLastSuccessfulBuild(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.active_bundle_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetActiveBundleId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetActiveBundleId()), len(m.GetActiveBundleId())))
+	}
+}
+
+func cerbos_cloud_provision_v1_ListDeploymentsRequest_hashpb_sum(m *ListDeploymentsRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListDeploymentsRequest.workspace"]; !ok {
+		if m.GetWorkspace() != nil {
+			cerbos_cloud_provision_v1_Resource_Workspace_hashpb_sum(m.GetWorkspace(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListDeploymentsResponse_hashpb_sum(m *ListDeploymentsResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListDeploymentsResponse.deployments"]; !ok {
+		if len(m.Deployments) > 0 {
+			for _, v := range m.Deployments {
+				if v != nil {
+					cerbos_cloud_provision_v1_Deployment_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListOrganizationsRequest_hashpb_sum(m *ListOrganizationsRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+}
+
+func cerbos_cloud_provision_v1_ListOrganizationsResponse_hashpb_sum(m *ListOrganizationsResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListOrganizationsResponse.organizations"]; !ok {
+		if len(m.Organizations) > 0 {
+			for _, v := range m.Organizations {
+				if v != nil {
+					cerbos_cloud_provision_v1_Organization_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListStoresRequest_hashpb_sum(m *ListStoresRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListStoresRequest.workspace"]; !ok {
+		if m.GetWorkspace() != nil {
+			cerbos_cloud_provision_v1_Resource_Workspace_hashpb_sum(m.GetWorkspace(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListStoresResponse_hashpb_sum(m *ListStoresResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListStoresResponse.stores"]; !ok {
+		if len(m.Stores) > 0 {
+			for _, v := range m.Stores {
+				if v != nil {
+					cerbos_cloud_provision_v1_Store_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListWorkspacesRequest_hashpb_sum(m *ListWorkspacesRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListWorkspacesRequest.organization"]; !ok {
+		if m.GetOrganization() != nil {
+			cerbos_cloud_provision_v1_Resource_Organization_hashpb_sum(m.GetOrganization(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ListWorkspacesResponse_hashpb_sum(m *ListWorkspacesResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ListWorkspacesResponse.workspaces"]; !ok {
+		if len(m.Workspaces) > 0 {
+			for _, v := range m.Workspaces {
+				if v != nil {
+					cerbos_cloud_provision_v1_Workspace_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
 func cerbos_cloud_provision_v1_Organization_hashpb_sum(m *Organization, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.Organization.resource_id"]; !ok {
 		if m.GetResourceId() != nil {
@@ -185,6 +280,22 @@ func cerbos_cloud_provision_v1_Organization_hashpb_sum(m *Organization, hasher h
 	if _, ok := ignore["cerbos.cloud.provision.v1.Organization.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+}
+
+func cerbos_cloud_provision_v1_ReadDeploymentRequest_hashpb_sum(m *ReadDeploymentRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ReadDeploymentRequest.resource_id"]; !ok {
+		if m.GetResourceId() != nil {
+			cerbos_cloud_provision_v1_Resource_Deployment_hashpb_sum(m.GetResourceId(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_ReadDeploymentResponse_hashpb_sum(m *ReadDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.ReadDeploymentResponse.deployment"]; !ok {
+		if m.GetDeployment() != nil {
+			cerbos_cloud_provision_v1_Deployment_hashpb_sum(m.GetDeployment(), hasher, ignore, b)
+		}
 	}
 }
 
@@ -324,6 +435,39 @@ func cerbos_cloud_provision_v1_Resource_hashpb_sum(m *Resource, hasher hash.Hash
 	}
 }
 
+func cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m *StoreGitHubConnection, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.owner"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetOwner()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetOwner()), len(m.GetOwner())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.repo"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRepo()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRepo()), len(m.GetRepo())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.repo_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetRepoId())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.app_installation_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetAppInstallationId())))
+	}
+	if m.Ref != nil {
+		if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.ref"]; !ok {
+			switch t := m.Ref.(type) {
+			case *StoreGitHubConnection_Branch:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.Branch))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Branch), len(t.Branch)))
+			case *StoreGitHubConnection_Tag:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.Tag))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.Tag), len(t.Tag)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.subdirectory"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetSubdirectory()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetSubdirectory()), len(m.GetSubdirectory())))
+	}
+}
+
 func cerbos_cloud_provision_v1_Store_hashpb_sum(m *Store, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.Store.resource_id"]; !ok {
 		if m.GetResourceId() != nil {
@@ -336,6 +480,31 @@ func cerbos_cloud_provision_v1_Store_hashpb_sum(m *Store, hasher hash.Hash, igno
 	}
 	if _, ok := ignore["cerbos.cloud.provision.v1.Store.version"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetVersion())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Store.github_connection"]; !ok {
+		if m.GetGithubConnection() != nil {
+			cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m.GetGithubConnection(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_UpdateDeploymentRequest_hashpb_sum(m *UpdateDeploymentRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateDeploymentRequest.resource_id"]; !ok {
+		if m.GetResourceId() != nil {
+			cerbos_cloud_provision_v1_Resource_Deployment_hashpb_sum(m.GetResourceId(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateDeploymentRequest.name"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+}
+
+func cerbos_cloud_provision_v1_UpdateDeploymentResponse_hashpb_sum(m *UpdateDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateDeploymentResponse.deployment"]; !ok {
+		if m.GetDeployment() != nil {
+			cerbos_cloud_provision_v1_Deployment_hashpb_sum(m.GetDeployment(), hasher, ignore, b)
+		}
 	}
 }
 
@@ -368,6 +537,11 @@ func cerbos_cloud_provision_v1_UpdateStoreRequest_hashpb_sum(m *UpdateStoreReque
 	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateStoreRequest.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateStoreRequest.github_connection"]; !ok {
+		if m.GetGithubConnection() != nil {
+			cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m.GetGithubConnection(), hasher, ignore, b)
+		}
 	}
 }
 
@@ -411,5 +585,11 @@ func cerbos_cloud_provision_v1_Workspace_hashpb_sum(m *Workspace, hasher hash.Ha
 	}
 }
 
-func google_protobuf_Empty_hashpb_sum(m *emptypb.Empty, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+func google_protobuf_Timestamp_hashpb_sum(m *timestamppb.Timestamp, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["google.protobuf.Timestamp.seconds"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetSeconds())))
+	}
+	if _, ok := ignore["google.protobuf.Timestamp.nanos"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNanos())))
+	}
 }
