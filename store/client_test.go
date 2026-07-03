@@ -75,7 +75,7 @@ func testListFiles(creds *credentials.Credentials) func(*testing.T) {
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
 
-		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.ClientImpl, wantErr error) error {
 			mockStoreSvc.EXPECT().ListFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ListFilesRequest]) bool {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
@@ -84,14 +84,14 @@ func testListFiles(creds *credentials.Credentials) func(*testing.T) {
 			return err
 		}))
 
-		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.ClientImpl) error {
 			_, err := c.ListFiles(test.Context(t), wantReq)
 			return err
 		}))
 	}
 }
 
-func testAuthenticationFailure(creds *credentials.Credentials, fn func(*store.Client) error) func(*testing.T) {
+func testAuthenticationFailure(creds *credentials.Credentials, fn func(*store.ClientImpl) error) func(*testing.T) {
 	return func(t *testing.T) {
 		mockStoreSvc := mockstorev1connect.NewCerbosStoreServiceHandler(t)
 		storePath, storeHandler := storev1connect.NewCerbosStoreServiceHandler(mockStoreSvc)
@@ -115,7 +115,7 @@ func testAuthenticationFailure(creds *credentials.Credentials, fn func(*store.Cl
 	}
 }
 
-func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1connect.CerbosStoreServiceHandler, *store.Client, error) error) func(*testing.T) {
+func testErrorHandling(creds *credentials.Credentials, fn func(*mockstorev1connect.CerbosStoreServiceHandler, *store.ClientImpl, error) error) func(*testing.T) {
 	return func(t *testing.T) {
 		testCases := []struct {
 			name                    string
@@ -265,7 +265,7 @@ func testGetCurrentVersion(creds *credentials.Credentials) func(*testing.T) {
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
 
-		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.ClientImpl, wantErr error) error {
 			mockStoreSvc.EXPECT().GetCurrentVersion(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.GetCurrentVersionRequest]) bool {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
@@ -274,7 +274,7 @@ func testGetCurrentVersion(creds *credentials.Credentials) func(*testing.T) {
 			return err
 		}))
 
-		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.ClientImpl) error {
 			_, err := c.GetCurrentVersion(test.Context(t), wantReq)
 			return err
 		}))
@@ -324,7 +324,7 @@ func testGetFiles(creds *credentials.Credentials) func(*testing.T) {
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
 
-		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.ClientImpl, wantErr error) error {
 			mockStoreSvc.EXPECT().GetFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.GetFilesRequest]) bool {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
@@ -333,7 +333,7 @@ func testGetFiles(creds *credentials.Credentials) func(*testing.T) {
 			return err
 		}))
 
-		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.ClientImpl) error {
 			_, err := c.GetFiles(test.Context(t), wantReq)
 			return err
 		}))
@@ -378,7 +378,7 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
 
-		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.ClientImpl, wantErr error) error {
 			mockStoreSvc.EXPECT().ModifyFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ModifyFilesRequest]) bool {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
@@ -387,7 +387,7 @@ func testModifyFiles(creds *credentials.Credentials) func(*testing.T) {
 			return err
 		}))
 
-		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.ClientImpl) error {
 			_, err := c.ModifyFiles(test.Context(t), wantReq)
 			return err
 		}))
@@ -426,7 +426,7 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 			require.Empty(t, cmp.Diff(wantResp, haveResp, protocmp.Transform()))
 		})
 
-		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.Client, wantErr error) error {
+		t.Run("ErrorHandling", testErrorHandling(creds, func(mockStoreSvc *mockstorev1connect.CerbosStoreServiceHandler, client *store.ClientImpl, wantErr error) error {
 			mockStoreSvc.EXPECT().ReplaceFiles(mock.Anything, mock.MatchedBy(func(c *connect.Request[storev1.ReplaceFilesRequest]) bool {
 				return cmp.Equal(c.Msg, wantReq, protocmp.Transform())
 			})).Return(nil, wantErr)
@@ -435,7 +435,7 @@ func testReplaceFiles(creds *credentials.Credentials) func(*testing.T) {
 			return err
 		}))
 
-		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.Client) error {
+		t.Run("AuthenticationFailure", testAuthenticationFailure(creds, func(c *store.ClientImpl) error {
 			_, err := c.ReplaceFiles(test.Context(t), wantReq)
 			return err
 		}))

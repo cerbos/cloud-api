@@ -77,7 +77,7 @@ func (h *Hub) LogCapClient() (*logcap.Client, error) {
 	return logcap.NewClient(h.client, h.opts)
 }
 
-func (h *Hub) StoreClient() (*store.Client, error) {
+func (h *Hub) StoreClient() (*store.ClientImpl, error) {
 	return store.NewClient(h.client, h.opts)
 }
 

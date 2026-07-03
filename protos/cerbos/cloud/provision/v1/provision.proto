@@ -67,6 +67,34 @@ message Store {
   Resource.Store resource_id = 1;
   string name = 2;
   int64 version = 3;
+  optional StoreGitHubConnection github_connection = 4;
+}
+
+message StoreGitHubConnection {
+  string owner = 1;
+  string repo = 2;
+  int64 repo_id = 3 [(buf.validate.field).int64.gt = 0];
+  int64 app_installation_id = 4 [(buf.validate.field).int64.gt = 0];
+  oneof ref {
+    option (buf.validate.oneof).required = true;
+    string branch = 5;
+    string tag = 6;
+  }
+  string subdirectory = 7;
+}
+
+message Deployment {
+  Resource.Deployment resource_id = 1;
+  string name = 2;
+  repeated string stores = 3;
+  google.protobuf.Timestamp last_successful_build = 4;
+  string active_bundle_id = 5;
+}
+
+message ListOrganizationsRequest {}
+
+message ListOrganizationsResponse {
+  repeated Organization organizations = 1;
 }
 
 message CreateOrganizationRequest {
@@ -106,6 +134,14 @@ message DeleteOrganizationRequest {
 
 message DeleteOrganizationResponse {}
 
+message ListWorkspacesRequest {
+  Resource.Organization organization = 1;
+}
+
+message ListWorkspacesResponse {
+  repeated Workspace workspaces = 1;
+}
+
 message CreateWorkspaceRequest {
   Resource.Organization organization = 1 [(buf.validate.field).required = true];
   string name = 2 [(buf.validate.field).string = {
@@ -144,33 +180,21 @@ message DeleteWorkspaceRequest {
 
 message DeleteWorkspaceResponse {}
 
+message ListStoresRequest {
+  Resource.Workspace workspace = 1;
+}
+
+message ListStoresResponse {
+  repeated Store stores = 1;
+}
+
 message CreateStoreRequest {
-  message StoreSource {
-    string id = 1 [(buf.validate.field).string.len = 12];
-    int64 version = 2;
-  }
-
-  message GitHubSource {
-    int64 repo_id = 1 [(buf.validate.field).int64.gt = 0];
-    int64 app_installation_id = 2 [(buf.validate.field).int64.gt = 0];
-    oneof ref {
-      option (buf.validate.oneof).required = true;
-      string branch = 3;
-      string tag = 4;
-    }
-    string subdirectory = 5;
-  }
-
   Resource.Workspace workspace = 1 [(buf.validate.field).required = true];
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
-  oneof source {
-    google.protobuf.Empty empty = 3;
-    StoreSource store = 4;
-    GitHubSource github = 5;
-  }
+  optional StoreGitHubConnection github_connection = 3;
 }
 
 message CreateStoreResponse {
@@ -191,6 +215,7 @@ message UpdateStoreRequest {
     min_len: 1
     max_len: 128
   }];
+  optional StoreGitHubConnection github_connection = 3;
 }
 
 message UpdateStoreResponse {
@@ -203,19 +228,91 @@ message DeleteStoreRequest {
 
 message DeleteStoreResponse {}
 
+message ListDeploymentsRequest {
+  Resource.Workspace workspace = 1;
+}
+
+message ListDeploymentsResponse {
+  repeated Deployment deployments = 1;
+}
+
+message CreateDeploymentRequest {
+  Resource.Workspace workspace = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  repeated string stores = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 10
+    items: {
+      string: {len: 12}
+    }
+    unique: true
+  }];
+}
+
+message CreateDeploymentResponse {
+  Deployment deployment = 1;
+}
+
+message ReadDeploymentRequest {
+  Resource.Deployment resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message ReadDeploymentResponse {
+  Deployment deployment = 1;
+}
+
+message UpdateDeploymentRequest {
+  Resource.Deployment resource_id = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message UpdateDeploymentResponse {
+  Deployment deployment = 1;
+}
+
+message DeleteDeploymentRequest {
+  Resource.Deployment resource_id = 1 [(buf.validate.field).required = true];
+}
+
+message DeleteDeploymentResponse {}
+
 service CerbosHubProvisioningService {
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
   rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {}
   rpc ReadOrganization(ReadOrganizationRequest) returns (ReadOrganizationResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {}
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {}
+  rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
   rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
   rpc ReadWorkspace(ReadWorkspaceRequest) returns (ReadWorkspaceResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
   rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
   rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
+  rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse) {}
+  rpc ReadDeployment(ReadDeploymentRequest) returns (ReadDeploymentResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  rpc UpdateDeployment(UpdateDeploymentRequest) returns (UpdateDeploymentResponse) {}
+  rpc DeleteDeployment(DeleteDeploymentRequest) returns (DeleteDeploymentResponse) {}
+  rpc ListStores(ListStoresRequest) returns (ListStoresResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
   rpc CreateStore(CreateStoreRequest) returns (CreateStoreResponse) {}
   rpc ReadStore(ReadStoreRequest) returns (ReadStoreResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
