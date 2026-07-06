@@ -1,16 +1,14 @@
 module github.com/cerbos/cloud-api/tools
 
-go 1.25.7
-
-toolchain go1.26.4
+go 1.26.4
 
 require (
 	connectrpc.com/connect v1.20.0
 	github.com/cerbos/actions v0.0.0-20260630142352-d2c46d81505b
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.0
-	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
+	github.com/planetscale/vtprotobuf v0.6.1-0.20260702190614-8ae5a48058df
 	github.com/vektra/mockery/v3 v3.7.1
-	golang.org/x/tools v0.46.0
+	golang.org/x/tools v0.47.0
 	google.golang.org/protobuf v1.36.11
 	gotest.tools/gotestsum v1.13.0
 	nikand.dev/go/cover v0.3.1-0.20250213020420-581f8c29634b
