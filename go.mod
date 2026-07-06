@@ -1,8 +1,6 @@
 module github.com/cerbos/cloud-api
 
-go 1.25.0
-
-toolchain go1.26.4
+go 1.25.11
 
 require (
 	buf.build/go/protovalidate v1.2.0
@@ -25,7 +23,7 @@ require (
 	github.com/zalando/go-keyring v0.2.8
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.53.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260630182238-925bb5da69e7
 	google.golang.org/protobuf v1.36.11
 )
 
