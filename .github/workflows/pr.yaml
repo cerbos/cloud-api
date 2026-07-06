@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up just
-        uses: cerbos/actions/install-tools@d5b49896c2cc22445a5167142912282a987ff9ae # main
+        uses: cerbos/actions/install-tools@d2c46d81505b3c938d9eaa51af6d5ef4020cd4bf # main
         with:
           tools: just
 
@@ -65,7 +65,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Set up just
-        uses: cerbos/actions/install-tools@d5b49896c2cc22445a5167142912282a987ff9ae # main
+        uses: cerbos/actions/install-tools@d2c46d81505b3c938d9eaa51af6d5ef4020cd4bf # main
         with:
           tools: just
 
@@ -73,10 +73,10 @@ jobs:
         run: just lint-modernize
 
       - name: golangci-lint
-        uses: cerbos/actions/golangci-lint@d5b49896c2cc22445a5167142912282a987ff9ae # main
+        uses: cerbos/actions/golangci-lint@d2c46d81505b3c938d9eaa51af6d5ef4020cd4bf # main
 
       - name: Check repo status
-        uses: cerbos/actions/check-repo-status@d5b49896c2cc22445a5167142912282a987ff9ae # main
+        uses: cerbos/actions/check-repo-status@d2c46d81505b3c938d9eaa51af6d5ef4020cd4bf # main
 
   buf:
     name: Proto check
@@ -90,4 +90,4 @@ jobs:
           persist-credentials: false
 
       - name: Lint protos
-        uses: cerbos/actions/buf@d5b49896c2cc22445a5167142912282a987ff9ae # main
+        uses: cerbos/actions/buf@d2c46d81505b3c938d9eaa51af6d5ef4020cd4bf # main

@@ -6,7 +6,7 @@ toolchain go1.26.4
 
 require (
 	connectrpc.com/connect v1.20.0
-	github.com/cerbos/actions v0.0.0-20260623134343-d5b49896c2cc
+	github.com/cerbos/actions v0.0.0-20260630142352-d2c46d81505b
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.0
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/vektra/mockery/v3 v3.7.1
