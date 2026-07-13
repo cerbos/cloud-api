@@ -7,7 +7,6 @@ require (
 	connectrpc.com/connect v1.20.0
 	connectrpc.com/grpcreflect v1.3.0
 	connectrpc.com/otelconnect v0.9.0
-	filippo.io/age v1.3.1
 	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.53.0
 	github.com/failsafe-go/failsafe-go v0.9.6
@@ -30,7 +29,6 @@ require (
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
 	cel.dev/expr v0.25.2 // indirect
-	filippo.io/hpke v0.4.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect

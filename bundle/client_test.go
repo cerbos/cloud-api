@@ -57,8 +57,6 @@ import (
 	mockbundlev2connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
 
-const testPrivateKey = "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A"
-
 var pdpIdentifer = &pdpv1.Identifier{
 	Instance: "instance",
 	Version:  "0.34.0",
@@ -1175,7 +1173,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 		}
 	}
 
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret")
 	require.NoError(t, err, "Failed to create credentials")
 
 	h, err := hub.New(base.ClientConf{
