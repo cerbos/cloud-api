@@ -11,10 +11,6 @@ packages:
     interfaces:
       ApiKeyServiceHandler: {}
 
-  github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect:
-    interfaces:
-      CerbosBundleServiceHandler: {}
-
   github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect:
     interfaces:
       CerbosBundleServiceHandler: {}
