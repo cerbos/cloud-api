@@ -3,7 +3,7 @@
 
 //go:build tests
 
-package v2_test
+package bundle_test
 
 import (
 	"bytes"
@@ -44,7 +44,6 @@ import (
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"
-	v2 "github.com/cerbos/cloud-api/bundle/v2"
 	"github.com/cerbos/cloud-api/credentials"
 	"github.com/cerbos/cloud-api/crypto/stream"
 	apikeyv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/apikey/v1"
@@ -82,7 +81,7 @@ func TestBootstrapBundle(t *testing.T) {
 	dataDir := filepath.Join(rootDir, "ruletable")
 	require.NoError(t, os.MkdirAll(dataDir, 0o774), "Failed to create v2 data dir")
 
-	writeBootstrapBundleResponse := func(t *testing.T, deploymentID v2.DeploymentID, data []byte) {
+	writeBootstrapBundleResponse := func(t *testing.T, deploymentID bundle.DeploymentID, data []byte) {
 		t.Helper()
 
 		encryptedBytes, err := encrypt(clientID, clientSecret, data)
@@ -101,7 +100,7 @@ func TestBootstrapBundle(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
-		source := v2.DeploymentID("PJX7SLDX8SNG")
+		source := bundle.DeploymentID("PJX7SLDX8SNG")
 		bundleResp := &bundlev2.GetBundleResponse{
 			BundleInfo: bundleInfo(source, &bundlev2.BundleInfo{
 				InputHash:     hash("input"),
@@ -135,7 +134,7 @@ func TestBootstrapBundle(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		_, _, _, err := client.BootstrapBundle(test.Context(t), v2.DeploymentID("VQZE8L9LQDML"))
+		_, _, _, err := client.BootstrapBundle(test.Context(t), bundle.DeploymentID("VQZE8L9LQDML"))
 		require.Error(t, err)
 	})
 }
@@ -143,15 +142,15 @@ func TestBootstrapBundle(t *testing.T) {
 func TestGetBundle(t *testing.T) {
 	testCases := []struct {
 		name   string
-		source v2.Source
+		source bundle.Source
 	}{
 		{
 			name:   "Deployment",
-			source: v2.DeploymentID("PJX7SLDX8SNG"),
+			source: bundle.DeploymentID("PJX7SLDX8SNG"),
 		},
 		{
 			name:   "Playground",
-			source: v2.PlaygroundID("FMOAXTQ1ZK84"),
+			source: bundle.PlaygroundID("FMOAXTQ1ZK84"),
 		},
 	}
 
@@ -601,7 +600,7 @@ func TestGetBundle(t *testing.T) {
 	}
 }
 
-func getBundleReq(source v2.Source) func(*connect.Request[bundlev2.GetBundleRequest]) bool {
+func getBundleReq(source bundle.Source) func(*connect.Request[bundlev2.GetBundleRequest]) bool {
 	return func(req *connect.Request[bundlev2.GetBundleRequest]) bool {
 		return cmp.Equal(&bundlev2.GetBundleRequest{
 			PdpId:      pdpIdentifer,
@@ -611,11 +610,11 @@ func getBundleReq(source v2.Source) func(*connect.Request[bundlev2.GetBundleRequ
 	}
 }
 
-func bundleInfo(source v2.Source, info *bundlev2.BundleInfo) *bundlev2.BundleInfo {
+func bundleInfo(source bundle.Source, info *bundlev2.BundleInfo) *bundlev2.BundleInfo {
 	switch s := source.(type) {
-	case v2.DeploymentID:
+	case bundle.DeploymentID:
 		info.Source = &bundlev2.Source{Source: &bundlev2.Source_DeploymentId{DeploymentId: string(s)}}
-	case v2.PlaygroundID:
+	case bundle.PlaygroundID:
 		info.Source = &bundlev2.Source{Source: &bundlev2.Source_PlaygroundId{PlaygroundId: string(s)}}
 	default:
 		return nil
@@ -626,15 +625,15 @@ func bundleInfo(source v2.Source, info *bundlev2.BundleInfo) *bundlev2.BundleInf
 func TestWatchBundle(t *testing.T) {
 	testCases := []struct {
 		name   string
-		source v2.Source
+		source bundle.Source
 	}{
 		{
 			name:   "Deployment",
-			source: v2.DeploymentID("PJX7SLDX8SNG"),
+			source: bundle.DeploymentID("PJX7SLDX8SNG"),
 		},
 		{
 			name:   "Playground",
-			source: v2.PlaygroundID("FMOAXTQ1ZK84"),
+			source: bundle.PlaygroundID("FMOAXTQ1ZK84"),
 		},
 	}
 
@@ -889,7 +888,7 @@ func TestWatchBundle(t *testing.T) {
 						IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 						Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-					_, err := client.WatchBundle(test.Context(t), v2.DeploymentID("PJX7SLDX8SNG"))
+					_, err := client.WatchBundle(test.Context(t), bundle.DeploymentID("PJX7SLDX8SNG"))
 					require.Error(t, err)
 					require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 				})
@@ -913,7 +912,7 @@ func mustPopFromChan[A any](t *testing.T, c <-chan A) (out A) {
 	}
 }
 
-func mkWatchBundleStartReq(source v2.Source) *bundlev2.WatchBundleRequest {
+func mkWatchBundleStartReq(source bundle.Source) *bundlev2.WatchBundleRequest {
 	return &bundlev2.WatchBundleRequest{
 		PdpId: pdpIdentifer,
 		Msg: &bundlev2.WatchBundleRequest_Start_{
@@ -941,7 +940,7 @@ func mkWatchBundleHeartbeatReq(bundleID string) *bundlev2.WatchBundleRequest {
 func TestGetCachedBundle(t *testing.T) {
 	t.Run("NonExistentDeployment", func(t *testing.T) {
 		client, _ := mkClient(t, "https://localhost", nil)
-		_, err := client.GetCachedBundle(v2.DeploymentID(""))
+		_, err := client.GetCachedBundle(bundle.DeploymentID(""))
 		require.Error(t, err)
 	})
 }
@@ -968,7 +967,7 @@ func TestNetworkIssues(t *testing.T) {
 
 		require.NoError(t, proxy.Disable(), " Failed to apply toxic")
 
-		_, err := client.WatchBundle(ctx, v2.DeploymentID(""))
+		_, err := client.WatchBundle(ctx, bundle.DeploymentID(""))
 		require.Error(t, err, "Expected RPC to fail")
 		require.Equal(t, connect.CodeUnavailable, connect.CodeOf(err))
 	})
@@ -988,7 +987,7 @@ func TestNetworkIssues(t *testing.T) {
 		t.Cleanup(cancelFn)
 		expectIssueAccessToken(mockAPIKeySvc)
 
-		source := v2.DeploymentID("PJX7SLDX8SNG")
+		source := bundle.DeploymentID("PJX7SLDX8SNG")
 
 		handle, err := client.WatchBundle(ctx, source)
 		require.NoError(t, err, "Failed to call RPC")
@@ -1142,7 +1141,7 @@ func checksum(t *testing.T, file string) []byte {
 	return sum.Sum(nil)
 }
 
-func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v2.Client, *credentials.Credentials) {
+func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client, *credentials.Credentials) {
 	t.Helper()
 
 	tmp := t.TempDir()
@@ -1192,7 +1191,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*v2.Client, *cr
 	})
 	require.NoError(t, err, "Failed to initialize hub")
 
-	client, err := h.BundleClientV2(bundle.ClientConf{
+	client, err := h.BundleClient(bundle.ClientConf{
 		CacheDir: cacheDir,
 		TempDir:  tempDir,
 	})

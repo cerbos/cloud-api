@@ -1,10 +1,9 @@
 // Copyright 2021-2026 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-package v1
+package bundle
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -13,7 +12,6 @@ import (
 	"net/url"
 	"sort"
 	"time"
-	"unicode"
 
 	"buf.build/go/protovalidate"
 	"connectrpc.com/connect"
@@ -21,28 +19,21 @@ import (
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/multierr"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/cerbos/cloud-api/base"
-	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/bundle/clientcache"
-	bootstrapv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bootstrap/v1"
-	bundlev1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1"
-	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v1/bundlev1connect"
-)
-
-const (
-	bootstrapPathPrefix = "bootstrap/v1"
+	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
+	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
 
 type Client struct {
-	rpcClient bundlev1connect.CerbosBundleServiceClient
+	rpcClient bundlev2connect.CerbosBundleServiceClient
 	cache     *clientcache.ClientCache
 	base.Client
 }
 
-func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
+func NewClient(conf ClientConf, baseClient base.Client, options []connect.ClientOption) (*Client, error) {
 	if err := conf.Validate(); err != nil {
 		return nil, err
 	}
@@ -54,38 +45,45 @@ func NewClient(conf bundle.ClientConf, baseClient base.Client, options []connect
 
 	httpClient := baseClient.StdHTTPClient() // Bidi streams don't work with retryable HTTP client.
 	return &Client{
-		cache:     c,
 		Client:    baseClient,
-		rpcClient: bundlev1connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
+		rpcClient: bundlev2connect.NewCerbosBundleServiceClient(httpClient, baseClient.APIEndpoint, options...),
+		cache:     c,
 	}, nil
 }
 
-func (c *Client) BootstrapBundle(ctx context.Context, bundleLabel string) (string, error) {
-	log := c.Logger.WithValues("bundle", bundleLabel)
-	log.V(1).Info("Getting bootstrap configuration")
+func (c *Client) BootstrapBundle(ctx context.Context, source Source) (string, bundlev2.BundleType, []byte, error) {
+	log := c.Logger.WithValues("source", source.String())
 
-	wsID := c.Credentials.HashString(c.Credentials.WorkspaceID)
-	labelHash := c.Credentials.HashString(bundleLabel)
-	bootstrapURL, err := url.JoinPath(c.BootstrapEndpoint, bootstrapPathPrefix, wsID, labelHash)
+	log.V(1).Info("Getting bootstrap bundle response")
+
+	urlPath, err := source.bootstrapBundleURLPath(c.Credentials)
 	if err != nil {
-		return "", fmt.Errorf("failed to construct bootstrap URL: %w", err)
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
-	bootstrapConf, err := c.downloadBootstrapConf(ctx, bootstrapURL)
+	bundleResponseURL, err := url.JoinPath(c.BootstrapEndpoint, urlPath)
 	if err != nil {
-		log.Error(err, "Failed to download bootstrap configuration")
-		return "", err
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, fmt.Errorf("failed to construct bootstrap bundle response URL: %w", err)
 	}
 
-	if meta := bootstrapConf.Meta; meta != nil {
-		log.Info("Bootstrap configuration downloaded", "created_at", meta.CreatedAt.AsTime(), "commit_hash", meta.CommitHash)
+	bundleResponse, err := c.getBundleResponseViaCDN(ctx, bundleResponseURL)
+	if err != nil {
+		log.Error(err, "Failed to download bootstrap bundle response")
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
 	}
 
-	base.LogResponsePayload(log, bootstrapConf)
-	return c.getBundleFile(logr.NewContext(ctx, log), bootstrapConf.BundleInfo)
+	log.Info("Bootstrap bundle response downloaded")
+	base.LogResponsePayload(log, bundleResponse)
+
+	path, err := c.getBundleFile(logr.NewContext(ctx, log), bundleResponse.BundleInfo)
+	if err != nil {
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
+	}
+
+	return path, bundleResponse.GetBundleInfo().GetBundleType(), bundleResponse.BundleInfo.EncryptionKey, nil
 }
 
-func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootstrapv1.PDPConfig, error) {
+func (c *Client) getBundleResponseViaCDN(ctx context.Context, url string) (*bundlev2.GetBundleResponse, error) {
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", url)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
@@ -110,67 +108,70 @@ func (c *Client) downloadBootstrapConf(ctx context.Context, url string) (*bootst
 
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusNotFound {
-			log.V(1).Info("Bootstrap bundle not found")
-			return nil, bundle.ErrBootstrapBundleNotFound
+			log.V(1).Info("Bootstrap bundle response not found")
+			return nil, ErrBootstrapBundleResponseNotFound
 		}
 
-		log.V(1).Info("Failed to download bootstrap bundle")
-		return nil, bundle.ErrDownloadFailed
+		log.V(1).Info("Failed to download bootstrap bundle response")
+		return nil, ErrDownloadFailed
 	}
 
-	confData, err := c.Credentials.Decrypt(io.LimitReader(resp.Body, bundle.MaxBootstrapSize))
+	bundleResponseBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, MaxBootstrapSize))
 	if err != nil {
-		return nil, err
+		log.V(1).Error(err, "Failed to decrypt bootstrap bundle response")
+		return nil, fmt.Errorf("failed to decrypt bootstrap bundle response: %w", err)
 	}
 
-	return c.parseBootstrapConf(confData)
+	return c.parseBundleResponse(bundleResponseBytes)
 }
 
-func (c *Client) parseBootstrapConf(input io.Reader) (*bootstrapv1.PDPConfig, error) {
-	confBytes, err := io.ReadAll(input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read decrypted bootstrap configuration: %w", err)
-	}
-
-	trimmed := bytes.TrimLeftFunc(confBytes, unicode.IsSpace)
-	out := &bootstrapv1.PDPConfig{}
-	if bytes.HasPrefix(trimmed, bundle.JSONStart) {
-		unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
-		if err := unmarshaler.Unmarshal(trimmed, out); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal bootstrap JSON: %w", err)
-		}
-	} else if err := out.UnmarshalVT(trimmed); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal bootstrap proto: %w", err)
+func (c *Client) parseBundleResponse(bundleResponseBytes []byte) (*bundlev2.GetBundleResponse, error) {
+	out := &bundlev2.GetBundleResponse{}
+	if err := out.UnmarshalVT(bundleResponseBytes); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal bootstrap bundle response proto: %w", err)
 	}
 
 	if err := protovalidate.Validate(out); err != nil {
-		return out, fmt.Errorf("invalid bootstrap configuration: %w", err)
+		return nil, fmt.Errorf("invalid bootstrap bundle response: %w", err)
 	}
 
 	return out, nil
 }
 
 // GetBundle returns the path to the bundle with the given label.
-func (c *Client) GetBundle(ctx context.Context, bundleLabel string) (string, error) {
-	log := c.Logger.WithValues("bundle", bundleLabel)
+func (c *Client) GetBundle(ctx context.Context, source Source) (string, bundlev2.BundleType, []byte, error) {
+	log := c.Logger.WithValues("source", source.String())
 	log.V(1).Info("Calling GetBundle RPC")
 
-	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev1.GetBundleRequest{
-		PdpId:       c.PDPIdentifier,
-		BundleLabel: bundleLabel,
+	resp, err := c.rpcClient.GetBundle(ctx, connect.NewRequest(&bundlev2.GetBundleRequest{
+		PdpId:      c.PDPIdentifier,
+		Source:     source.ToProto(),
+		BundleType: bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE.Enum(),
 	}))
 	if err != nil {
 		log.Error(err, "GetBundle RPC failed")
-		return "", err
+		switch connect.CodeOf(err) {
+		case connect.CodeNotFound:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, ErrBundleNotFound
+		case connect.CodePermissionDenied:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, ErrPermissionDenied
+		default:
+			return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
+		}
 	}
 
 	base.LogResponsePayload(log, resp.Msg)
 
-	return c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
+	path, err := c.getBundleFile(logr.NewContext(ctx, log), resp.Msg.BundleInfo)
+	if err != nil {
+		return "", bundlev2.BundleType_BUNDLE_TYPE_UNSPECIFIED, nil, err
+	}
+
+	return path, resp.Msg.GetBundleInfo().GetBundleType(), resp.Msg.BundleInfo.EncryptionKey, nil
 }
 
-func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.WatchHandle, error) {
-	log := c.Logger.WithValues("bundle", bundleLabel)
+func (c *Client) WatchBundle(ctx context.Context, source Source) (WatchHandle, error) {
+	log := c.Logger.WithValues("source", source.String())
 	log.V(1).Info("Calling WatchBundle RPC")
 
 	stream := c.rpcClient.WatchBundle(ctx)
@@ -181,11 +182,11 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 		return nil, fmt.Errorf("failed to send request headers: %w", err)
 	}
 
-	wh := &bundle.WatchHandleImpl[string]{
-		ServerEventsCh: make(chan bundle.ServerEvent, 1),
-		ClientEventsCh: make(chan bundle.ClientEvent, 1),
+	wh := &WatchHandleImpl[Source]{
+		ServerEventsCh: make(chan ServerEvent, 1),
+		ClientEventsCh: make(chan ClientEvent, 1),
 		ErrorsCh:       make(chan error, 1),
-		Source:         bundleLabel,
+		Source:         source,
 		Pool:           pool.New().WithContext(ctx).WithCancelOnError().WithFirstError(),
 	}
 
@@ -198,9 +199,9 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 				log.V(2).Info("Watch stream terminated: context timed out")
 			case errors.Is(err, context.Canceled):
 				log.V(2).Info("Watch stream terminated: context cancelled")
-			case errors.Is(err, bundle.ErrBundleNotFound):
+			case errors.Is(err, ErrBundleNotFound):
 				log.V(2).Info("Watch stream terminated: bundle not found")
-			case errors.As(err, &bundle.ReconnectError{}):
+			case errors.As(err, &ReconnectError{}):
 				log.V(2).Info("Watch stream terminated: server requests reconnect")
 			default:
 				log.V(2).Error(err, "Watch stream terminated")
@@ -214,11 +215,11 @@ func (c *Client) WatchBundle(ctx context.Context, bundleLabel string) (bundle.Wa
 }
 
 type recvMsg struct {
-	msg *bundlev1.WatchBundleResponse
+	msg *bundlev2.WatchBundleResponse
 	err error
 }
 
-func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl[string], logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev2.WatchBundleRequest, bundlev2.WatchBundleResponse], wh *WatchHandleImpl[Source], logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("recv")
 		log.V(1).Info("Starting response handler")
@@ -253,7 +254,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 			}
 		}()
 
-		publishWatchEvent := func(we bundle.ServerEvent) error {
+		publishWatchEvent := func(we ServerEvent) error {
 			log.V(3).Info("Publishing watch event")
 			select {
 			case wh.ServerEventsCh <- we:
@@ -265,44 +266,49 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 			}
 		}
 
-		processMsg := func(msg *bundlev1.WatchBundleResponse) error {
+		processMsg := func(msg *bundlev2.WatchBundleResponse) error {
 			base.LogResponsePayload(log, msg)
 
 			switch m := msg.Msg.(type) {
-			case *bundlev1.WatchBundleResponse_BundleUpdate:
+			case *bundlev2.WatchBundleResponse_BundleUpdate:
 				log.V(2).Info("Received bundle update")
 				bundlePath, err := c.getBundleFile(ctx, m.BundleUpdate)
 				if err != nil {
 					log.V(1).Error(err, "Failed to get bundle")
-					if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: err}); err != nil {
+					if err := publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: err}); err != nil {
 						log.V(2).Error(err, "Failed to send error")
 					}
 
 					return err
 				}
 
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventNewBundle, NewBundlePath: bundlePath}); err != nil {
+				if err := publishWatchEvent(ServerEvent{
+					Kind:          ServerEventNewBundle,
+					NewBundlePath: bundlePath,
+					EncryptionKey: m.BundleUpdate.EncryptionKey,
+					BundleType:    m.BundleUpdate.GetBundleType(),
+				}); err != nil {
 					return err
 				}
 
-			case *bundlev1.WatchBundleResponse_BundleRemoved_:
+			case *bundlev2.WatchBundleResponse_BundleRemoved_:
 				log.V(1).Info("Bundle label removed")
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventBundleRemoved}); err != nil {
+				if err := publishWatchEvent(ServerEvent{Kind: ServerEventBundleRemoved}); err != nil {
 					log.V(2).Error(err, "Failed to send bundle removed")
 				}
 
-			case *bundlev1.WatchBundleResponse_Reconnect_:
+			case *bundlev2.WatchBundleResponse_Reconnect_:
 				log.V(1).Info("Server requests reconnect")
-				backoff := bundle.DefaultBackoff
+				backoff := DefaultBackoff
 				if m.Reconnect != nil && m.Reconnect.Backoff != nil {
 					backoff = m.Reconnect.Backoff.AsDuration()
 				}
 
-				if err := publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
+				if err := publishWatchEvent(ServerEvent{Kind: ServerEventReconnect, ReconnectBackoff: backoff}); err != nil {
 					log.V(2).Error(err, "Failed to send reconnect")
 				}
 
-				return bundle.ReconnectError{Backoff: backoff}
+				return ReconnectError{Backoff: backoff}
 
 			default:
 				log.V(2).Info("Ignoring unknown message", "msg", base.NewProtoWrapper(msg))
@@ -320,15 +326,20 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 						return r.err
 					}
 
-					if connect.CodeOf(r.err) == connect.CodeNotFound {
+					switch connect.CodeOf(r.err) {
+					case connect.CodeNotFound:
 						log.V(1).Error(r.err, "Label does not exist")
-						_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: bundle.ErrBundleNotFound})
-						return bundle.ErrBundleNotFound
+						_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrBundleNotFound})
+						return ErrBundleNotFound
+					case connect.CodePermissionDenied:
+						log.V(1).Error(r.err, "Permission denied")
+						_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: ErrPermissionDenied})
+						return ErrPermissionDenied
+					default:
+						log.V(1).Error(r.err, "Error receiving message")
+						_ = publishWatchEvent(ServerEvent{Kind: ServerEventError, Error: r.err})
+						return r.err
 					}
-
-					log.V(1).Error(r.err, "Error receiving message")
-					_ = publishWatchEvent(bundle.ServerEvent{Kind: bundle.ServerEventError, Error: r.err})
-					return r.err
 				}
 
 				if r.msg != nil {
@@ -339,7 +350,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 				if !ok {
 					log.V(2).Info("Receive loop ended")
-					return bundle.ErrStreamEnded
+					return ErrStreamEnded
 				}
 			case <-ctx.Done():
 				log.V(2).Info("Exiting response handler due to context cancellation")
@@ -349,7 +360,7 @@ func (c *Client) watchStreamRecv(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.WatchBundleRequest, bundlev1.WatchBundleResponse], wh *bundle.WatchHandleImpl[string], logger logr.Logger) func(context.Context) error {
+func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev2.WatchBundleRequest, bundlev2.WatchBundleResponse], wh *WatchHandleImpl[Source], logger logr.Logger) func(context.Context) error {
 	return func(ctx context.Context) (outErr error) {
 		log := logger.WithName("send")
 		log.V(1).Info("Starting request handler")
@@ -380,10 +391,13 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}()
 
 		log.V(2).Info("Initiating bundle watch")
-		if err := stream.Send(&bundlev1.WatchBundleRequest{
+		if err := stream.Send(&bundlev2.WatchBundleRequest{
 			PdpId: c.PDPIdentifier,
-			Msg: &bundlev1.WatchBundleRequest_WatchLabel_{
-				WatchLabel: &bundlev1.WatchBundleRequest_WatchLabel{BundleLabel: wh.Source},
+			Msg: &bundlev2.WatchBundleRequest_Start_{
+				Start: &bundlev2.WatchBundleRequest_Start{
+					Source:     wh.Source.ToProto(),
+					BundleType: bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE.Enum(),
+				},
 			},
 		}); err != nil {
 			log.Error(err, "WatchBundle RPC failed")
@@ -392,12 +406,13 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 
 		sendHeartbeat := func(activeBundleID string) error {
 			log.V(3).Info("Sending heartbeat", "active_bundle_id", activeBundleID)
-			if err := stream.Send(&bundlev1.WatchBundleRequest{
+			if err := stream.Send(&bundlev2.WatchBundleRequest{
 				PdpId: c.PDPIdentifier,
-				Msg: &bundlev1.WatchBundleRequest_Heartbeat_{
-					Heartbeat: &bundlev1.WatchBundleRequest_Heartbeat{
+				Msg: &bundlev2.WatchBundleRequest_Heartbeat_{
+					Heartbeat: &bundlev2.WatchBundleRequest_Heartbeat{
 						Timestamp:      timestamppb.Now(),
 						ActiveBundleId: activeBundleID,
+						BundleType:     bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE.Enum(),
 					},
 				},
 			}); err != nil {
@@ -409,7 +424,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 		}
 
 		log.V(2).Info("Starting heartbeat loop")
-		activeBundleID := bundle.BundleIDUnknown
+		activeBundleID := BundleIDUnknown
 		for {
 			select {
 			case <-ctx.Done():
@@ -417,7 +432,7 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 				return ctx.Err()
 			case evt := <-wh.ClientEventsCh:
 				switch evt.Kind {
-				case bundle.ClientEventBundleSwap:
+				case ClientEventBundleSwap:
 					if activeBundleID != evt.ActiveBundleID {
 						log.V(3).Info("Sending bundle change event")
 						activeBundleID = evt.ActiveBundleID
@@ -437,20 +452,26 @@ func (c *Client) watchStreamSend(stream *connect.BidiStreamForClient[bundlev1.Wa
 	}
 }
 
-func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) (outPath string, outErr error) {
+func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev2.BundleInfo) (outPath string, outErr error) {
 	log := logr.FromContextOrDiscard(ctx)
 
-	if len(binfo.BundleHash) != clientcache.HashSize {
-		err := fmt.Errorf("length of bundle hash %x does not match expected hash size", binfo.BundleHash)
-		log.Error(err, "Invalid bundle hash")
+	if len(binfo.OutputHash) != cache.HashSize {
+		err := fmt.Errorf("length of output hash %x does not match expected hash size", binfo.OutputHash)
+		log.Error(err, "Invalid output hash")
 		return "", err
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(binfo.BundleHash))
+	bdlCacheKey := *(*cache.ActionID)(binfo.OutputHash)
 	defer func() {
 		if outErr == nil && outPath != "" {
-			if err := c.cache.UpdateSourceCache(binfo.Label, bdlCacheKey); err != nil {
-				log.V(1).Error(err, "Failed to update label mapping")
+			source, err := sourceFromProto(binfo.GetSource())
+			if err != nil {
+				log.V(1).Error(err, "Failed to get bundle source")
+				return
+			}
+
+			if err := c.cache.UpdateSourceCache(source.String(), bdlCacheKey); err != nil {
+				log.V(1).Error(err, "Failed to update source mapping")
 			}
 		}
 	}()
@@ -467,7 +488,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 	switch len(segments) {
 	case 0:
 		log.V(1).Info("No segments provided")
-		return "", bundle.ErrInvalidResponse
+		return "", ErrInvalidResponse
 	case 1:
 		return c.downloadSegment(logr.NewContext(ctx, log), bdlCacheKey, segments[0])
 	default:
@@ -475,7 +496,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 		// TODO(cell): Check segment IDs are sequential (not missing any IDs)
 		// TODO(cell): Download in parallel if there are many segments
 
-		joiner := bundle.NewSegmentJoiner(len(segments))
+		joiner := NewSegmentJoiner(len(segments))
 		for _, s := range segments {
 			logger := log.WithValues("segment", s.SegmentId)
 			logger.V(1).Info("Getting segment")
@@ -499,7 +520,7 @@ func (c *Client) getBundleFile(ctx context.Context, binfo *bundlev1.BundleInfo) 
 	}
 }
 
-func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev1.BundleInfo_Segment) (string, error) {
+func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev2.BundleInfo_Segment) (string, error) {
 	log := logr.FromContextOrDiscard(ctx)
 
 	cacheKey := clientcache.SegmentCacheKey(segment.Checksum)
@@ -513,16 +534,16 @@ func (c *Client) getSegmentFile(ctx context.Context, segment *bundlev1.BundleInf
 	return c.downloadSegment(ctx, cacheKey, segment)
 }
 
-func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment) (string, error) {
+func (c *Client) downloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev2.BundleInfo_Segment) (string, error) {
 	if len(segment.DownloadUrls) == 0 {
-		return "", bundle.ErrNoSegmentDownloadURL
+		return "", ErrNoSegmentDownloadURL
 	}
 
-	r := bundle.NewRing(segment.DownloadUrls)
+	r := NewRing(segment.DownloadUrls)
 	return c.doDownloadSegment(ctx, cacheKey, segment, r, 1)
 }
 
-func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev1.BundleInfo_Segment, r *bundle.Ring, attempt int) (string, error) {
+func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID, segment *bundlev2.BundleInfo_Segment, r *Ring, attempt int) (string, error) {
 	downloadURL := r.Next()
 	log := logr.FromContextOrDiscard(ctx).WithValues("url", downloadURL, "attempt", attempt)
 	log.V(1).Info("Constructing download request")
@@ -537,7 +558,7 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		log.V(1).Error(err, "Failed to send download request")
-		if r.Size() > 1 && attempt < bundle.MaxDownloadAttempts {
+		if r.Size() > 1 && attempt < MaxDownloadAttempts {
 			return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
 		}
 
@@ -555,24 +576,24 @@ func (c *Client) doDownloadSegment(ctx context.Context, cacheKey cache.ActionID,
 	switch {
 	case resp.StatusCode == http.StatusOK:
 		return c.cache.AddSegment(ctx, cacheKey, segment.Checksum, resp)
-	case resp.StatusCode >= 404 && r.Size() > 1 && attempt < bundle.MaxDownloadAttempts:
+	case resp.StatusCode >= 404 && r.Size() > 1 && attempt < MaxDownloadAttempts:
 		log.V(1).Info("Retrying download")
 		return c.doDownloadSegment(ctx, cacheKey, segment, r, attempt+1)
 	default:
 		log.V(1).Info("Download failed")
-		return "", bundle.ErrDownloadFailed
+		return "", ErrDownloadFailed
 	}
 }
 
-// GetCachedBundle returns the last cached entry for the given label if it exists.
-func (c *Client) GetCachedBundle(bundleLabel string) (string, error) {
-	lblCacheKey := clientcache.SourceCacheKey(bundleLabel)
+// GetCachedBundle returns the last cached entry for the given source if it exists.
+func (c *Client) GetCachedBundle(source Source) (string, error) {
+	lblCacheKey := clientcache.SourceCacheKey(source.String())
 	entry, err := c.cache.GetBytes(lblCacheKey)
 	if err != nil {
-		return "", fmt.Errorf("no cache entry for %s: %w", bundleLabel, err)
+		return "", fmt.Errorf("no cache entry for %s: %w", source, err)
 	}
 
-	bdlCacheKey := *((*cache.ActionID)(entry))
+	bdlCacheKey := *(*cache.ActionID)(entry)
 	bdlEntry, err := c.cache.Get(bdlCacheKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to find bundle in cache: %w", err)

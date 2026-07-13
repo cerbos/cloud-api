@@ -1,14 +1,13 @@
 // Copyright 2021-2026 Zenauth Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-package v2
+package bundle
 
 import (
 	"encoding/base64"
 	"fmt"
 	"path"
 
-	"github.com/cerbos/cloud-api/bundle"
 	"github.com/cerbos/cloud-api/credentials"
 	bundlev2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 )
@@ -55,5 +54,5 @@ func (p PlaygroundID) ToProto() *bundlev2.Source {
 }
 
 func (p PlaygroundID) bootstrapBundleURLPath(*credentials.Credentials) (string, error) {
-	return "", bundle.ErrBootstrappingNotSupported
+	return "", ErrBootstrappingNotSupported
 }
