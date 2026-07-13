@@ -14,14 +14,6 @@ import (
 	"go.uber.org/multierr"
 )
 
-type Version uint
-
-const (
-	VersionUnspecified Version = 0
-	Version1           Version = 1
-	Version2           Version = 2
-)
-
 const (
 	DefaultBackoff      = 5 * time.Minute
 	MaxDownloadAttempts = 3
@@ -34,7 +26,6 @@ const (
 var JSONStart = []byte("{")
 
 var (
-	ErrBootstrapBundleNotFound         = errors.New("bootstrap bundle not found")
 	ErrBootstrapBundleResponseNotFound = errors.New("bootstrap bundle response not found")
 	ErrBootstrappingNotSupported       = errors.New("bootstrapping is not supported for the bundle source")
 	ErrBundleNotFound                  = errors.New("bundle not found")
