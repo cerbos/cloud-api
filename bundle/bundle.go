@@ -14,14 +14,6 @@ import (
 	"go.uber.org/multierr"
 )
 
-type Version uint
-
-const (
-	VersionUnspecified Version = 0
-	Version1           Version = 1
-	Version2           Version = 2
-)
-
 const (
 	DefaultBackoff      = 5 * time.Minute
 	MaxDownloadAttempts = 3
