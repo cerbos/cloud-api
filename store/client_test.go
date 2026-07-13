@@ -28,7 +28,7 @@ import (
 )
 
 func TestStoreClient(t *testing.T) {
-	creds, err := credentials.New("client-id", "client-secret", "")
+	creds, err := credentials.New("client-id", "client-secret")
 	require.NoError(t, err)
 
 	t.Run("ListFiles", testListFiles(creds))

@@ -116,7 +116,7 @@ func (c *Client) getBundleResponseViaCDN(ctx context.Context, url string) (*bund
 		return nil, ErrDownloadFailed
 	}
 
-	bundleResponseBytes, err := c.Credentials.DecryptV2(io.LimitReader(resp.Body, MaxBootstrapSize))
+	bundleResponseBytes, err := c.Credentials.Decrypt(io.LimitReader(resp.Body, MaxBootstrapSize))
 	if err != nil {
 		log.V(1).Error(err, "Failed to decrypt bootstrap bundle response")
 		return nil, fmt.Errorf("failed to decrypt bootstrap bundle response: %w", err)

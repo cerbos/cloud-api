@@ -30,15 +30,13 @@ import (
 	"github.com/cerbos/cloud-api/test/testserver"
 )
 
-const testPrivateKey = "CERBOS-1MKYX97DHPT3B-L05ALANNYUXY7HEMFXUNQRLS47D8G8D9ZYUMEDPE4X2382Q2WMSSXY2G2A"
-
 var pdpIdentifer = &pdpv1.Identifier{
 	Instance: "instance",
 	Version:  "0.34.0",
 }
 
 func TestIngest(t *testing.T) {
-	creds, err := credentials.New("client-id", "client-secret", testPrivateKey)
+	creds, err := credentials.New("client-id", "client-secret")
 	require.NoError(t, err)
 
 	t.Run("Success", func(t *testing.T) {
