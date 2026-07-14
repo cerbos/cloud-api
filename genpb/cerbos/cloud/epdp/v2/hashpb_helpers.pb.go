@@ -7,8 +7,7 @@ import (
 	v1 "github.com/cerbos/cerbos/api/genpb/cerbos/audit/v1"
 	v11 "github.com/cerbos/cerbos/api/genpb/cerbos/engine/v1"
 	v12 "github.com/cerbos/cerbos/api/genpb/cerbos/policy/v1"
-	v13 "github.com/cerbos/cerbos/api/genpb/cerbos/response/v1"
-	v14 "github.com/cerbos/cerbos/api/genpb/cerbos/schema/v1"
+	v13 "github.com/cerbos/cerbos/api/genpb/cerbos/schema/v1"
 	protowire "google.golang.org/protobuf/encoding/protowire"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -97,10 +96,26 @@ func cerbos_cloud_epdp_v2_Bundle_hashpb_sum(m *Bundle, hasher hash.Hash, ignore 
 	}
 }
 
+func cerbos_cloud_epdp_v2_CheckResourcesRequest_hashpb_sum(m *CheckResourcesRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.CheckResourcesRequest.inputs"]; !ok {
+		if len(m.Inputs) > 0 {
+			for _, v := range m.Inputs {
+				if v != nil {
+					cerbos_engine_v1_CheckInput_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
 func cerbos_cloud_epdp_v2_CheckResourcesResponse_hashpb_sum(m *CheckResourcesResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.epdp.v2.CheckResourcesResponse.response"]; !ok {
-		if m.GetResponse() != nil {
-			cerbos_response_v1_CheckResourcesResponse_hashpb_sum(m.GetResponse(), hasher, ignore, b)
+	if _, ok := ignore["cerbos.cloud.epdp.v2.CheckResourcesResponse.outputs"]; !ok {
+		if len(m.Outputs) > 0 {
+			for _, v := range m.Outputs {
+				if v != nil {
+					cerbos_engine_v1_CheckOutput_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
 		}
 	}
 	if _, ok := ignore["cerbos.cloud.epdp.v2.CheckResourcesResponse.audit_trail"]; !ok {
@@ -244,15 +259,161 @@ func cerbos_cloud_epdp_v2_Metadata_hashpb_sum(m *Metadata, hasher hash.Hash, ign
 	}
 }
 
+func cerbos_cloud_epdp_v2_PlanResourcesRequest_hashpb_sum(m *PlanResourcesRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.epdp.v2.PlanResourcesRequest.input"]; !ok {
+		if m.GetInput() != nil {
+			cerbos_engine_v1_PlanResourcesInput_hashpb_sum(m.GetInput(), hasher, ignore, b)
+		}
+	}
+}
+
 func cerbos_cloud_epdp_v2_PlanResourcesResponse_hashpb_sum(m *PlanResourcesResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.epdp.v2.PlanResourcesResponse.response"]; !ok {
-		if m.GetResponse() != nil {
-			cerbos_response_v1_PlanResourcesResponse_hashpb_sum(m.GetResponse(), hasher, ignore, b)
+	if _, ok := ignore["cerbos.cloud.epdp.v2.PlanResourcesResponse.output"]; !ok {
+		if m.GetOutput() != nil {
+			cerbos_engine_v1_PlanResourcesOutput_hashpb_sum(m.GetOutput(), hasher, ignore, b)
 		}
 	}
 	if _, ok := ignore["cerbos.cloud.epdp.v2.PlanResourcesResponse.audit_trail"]; !ok {
 		if m.GetAuditTrail() != nil {
 			cerbos_audit_v1_AuditTrail_hashpb_sum(m.GetAuditTrail(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_engine_v1_AuxData_hashpb_sum(m *v11.AuxData, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.AuxData.jwt"]; !ok {
+		if len(m.Jwt) > 0 {
+			if len(m.Jwt) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.Jwt {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Jwt[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Jwt[k], hasher, ignore, b)
+					}
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.Jwt)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Jwt[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Jwt[k], hasher, ignore, b)
+					}
+				}
+			}
+		}
+	}
+}
+
+func cerbos_engine_v1_CheckInput_hashpb_sum(m *v11.CheckInput, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.CheckInput.request_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckInput.resource"]; !ok {
+		if m.GetResource() != nil {
+			cerbos_engine_v1_Resource_hashpb_sum(m.GetResource(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckInput.principal"]; !ok {
+		if m.GetPrincipal() != nil {
+			cerbos_engine_v1_Principal_hashpb_sum(m.GetPrincipal(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckInput.actions"]; !ok {
+		if len(m.Actions) > 0 {
+			for _, v := range m.Actions {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckInput.aux_data"]; !ok {
+		if m.GetAuxData() != nil {
+			cerbos_engine_v1_AuxData_hashpb_sum(m.GetAuxData(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_engine_v1_CheckOutput_ActionEffect_hashpb_sum(m *v11.CheckOutput_ActionEffect, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.ActionEffect.effect"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetEffect())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.ActionEffect.policy"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicy()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicy()), len(m.GetPolicy())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.ActionEffect.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
+	}
+}
+
+func cerbos_engine_v1_CheckOutput_hashpb_sum(m *v11.CheckOutput, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.request_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.resource_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetResourceId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetResourceId()), len(m.GetResourceId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.actions"]; !ok {
+		if len(m.Actions) > 0 {
+			if len(m.Actions) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.Actions {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Actions[k] != nil {
+						cerbos_engine_v1_CheckOutput_ActionEffect_hashpb_sum(m.Actions[k], hasher, ignore, b)
+					}
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.Actions)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Actions[k] != nil {
+						cerbos_engine_v1_CheckOutput_ActionEffect_hashpb_sum(m.Actions[k], hasher, ignore, b)
+					}
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.effective_derived_roles"]; !ok {
+		if len(m.EffectiveDerivedRoles) > 0 {
+			for _, v := range m.EffectiveDerivedRoles {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.validation_errors"]; !ok {
+		if len(m.ValidationErrors) > 0 {
+			for _, v := range m.ValidationErrors {
+				if v != nil {
+					cerbos_schema_v1_ValidationError_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.CheckOutput.outputs"]; !ok {
+		if len(m.Outputs) > 0 {
+			for _, v := range m.Outputs {
+				if v != nil {
+					cerbos_engine_v1_OutputEntry_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
 		}
 	}
 }
@@ -316,6 +477,255 @@ func cerbos_engine_v1_PlanResourcesFilter_hashpb_sum(m *v11.PlanResourcesFilter,
 	}
 }
 
+func cerbos_engine_v1_PlanResourcesInput_Resource_hashpb_sum(m *v11.PlanResourcesInput_Resource, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.Resource.kind"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetKind()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetKind()), len(m.GetKind())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.Resource.attr"]; !ok {
+		if len(m.Attr) > 0 {
+			if len(m.Attr) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.Attr {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.Attr)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.Resource.policy_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.Resource.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
+	}
+}
+
+func cerbos_engine_v1_PlanResourcesInput_hashpb_sum(m *v11.PlanResourcesInput, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.request_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.action"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetAction()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetAction()), len(m.GetAction())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.principal"]; !ok {
+		if m.GetPrincipal() != nil {
+			cerbos_engine_v1_Principal_hashpb_sum(m.GetPrincipal(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.resource"]; !ok {
+		if m.GetResource() != nil {
+			cerbos_engine_v1_PlanResourcesInput_Resource_hashpb_sum(m.GetResource(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.aux_data"]; !ok {
+		if m.GetAuxData() != nil {
+			cerbos_engine_v1_AuxData_hashpb_sum(m.GetAuxData(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.include_meta"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], protowire.EncodeBool(m.GetIncludeMeta())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesInput.actions"]; !ok {
+		if len(m.Actions) > 0 {
+			for _, v := range m.Actions {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+}
+
+func cerbos_engine_v1_PlanResourcesOutput_hashpb_sum(m *v11.PlanResourcesOutput, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.request_id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.action"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetAction()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetAction()), len(m.GetAction())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.kind"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetKind()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetKind()), len(m.GetKind())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.policy_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.filter"]; !ok {
+		if m.GetFilter() != nil {
+			cerbos_engine_v1_PlanResourcesFilter_hashpb_sum(m.GetFilter(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.filter_debug"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetFilterDebug()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetFilterDebug()), len(m.GetFilterDebug())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.validation_errors"]; !ok {
+		if len(m.ValidationErrors) > 0 {
+			for _, v := range m.ValidationErrors {
+				if v != nil {
+					cerbos_schema_v1_ValidationError_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.actions"]; !ok {
+		if len(m.Actions) > 0 {
+			for _, v := range m.Actions {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.PlanResourcesOutput.matched_scopes"]; !ok {
+		if len(m.MatchedScopes) > 0 {
+			if len(m.MatchedScopes) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.MatchedScopes {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.MatchedScopes[k]))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.MatchedScopes[k]), len(m.MatchedScopes[k])))
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.MatchedScopes)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.MatchedScopes[k]))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.MatchedScopes[k]), len(m.MatchedScopes[k])))
+				}
+			}
+		}
+	}
+}
+
+func cerbos_engine_v1_Principal_hashpb_sum(m *v11.Principal, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.Principal.id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetId()), len(m.GetId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.Principal.policy_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.Principal.roles"]; !ok {
+		if len(m.Roles) > 0 {
+			for _, v := range m.Roles {
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.Principal.attr"]; !ok {
+		if len(m.Attr) > 0 {
+			if len(m.Attr) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.Attr {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.Attr)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.Principal.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
+	}
+}
+
+func cerbos_engine_v1_Resource_hashpb_sum(m *v11.Resource, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.engine.v1.Resource.kind"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetKind()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetKind()), len(m.GetKind())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.Resource.policy_version"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.Resource.id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetId()), len(m.GetId())))
+	}
+	if _, ok := ignore["cerbos.engine.v1.Resource.attr"]; !ok {
+		if len(m.Attr) > 0 {
+			if len(m.Attr) <= 32 {
+				keys := hashpb_stringKeyPool.Get().([]string)[:0]
+				for k := range m.Attr {
+					keys = append(keys, k)
+				}
+				slices.Sort(keys)
+				for _, k := range keys {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+				hashpb_stringKeyPool.Put(keys)
+			} else {
+				for _, k := range slices.Sorted(maps.Keys(m.Attr)) {
+					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
+					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
+					if m.Attr[k] != nil {
+						google_protobuf_Value_hashpb_sum(m.Attr[k], hasher, ignore, b)
+					}
+				}
+			}
+		}
+	}
+	if _, ok := ignore["cerbos.engine.v1.Resource.scope"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
+	}
+}
+
 func cerbos_policy_v1_SourceAttributes_hashpb_sum(m *v12.SourceAttributes, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.policy.v1.SourceAttributes.attributes"]; !ok {
 		if len(m.Attributes) > 0 {
@@ -346,235 +756,7 @@ func cerbos_policy_v1_SourceAttributes_hashpb_sum(m *v12.SourceAttributes, hashe
 	}
 }
 
-func cerbos_response_v1_CheckResourcesResponse_ResultEntry_Meta_EffectMeta_hashpb_sum(m *v13.CheckResourcesResponse_ResultEntry_Meta_EffectMeta, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Meta.EffectMeta.matched_policy"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetMatchedPolicy()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetMatchedPolicy()), len(m.GetMatchedPolicy())))
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Meta.EffectMeta.matched_scope"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetMatchedScope()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetMatchedScope()), len(m.GetMatchedScope())))
-	}
-}
-
-func cerbos_response_v1_CheckResourcesResponse_ResultEntry_Meta_hashpb_sum(m *v13.CheckResourcesResponse_ResultEntry_Meta, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Meta.actions"]; !ok {
-		if len(m.Actions) > 0 {
-			if len(m.Actions) <= 32 {
-				keys := hashpb_stringKeyPool.Get().([]string)[:0]
-				for k := range m.Actions {
-					keys = append(keys, k)
-				}
-				slices.Sort(keys)
-				for _, k := range keys {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					if m.Actions[k] != nil {
-						cerbos_response_v1_CheckResourcesResponse_ResultEntry_Meta_EffectMeta_hashpb_sum(m.Actions[k], hasher, ignore, b)
-					}
-				}
-				hashpb_stringKeyPool.Put(keys)
-			} else {
-				for _, k := range slices.Sorted(maps.Keys(m.Actions)) {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					if m.Actions[k] != nil {
-						cerbos_response_v1_CheckResourcesResponse_ResultEntry_Meta_EffectMeta_hashpb_sum(m.Actions[k], hasher, ignore, b)
-					}
-				}
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Meta.effective_derived_roles"]; !ok {
-		if len(m.EffectiveDerivedRoles) > 0 {
-			for _, v := range m.EffectiveDerivedRoles {
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
-			}
-		}
-	}
-}
-
-func cerbos_response_v1_CheckResourcesResponse_ResultEntry_Resource_hashpb_sum(m *v13.CheckResourcesResponse_ResultEntry_Resource, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Resource.id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetId()), len(m.GetId())))
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Resource.kind"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetKind()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetKind()), len(m.GetKind())))
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Resource.policy_version"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.Resource.scope"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetScope()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetScope()), len(m.GetScope())))
-	}
-}
-
-func cerbos_response_v1_CheckResourcesResponse_ResultEntry_hashpb_sum(m *v13.CheckResourcesResponse_ResultEntry, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.resource"]; !ok {
-		if m.GetResource() != nil {
-			cerbos_response_v1_CheckResourcesResponse_ResultEntry_Resource_hashpb_sum(m.GetResource(), hasher, ignore, b)
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.actions"]; !ok {
-		if len(m.Actions) > 0 {
-			if len(m.Actions) <= 32 {
-				keys := hashpb_stringKeyPool.Get().([]string)[:0]
-				for k := range m.Actions {
-					keys = append(keys, k)
-				}
-				slices.Sort(keys)
-				for _, k := range keys {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.Actions[k])))
-				}
-				hashpb_stringKeyPool.Put(keys)
-			} else {
-				for _, k := range slices.Sorted(maps.Keys(m.Actions)) {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.Actions[k])))
-				}
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.validation_errors"]; !ok {
-		if len(m.ValidationErrors) > 0 {
-			for _, v := range m.ValidationErrors {
-				if v != nil {
-					cerbos_schema_v1_ValidationError_hashpb_sum(v, hasher, ignore, b)
-				}
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.meta"]; !ok {
-		if m.GetMeta() != nil {
-			cerbos_response_v1_CheckResourcesResponse_ResultEntry_Meta_hashpb_sum(m.GetMeta(), hasher, ignore, b)
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.ResultEntry.outputs"]; !ok {
-		if len(m.Outputs) > 0 {
-			for _, v := range m.Outputs {
-				if v != nil {
-					cerbos_engine_v1_OutputEntry_hashpb_sum(v, hasher, ignore, b)
-				}
-			}
-		}
-	}
-}
-
-func cerbos_response_v1_CheckResourcesResponse_hashpb_sum(m *v13.CheckResourcesResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.request_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.results"]; !ok {
-		if len(m.Results) > 0 {
-			for _, v := range m.Results {
-				if v != nil {
-					cerbos_response_v1_CheckResourcesResponse_ResultEntry_hashpb_sum(v, hasher, ignore, b)
-				}
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.CheckResourcesResponse.cerbos_call_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetCerbosCallId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetCerbosCallId()), len(m.GetCerbosCallId())))
-	}
-}
-
-func cerbos_response_v1_PlanResourcesResponse_Meta_hashpb_sum(m *v13.PlanResourcesResponse_Meta, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.Meta.filter_debug"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetFilterDebug()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetFilterDebug()), len(m.GetFilterDebug())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.Meta.matched_scope"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetMatchedScope()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetMatchedScope()), len(m.GetMatchedScope())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.Meta.matched_scopes"]; !ok {
-		if len(m.MatchedScopes) > 0 {
-			if len(m.MatchedScopes) <= 32 {
-				keys := hashpb_stringKeyPool.Get().([]string)[:0]
-				for k := range m.MatchedScopes {
-					keys = append(keys, k)
-				}
-				slices.Sort(keys)
-				for _, k := range keys {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.MatchedScopes[k]))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.MatchedScopes[k]), len(m.MatchedScopes[k])))
-				}
-				hashpb_stringKeyPool.Put(keys)
-			} else {
-				for _, k := range slices.Sorted(maps.Keys(m.MatchedScopes)) {
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(k))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(k), len(k)))
-					_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.MatchedScopes[k]))))
-					_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.MatchedScopes[k]), len(m.MatchedScopes[k])))
-				}
-			}
-		}
-	}
-}
-
-func cerbos_response_v1_PlanResourcesResponse_hashpb_sum(m *v13.PlanResourcesResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.request_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetRequestId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetRequestId()), len(m.GetRequestId())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.action"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetAction()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetAction()), len(m.GetAction())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.resource_kind"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetResourceKind()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetResourceKind()), len(m.GetResourceKind())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.policy_version"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPolicyVersion()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPolicyVersion()), len(m.GetPolicyVersion())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.filter"]; !ok {
-		if m.GetFilter() != nil {
-			cerbos_engine_v1_PlanResourcesFilter_hashpb_sum(m.GetFilter(), hasher, ignore, b)
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.meta"]; !ok {
-		if m.GetMeta() != nil {
-			cerbos_response_v1_PlanResourcesResponse_Meta_hashpb_sum(m.GetMeta(), hasher, ignore, b)
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.validation_errors"]; !ok {
-		if len(m.ValidationErrors) > 0 {
-			for _, v := range m.ValidationErrors {
-				if v != nil {
-					cerbos_schema_v1_ValidationError_hashpb_sum(v, hasher, ignore, b)
-				}
-			}
-		}
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.cerbos_call_id"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetCerbosCallId()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetCerbosCallId()), len(m.GetCerbosCallId())))
-	}
-	if _, ok := ignore["cerbos.response.v1.PlanResourcesResponse.actions"]; !ok {
-		if len(m.Actions) > 0 {
-			for _, v := range m.Actions {
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(v))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(v), len(v)))
-			}
-		}
-	}
-}
-
-func cerbos_schema_v1_ValidationError_hashpb_sum(m *v14.ValidationError, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+func cerbos_schema_v1_ValidationError_hashpb_sum(m *v13.ValidationError, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.schema.v1.ValidationError.path"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetPath()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetPath()), len(m.GetPath())))
