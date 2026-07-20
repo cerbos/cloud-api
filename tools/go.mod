@@ -1,14 +1,14 @@
 module github.com/cerbos/cloud-api/tools
 
-go 1.25.11
+go 1.26.4
 
 require (
 	connectrpc.com/connect v1.20.0
 	github.com/cerbos/actions v0.0.0-20260715112341-77b46c5f4ff1
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.0
-	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
+	github.com/planetscale/vtprotobuf v0.6.1-0.20260702190614-8ae5a48058df
 	github.com/vektra/mockery/v3 v3.7.1
-	golang.org/x/tools v0.47.0
+	golang.org/x/tools v0.48.0
 	google.golang.org/protobuf v1.36.11
 	gotest.tools/gotestsum v1.13.0
 	nikand.dev/go/cover v0.3.1-0.20250213020420-581f8c29634b
@@ -52,9 +52,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
-	golang.org/x/mod v0.37.0 // indirect
+	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/term v0.44.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
