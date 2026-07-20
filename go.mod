@@ -1,6 +1,6 @@
 module github.com/cerbos/cloud-api
 
-go 1.26.4
+go 1.25.11
 
 require (
 	buf.build/go/protovalidate v1.2.0
@@ -14,7 +14,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/minio/sha256-simd v1.0.1
-	github.com/planetscale/vtprotobuf v0.6.1-0.20260702190614-8ae5a48058df
+	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/rogpeppe/go-internal v1.15.0
 	github.com/rs/zerolog v1.35.1
 	github.com/sourcegraph/conc v0.3.0
