@@ -4,7 +4,7 @@ go 1.25.11
 
 require (
 	connectrpc.com/connect v1.20.0
-	github.com/cerbos/actions v0.0.0-20260630142352-d2c46d81505b
+	github.com/cerbos/actions v0.0.0-20260715112341-77b46c5f4ff1
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.0
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/vektra/mockery/v3 v3.7.1
@@ -53,10 +53,10 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
 	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/term v0.43.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nikand.dev/go/cbor v0.0.0-20250217185914-a319e53bb3df // indirect
 	nikand.dev/go/cli v0.0.0-20250208225017-de7159bfa4ce // indirect
