@@ -164,6 +164,9 @@ func cerbos_cloud_epdp_v2_Config_Evaluator_hashpb_sum(m *Config_Evaluator, hashe
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetDefaultScope()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetDefaultScope()), len(m.GetDefaultScope())))
 	}
+	if _, ok := ignore["cerbos.cloud.epdp.v2.Config.Evaluator.strict_evaluation"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], protowire.EncodeBool(m.GetStrictEvaluation())))
+	}
 }
 
 func cerbos_cloud_epdp_v2_Config_Schema_hashpb_sum(m *Config_Schema, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
