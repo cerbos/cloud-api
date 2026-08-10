@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/minio/sha256-simd v1.0.1
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
-	github.com/rogpeppe/go-internal v1.15.0
+	github.com/rogpeppe/go-internal v1.16.0
 	github.com/rs/zerolog v1.35.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.11.1
