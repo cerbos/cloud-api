@@ -1,6 +1,6 @@
 module github.com/cerbos/cloud-api/tools
 
-go 1.25.11
+go 1.26.7
 
 require (
 	connectrpc.com/connect v1.20.0
