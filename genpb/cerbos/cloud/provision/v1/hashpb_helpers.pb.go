@@ -185,14 +185,17 @@ func cerbos_cloud_provision_v1_Deployment_hashpb_sum(m *Deployment, hasher hash.
 			}
 		}
 	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.last_successful_build"]; !ok {
-		if m.GetLastSuccessfulBuild() != nil {
-			google_protobuf_Timestamp_hashpb_sum(m.GetLastSuccessfulBuild(), hasher, ignore, b)
-		}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.frozen"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], protowire.EncodeBool(m.GetFrozen())))
 	}
 	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.active_bundle_id"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetActiveBundleId()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetActiveBundleId()), len(m.GetActiveBundleId())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.bundle_activated_at"]; !ok {
+		if m.GetBundleActivatedAt() != nil {
+			google_protobuf_Timestamp_hashpb_sum(m.GetBundleActivatedAt(), hasher, ignore, b)
+		}
 	}
 }
 

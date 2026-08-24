@@ -87,8 +87,9 @@ message Deployment {
   Resource.Deployment resource_id = 1;
   string name = 2;
   repeated string stores = 3;
-  google.protobuf.Timestamp last_successful_build = 4;
+  bool frozen = 4;
   string active_bundle_id = 5;
+  google.protobuf.Timestamp bundle_activated_at = 6;
 }
 
 message ListOrganizationsRequest {}
