@@ -29,9 +29,9 @@ type Client interface {
 	UpdateWorkspace(context.Context, *provisionv1.Resource_Workspace, string) (*provisionv1.Workspace, error)
 	DeleteWorkspace(context.Context, *provisionv1.Resource_Workspace) error
 	ListStores(context.Context, *provisionv1.Resource_Workspace) ([]*provisionv1.Store, error)
-	CreateStore(context.Context, *provisionv1.Resource_Workspace, string, *provisionv1.StoreGitHubConnection) (*provisionv1.Store, error)
+	CreateStore(context.Context, *provisionv1.Resource_Workspace, string) (*provisionv1.Store, error)
 	ReadStore(context.Context, *provisionv1.Resource_Store) (*provisionv1.Store, error)
-	UpdateStore(context.Context, *provisionv1.Resource_Store, string, *provisionv1.StoreGitHubConnection) (*provisionv1.Store, error)
+	UpdateStore(context.Context, *provisionv1.Resource_Store, string) (*provisionv1.Store, error)
 	DeleteStore(context.Context, *provisionv1.Resource_Store) error
 	ListDeployments(context.Context, *provisionv1.Resource_Workspace) ([]*provisionv1.Deployment, error)
 	CreateDeployment(context.Context, *provisionv1.Resource_Workspace, string, []string) (*provisionv1.Deployment, error)
@@ -152,8 +152,8 @@ func (c *ClientImpl) ListStores(ctx context.Context, workspace *provisionv1.Reso
 	return resp.Msg.GetStores(), nil
 }
 
-func (c *ClientImpl) CreateStore(ctx context.Context, workspace *provisionv1.Resource_Workspace, name string, githubConn *provisionv1.StoreGitHubConnection) (*provisionv1.Store, error) {
-	resp, err := c.rpcClient.CreateStore(ctx, connect.NewRequest(&provisionv1.CreateStoreRequest{Workspace: workspace, Name: name, GithubConnection: githubConn}))
+func (c *ClientImpl) CreateStore(ctx context.Context, workspace *provisionv1.Resource_Workspace, name string) (*provisionv1.Store, error) {
+	resp, err := c.rpcClient.CreateStore(ctx, connect.NewRequest(&provisionv1.CreateStoreRequest{Workspace: workspace, Name: name}))
 	if err != nil {
 		return nil, handleError(err)
 	}
@@ -170,8 +170,8 @@ func (c *ClientImpl) ReadStore(ctx context.Context, store *provisionv1.Resource_
 	return resp.Msg.GetStore(), nil
 }
 
-func (c *ClientImpl) UpdateStore(ctx context.Context, store *provisionv1.Resource_Store, name string, githubConn *provisionv1.StoreGitHubConnection) (*provisionv1.Store, error) {
-	resp, err := c.rpcClient.UpdateStore(ctx, connect.NewRequest(&provisionv1.UpdateStoreRequest{ResourceId: store, Name: name, GithubConnection: githubConn}))
+func (c *ClientImpl) UpdateStore(ctx context.Context, store *provisionv1.Resource_Store, name string) (*provisionv1.Store, error) {
+	resp, err := c.rpcClient.UpdateStore(ctx, connect.NewRequest(&provisionv1.UpdateStoreRequest{ResourceId: store, Name: name}))
 	if err != nil {
 		return nil, handleError(err)
 	}

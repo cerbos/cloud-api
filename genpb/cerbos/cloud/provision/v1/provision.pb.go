@@ -1502,12 +1502,11 @@ func (x *ListStoresResponse) GetStores() []*Store {
 }
 
 type CreateStoreRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Workspace        *Resource_Workspace    `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
-	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	GithubConnection *StoreGitHubConnection `protobuf:"bytes,3,opt,name=github_connection,json=githubConnection,proto3,oneof" json:"github_connection,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Workspace     *Resource_Workspace    `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateStoreRequest) Reset() {
@@ -1554,13 +1553,6 @@ func (x *CreateStoreRequest) GetName() string {
 	return ""
 }
 
-func (x *CreateStoreRequest) GetGithubConnection() *StoreGitHubConnection {
-	if x != nil {
-		return x.GithubConnection
-	}
-	return nil
-}
-
 type CreateStoreResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Store         *Store                 `protobuf:"bytes,1,opt,name=store,proto3" json:"store,omitempty"`
@@ -1605,6 +1597,116 @@ func (x *CreateStoreResponse) GetStore() *Store {
 	return nil
 }
 
+type SetStoreGitConnectionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Store *Resource_Store        `protobuf:"bytes,1,opt,name=store,proto3" json:"store,omitempty"`
+	// Types that are valid to be assigned to Connection:
+	//
+	//	*SetStoreGitConnectionRequest_GithubConnection
+	Connection    isSetStoreGitConnectionRequest_Connection `protobuf_oneof:"connection"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetStoreGitConnectionRequest) Reset() {
+	*x = SetStoreGitConnectionRequest{}
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetStoreGitConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetStoreGitConnectionRequest) ProtoMessage() {}
+
+func (x *SetStoreGitConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetStoreGitConnectionRequest.ProtoReflect.Descriptor instead.
+func (*SetStoreGitConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *SetStoreGitConnectionRequest) GetStore() *Resource_Store {
+	if x != nil {
+		return x.Store
+	}
+	return nil
+}
+
+func (x *SetStoreGitConnectionRequest) GetConnection() isSetStoreGitConnectionRequest_Connection {
+	if x != nil {
+		return x.Connection
+	}
+	return nil
+}
+
+func (x *SetStoreGitConnectionRequest) GetGithubConnection() *StoreGitHubConnection {
+	if x != nil {
+		if x, ok := x.Connection.(*SetStoreGitConnectionRequest_GithubConnection); ok {
+			return x.GithubConnection
+		}
+	}
+	return nil
+}
+
+type isSetStoreGitConnectionRequest_Connection interface {
+	isSetStoreGitConnectionRequest_Connection()
+}
+
+type SetStoreGitConnectionRequest_GithubConnection struct {
+	GithubConnection *StoreGitHubConnection `protobuf:"bytes,2,opt,name=github_connection,json=githubConnection,proto3,oneof"`
+}
+
+func (*SetStoreGitConnectionRequest_GithubConnection) isSetStoreGitConnectionRequest_Connection() {}
+
+type SetStoreGitConnectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetStoreGitConnectionResponse) Reset() {
+	*x = SetStoreGitConnectionResponse{}
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetStoreGitConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetStoreGitConnectionResponse) ProtoMessage() {}
+
+func (x *SetStoreGitConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetStoreGitConnectionResponse.ProtoReflect.Descriptor instead.
+func (*SetStoreGitConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{31}
+}
+
 type ReadStoreRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ResourceId    *Resource_Store        `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
@@ -1614,7 +1716,7 @@ type ReadStoreRequest struct {
 
 func (x *ReadStoreRequest) Reset() {
 	*x = ReadStoreRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[30]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1626,7 +1728,7 @@ func (x *ReadStoreRequest) String() string {
 func (*ReadStoreRequest) ProtoMessage() {}
 
 func (x *ReadStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[30]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1639,7 +1741,7 @@ func (x *ReadStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadStoreRequest.ProtoReflect.Descriptor instead.
 func (*ReadStoreRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{30}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ReadStoreRequest) GetResourceId() *Resource_Store {
@@ -1658,7 +1760,7 @@ type ReadStoreResponse struct {
 
 func (x *ReadStoreResponse) Reset() {
 	*x = ReadStoreResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[31]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1670,7 +1772,7 @@ func (x *ReadStoreResponse) String() string {
 func (*ReadStoreResponse) ProtoMessage() {}
 
 func (x *ReadStoreResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[31]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1683,7 +1785,7 @@ func (x *ReadStoreResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadStoreResponse.ProtoReflect.Descriptor instead.
 func (*ReadStoreResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{31}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ReadStoreResponse) GetStore() *Store {
@@ -1694,17 +1796,16 @@ func (x *ReadStoreResponse) GetStore() *Store {
 }
 
 type UpdateStoreRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	ResourceId       *Resource_Store        `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
-	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	GithubConnection *StoreGitHubConnection `protobuf:"bytes,3,opt,name=github_connection,json=githubConnection,proto3,oneof" json:"github_connection,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResourceId    *Resource_Store        `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateStoreRequest) Reset() {
 	*x = UpdateStoreRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[32]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1716,7 +1817,7 @@ func (x *UpdateStoreRequest) String() string {
 func (*UpdateStoreRequest) ProtoMessage() {}
 
 func (x *UpdateStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[32]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1729,7 +1830,7 @@ func (x *UpdateStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateStoreRequest.ProtoReflect.Descriptor instead.
 func (*UpdateStoreRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{32}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *UpdateStoreRequest) GetResourceId() *Resource_Store {
@@ -1746,13 +1847,6 @@ func (x *UpdateStoreRequest) GetName() string {
 	return ""
 }
 
-func (x *UpdateStoreRequest) GetGithubConnection() *StoreGitHubConnection {
-	if x != nil {
-		return x.GithubConnection
-	}
-	return nil
-}
-
 type UpdateStoreResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Store         *Store                 `protobuf:"bytes,1,opt,name=store,proto3" json:"store,omitempty"`
@@ -1762,7 +1856,7 @@ type UpdateStoreResponse struct {
 
 func (x *UpdateStoreResponse) Reset() {
 	*x = UpdateStoreResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[33]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1774,7 +1868,7 @@ func (x *UpdateStoreResponse) String() string {
 func (*UpdateStoreResponse) ProtoMessage() {}
 
 func (x *UpdateStoreResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[33]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1787,7 +1881,7 @@ func (x *UpdateStoreResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateStoreResponse.ProtoReflect.Descriptor instead.
 func (*UpdateStoreResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{33}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *UpdateStoreResponse) GetStore() *Store {
@@ -1806,7 +1900,7 @@ type DeleteStoreRequest struct {
 
 func (x *DeleteStoreRequest) Reset() {
 	*x = DeleteStoreRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[34]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1818,7 +1912,7 @@ func (x *DeleteStoreRequest) String() string {
 func (*DeleteStoreRequest) ProtoMessage() {}
 
 func (x *DeleteStoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[34]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1831,7 +1925,7 @@ func (x *DeleteStoreRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteStoreRequest.ProtoReflect.Descriptor instead.
 func (*DeleteStoreRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{34}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *DeleteStoreRequest) GetResourceId() *Resource_Store {
@@ -1849,7 +1943,7 @@ type DeleteStoreResponse struct {
 
 func (x *DeleteStoreResponse) Reset() {
 	*x = DeleteStoreResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[35]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1861,7 +1955,7 @@ func (x *DeleteStoreResponse) String() string {
 func (*DeleteStoreResponse) ProtoMessage() {}
 
 func (x *DeleteStoreResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[35]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,7 +1968,7 @@ func (x *DeleteStoreResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteStoreResponse.ProtoReflect.Descriptor instead.
 func (*DeleteStoreResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{35}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{37}
 }
 
 type ListDeploymentsRequest struct {
@@ -1886,7 +1980,7 @@ type ListDeploymentsRequest struct {
 
 func (x *ListDeploymentsRequest) Reset() {
 	*x = ListDeploymentsRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[36]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1898,7 +1992,7 @@ func (x *ListDeploymentsRequest) String() string {
 func (*ListDeploymentsRequest) ProtoMessage() {}
 
 func (x *ListDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[36]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1911,7 +2005,7 @@ func (x *ListDeploymentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*ListDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{36}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListDeploymentsRequest) GetWorkspace() *Resource_Workspace {
@@ -1930,7 +2024,7 @@ type ListDeploymentsResponse struct {
 
 func (x *ListDeploymentsResponse) Reset() {
 	*x = ListDeploymentsResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[37]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1942,7 +2036,7 @@ func (x *ListDeploymentsResponse) String() string {
 func (*ListDeploymentsResponse) ProtoMessage() {}
 
 func (x *ListDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[37]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1955,7 +2049,7 @@ func (x *ListDeploymentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*ListDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{37}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListDeploymentsResponse) GetDeployments() []*Deployment {
@@ -1976,7 +2070,7 @@ type CreateDeploymentRequest struct {
 
 func (x *CreateDeploymentRequest) Reset() {
 	*x = CreateDeploymentRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[38]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1988,7 +2082,7 @@ func (x *CreateDeploymentRequest) String() string {
 func (*CreateDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[38]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2001,7 +2095,7 @@ func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{38}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreateDeploymentRequest) GetWorkspace() *Resource_Workspace {
@@ -2034,7 +2128,7 @@ type CreateDeploymentResponse struct {
 
 func (x *CreateDeploymentResponse) Reset() {
 	*x = CreateDeploymentResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[39]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2046,7 +2140,7 @@ func (x *CreateDeploymentResponse) String() string {
 func (*CreateDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[39]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2059,7 +2153,7 @@ func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{39}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CreateDeploymentResponse) GetDeployment() *Deployment {
@@ -2078,7 +2172,7 @@ type ReadDeploymentRequest struct {
 
 func (x *ReadDeploymentRequest) Reset() {
 	*x = ReadDeploymentRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[40]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2090,7 +2184,7 @@ func (x *ReadDeploymentRequest) String() string {
 func (*ReadDeploymentRequest) ProtoMessage() {}
 
 func (x *ReadDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[40]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2103,7 +2197,7 @@ func (x *ReadDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*ReadDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{40}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ReadDeploymentRequest) GetResourceId() *Resource_Deployment {
@@ -2122,7 +2216,7 @@ type ReadDeploymentResponse struct {
 
 func (x *ReadDeploymentResponse) Reset() {
 	*x = ReadDeploymentResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[41]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2134,7 +2228,7 @@ func (x *ReadDeploymentResponse) String() string {
 func (*ReadDeploymentResponse) ProtoMessage() {}
 
 func (x *ReadDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[41]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2147,7 +2241,7 @@ func (x *ReadDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*ReadDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{41}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ReadDeploymentResponse) GetDeployment() *Deployment {
@@ -2167,7 +2261,7 @@ type UpdateDeploymentRequest struct {
 
 func (x *UpdateDeploymentRequest) Reset() {
 	*x = UpdateDeploymentRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[42]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2179,7 +2273,7 @@ func (x *UpdateDeploymentRequest) String() string {
 func (*UpdateDeploymentRequest) ProtoMessage() {}
 
 func (x *UpdateDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[42]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2192,7 +2286,7 @@ func (x *UpdateDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{42}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *UpdateDeploymentRequest) GetResourceId() *Resource_Deployment {
@@ -2218,7 +2312,7 @@ type UpdateDeploymentResponse struct {
 
 func (x *UpdateDeploymentResponse) Reset() {
 	*x = UpdateDeploymentResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[43]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2230,7 +2324,7 @@ func (x *UpdateDeploymentResponse) String() string {
 func (*UpdateDeploymentResponse) ProtoMessage() {}
 
 func (x *UpdateDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[43]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2243,7 +2337,7 @@ func (x *UpdateDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*UpdateDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{43}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *UpdateDeploymentResponse) GetDeployment() *Deployment {
@@ -2262,7 +2356,7 @@ type DeleteDeploymentRequest struct {
 
 func (x *DeleteDeploymentRequest) Reset() {
 	*x = DeleteDeploymentRequest{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[44]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +2368,7 @@ func (x *DeleteDeploymentRequest) String() string {
 func (*DeleteDeploymentRequest) ProtoMessage() {}
 
 func (x *DeleteDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[44]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2287,7 +2381,7 @@ func (x *DeleteDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{44}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *DeleteDeploymentRequest) GetResourceId() *Resource_Deployment {
@@ -2305,7 +2399,7 @@ type DeleteDeploymentResponse struct {
 
 func (x *DeleteDeploymentResponse) Reset() {
 	*x = DeleteDeploymentResponse{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[45]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2317,7 +2411,7 @@ func (x *DeleteDeploymentResponse) String() string {
 func (*DeleteDeploymentResponse) ProtoMessage() {}
 
 func (x *DeleteDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[45]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2330,7 +2424,7 @@ func (x *DeleteDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{45}
+	return file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP(), []int{47}
 }
 
 type Resource_Organization struct {
@@ -2342,7 +2436,7 @@ type Resource_Organization struct {
 
 func (x *Resource_Organization) Reset() {
 	*x = Resource_Organization{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[46]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2354,7 +2448,7 @@ func (x *Resource_Organization) String() string {
 func (*Resource_Organization) ProtoMessage() {}
 
 func (x *Resource_Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[46]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2387,7 +2481,7 @@ type Resource_Workspace struct {
 
 func (x *Resource_Workspace) Reset() {
 	*x = Resource_Workspace{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[47]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2399,7 +2493,7 @@ func (x *Resource_Workspace) String() string {
 func (*Resource_Workspace) ProtoMessage() {}
 
 func (x *Resource_Workspace) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[47]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2439,7 +2533,7 @@ type Resource_Playground struct {
 
 func (x *Resource_Playground) Reset() {
 	*x = Resource_Playground{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[48]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2451,7 +2545,7 @@ func (x *Resource_Playground) String() string {
 func (*Resource_Playground) ProtoMessage() {}
 
 func (x *Resource_Playground) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[48]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2492,7 +2586,7 @@ type Resource_Store struct {
 
 func (x *Resource_Store) Reset() {
 	*x = Resource_Store{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[49]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2504,7 +2598,7 @@ func (x *Resource_Store) String() string {
 func (*Resource_Store) ProtoMessage() {}
 
 func (x *Resource_Store) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[49]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2552,7 +2646,7 @@ type Resource_Deployment struct {
 
 func (x *Resource_Deployment) Reset() {
 	*x = Resource_Deployment{}
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[50]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2564,7 +2658,7 @@ func (x *Resource_Deployment) String() string {
 func (*Resource_Deployment) ProtoMessage() {}
 
 func (x *Resource_Deployment) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[50]
+	mi := &file_cerbos_cloud_provision_v1_provision_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2723,27 +2817,29 @@ const file_cerbos_cloud_provision_v1_provision_proto_rawDesc = "" +
 	"\x11ListStoresRequest\x12K\n" +
 	"\tworkspace\x18\x01 \x01(\v2-.cerbos.cloud.provision.v1.Resource.WorkspaceR\tworkspace\"N\n" +
 	"\x12ListStoresResponse\x128\n" +
-	"\x06stores\x18\x01 \x03(\v2 .cerbos.cloud.provision.v1.StoreR\x06stores\"\x83\x02\n" +
+	"\x06stores\x18\x01 \x03(\v2 .cerbos.cloud.provision.v1.StoreR\x06stores\"\x89\x01\n" +
 	"\x12CreateStoreRequest\x12S\n" +
 	"\tworkspace\x18\x01 \x01(\v2-.cerbos.cloud.provision.v1.Resource.WorkspaceB\x06\xbaH\x03\xc8\x01\x01R\tworkspace\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\x12b\n" +
-	"\x11github_connection\x18\x03 \x01(\v20.cerbos.cloud.provision.v1.StoreGitHubConnectionH\x00R\x10githubConnection\x88\x01\x01B\x14\n" +
-	"\x12_github_connection\"M\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"M\n" +
 	"\x13CreateStoreResponse\x126\n" +
-	"\x05store\x18\x01 \x01(\v2 .cerbos.cloud.provision.v1.StoreR\x05store\"f\n" +
+	"\x05store\x18\x01 \x01(\v2 .cerbos.cloud.provision.v1.StoreR\x05store\"\xdd\x01\n" +
+	"\x1cSetStoreGitConnectionRequest\x12G\n" +
+	"\x05store\x18\x01 \x01(\v2).cerbos.cloud.provision.v1.Resource.StoreB\x06\xbaH\x03\xc8\x01\x01R\x05store\x12_\n" +
+	"\x11github_connection\x18\x02 \x01(\v20.cerbos.cloud.provision.v1.StoreGitHubConnectionH\x00R\x10githubConnectionB\x13\n" +
+	"\n" +
+	"connection\x12\x05\xbaH\x02\b\x01\"\x1f\n" +
+	"\x1dSetStoreGitConnectionResponse\"f\n" +
 	"\x10ReadStoreRequest\x12R\n" +
 	"\vresource_id\x18\x01 \x01(\v2).cerbos.cloud.provision.v1.Resource.StoreB\x06\xbaH\x03\xc8\x01\x01R\n" +
 	"resourceId\"K\n" +
 	"\x11ReadStoreResponse\x126\n" +
-	"\x05store\x18\x01 \x01(\v2 .cerbos.cloud.provision.v1.StoreR\x05store\"\x82\x02\n" +
+	"\x05store\x18\x01 \x01(\v2 .cerbos.cloud.provision.v1.StoreR\x05store\"\x88\x01\n" +
 	"\x12UpdateStoreRequest\x12R\n" +
 	"\vresource_id\x18\x01 \x01(\v2).cerbos.cloud.provision.v1.Resource.StoreB\x06\xbaH\x03\xc8\x01\x01R\n" +
 	"resourceId\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\x12b\n" +
-	"\x11github_connection\x18\x03 \x01(\v20.cerbos.cloud.provision.v1.StoreGitHubConnectionH\x00R\x10githubConnection\x88\x01\x01B\x14\n" +
-	"\x12_github_connection\"M\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"M\n" +
 	"\x13UpdateStoreResponse\x126\n" +
 	"\x05store\x18\x01 \x01(\v2 .cerbos.cloud.provision.v1.StoreR\x05store\"h\n" +
 	"\x12DeleteStoreRequest\x12R\n" +
@@ -2820,109 +2916,111 @@ func file_cerbos_cloud_provision_v1_provision_proto_rawDescGZIP() []byte {
 	return file_cerbos_cloud_provision_v1_provision_proto_rawDescData
 }
 
-var file_cerbos_cloud_provision_v1_provision_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
+var file_cerbos_cloud_provision_v1_provision_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 var file_cerbos_cloud_provision_v1_provision_proto_goTypes = []any{
-	(*Resource)(nil),                   // 0: cerbos.cloud.provision.v1.Resource
-	(*Organization)(nil),               // 1: cerbos.cloud.provision.v1.Organization
-	(*Workspace)(nil),                  // 2: cerbos.cloud.provision.v1.Workspace
-	(*Store)(nil),                      // 3: cerbos.cloud.provision.v1.Store
-	(*StoreGitHubConnection)(nil),      // 4: cerbos.cloud.provision.v1.StoreGitHubConnection
-	(*Deployment)(nil),                 // 5: cerbos.cloud.provision.v1.Deployment
-	(*ListOrganizationsRequest)(nil),   // 6: cerbos.cloud.provision.v1.ListOrganizationsRequest
-	(*ListOrganizationsResponse)(nil),  // 7: cerbos.cloud.provision.v1.ListOrganizationsResponse
-	(*CreateOrganizationRequest)(nil),  // 8: cerbos.cloud.provision.v1.CreateOrganizationRequest
-	(*CreateOrganizationResponse)(nil), // 9: cerbos.cloud.provision.v1.CreateOrganizationResponse
-	(*ReadOrganizationRequest)(nil),    // 10: cerbos.cloud.provision.v1.ReadOrganizationRequest
-	(*ReadOrganizationResponse)(nil),   // 11: cerbos.cloud.provision.v1.ReadOrganizationResponse
-	(*UpdateOrganizationRequest)(nil),  // 12: cerbos.cloud.provision.v1.UpdateOrganizationRequest
-	(*UpdateOrganizationResponse)(nil), // 13: cerbos.cloud.provision.v1.UpdateOrganizationResponse
-	(*DeleteOrganizationRequest)(nil),  // 14: cerbos.cloud.provision.v1.DeleteOrganizationRequest
-	(*DeleteOrganizationResponse)(nil), // 15: cerbos.cloud.provision.v1.DeleteOrganizationResponse
-	(*ListWorkspacesRequest)(nil),      // 16: cerbos.cloud.provision.v1.ListWorkspacesRequest
-	(*ListWorkspacesResponse)(nil),     // 17: cerbos.cloud.provision.v1.ListWorkspacesResponse
-	(*CreateWorkspaceRequest)(nil),     // 18: cerbos.cloud.provision.v1.CreateWorkspaceRequest
-	(*CreateWorkspaceResponse)(nil),    // 19: cerbos.cloud.provision.v1.CreateWorkspaceResponse
-	(*ReadWorkspaceRequest)(nil),       // 20: cerbos.cloud.provision.v1.ReadWorkspaceRequest
-	(*ReadWorkspaceResponse)(nil),      // 21: cerbos.cloud.provision.v1.ReadWorkspaceResponse
-	(*UpdateWorkspaceRequest)(nil),     // 22: cerbos.cloud.provision.v1.UpdateWorkspaceRequest
-	(*UpdateWorkspaceResponse)(nil),    // 23: cerbos.cloud.provision.v1.UpdateWorkspaceResponse
-	(*DeleteWorkspaceRequest)(nil),     // 24: cerbos.cloud.provision.v1.DeleteWorkspaceRequest
-	(*DeleteWorkspaceResponse)(nil),    // 25: cerbos.cloud.provision.v1.DeleteWorkspaceResponse
-	(*ListStoresRequest)(nil),          // 26: cerbos.cloud.provision.v1.ListStoresRequest
-	(*ListStoresResponse)(nil),         // 27: cerbos.cloud.provision.v1.ListStoresResponse
-	(*CreateStoreRequest)(nil),         // 28: cerbos.cloud.provision.v1.CreateStoreRequest
-	(*CreateStoreResponse)(nil),        // 29: cerbos.cloud.provision.v1.CreateStoreResponse
-	(*ReadStoreRequest)(nil),           // 30: cerbos.cloud.provision.v1.ReadStoreRequest
-	(*ReadStoreResponse)(nil),          // 31: cerbos.cloud.provision.v1.ReadStoreResponse
-	(*UpdateStoreRequest)(nil),         // 32: cerbos.cloud.provision.v1.UpdateStoreRequest
-	(*UpdateStoreResponse)(nil),        // 33: cerbos.cloud.provision.v1.UpdateStoreResponse
-	(*DeleteStoreRequest)(nil),         // 34: cerbos.cloud.provision.v1.DeleteStoreRequest
-	(*DeleteStoreResponse)(nil),        // 35: cerbos.cloud.provision.v1.DeleteStoreResponse
-	(*ListDeploymentsRequest)(nil),     // 36: cerbos.cloud.provision.v1.ListDeploymentsRequest
-	(*ListDeploymentsResponse)(nil),    // 37: cerbos.cloud.provision.v1.ListDeploymentsResponse
-	(*CreateDeploymentRequest)(nil),    // 38: cerbos.cloud.provision.v1.CreateDeploymentRequest
-	(*CreateDeploymentResponse)(nil),   // 39: cerbos.cloud.provision.v1.CreateDeploymentResponse
-	(*ReadDeploymentRequest)(nil),      // 40: cerbos.cloud.provision.v1.ReadDeploymentRequest
-	(*ReadDeploymentResponse)(nil),     // 41: cerbos.cloud.provision.v1.ReadDeploymentResponse
-	(*UpdateDeploymentRequest)(nil),    // 42: cerbos.cloud.provision.v1.UpdateDeploymentRequest
-	(*UpdateDeploymentResponse)(nil),   // 43: cerbos.cloud.provision.v1.UpdateDeploymentResponse
-	(*DeleteDeploymentRequest)(nil),    // 44: cerbos.cloud.provision.v1.DeleteDeploymentRequest
-	(*DeleteDeploymentResponse)(nil),   // 45: cerbos.cloud.provision.v1.DeleteDeploymentResponse
-	(*Resource_Organization)(nil),      // 46: cerbos.cloud.provision.v1.Resource.Organization
-	(*Resource_Workspace)(nil),         // 47: cerbos.cloud.provision.v1.Resource.Workspace
-	(*Resource_Playground)(nil),        // 48: cerbos.cloud.provision.v1.Resource.Playground
-	(*Resource_Store)(nil),             // 49: cerbos.cloud.provision.v1.Resource.Store
-	(*Resource_Deployment)(nil),        // 50: cerbos.cloud.provision.v1.Resource.Deployment
-	(*timestamppb.Timestamp)(nil),      // 51: google.protobuf.Timestamp
+	(*Resource)(nil),                      // 0: cerbos.cloud.provision.v1.Resource
+	(*Organization)(nil),                  // 1: cerbos.cloud.provision.v1.Organization
+	(*Workspace)(nil),                     // 2: cerbos.cloud.provision.v1.Workspace
+	(*Store)(nil),                         // 3: cerbos.cloud.provision.v1.Store
+	(*StoreGitHubConnection)(nil),         // 4: cerbos.cloud.provision.v1.StoreGitHubConnection
+	(*Deployment)(nil),                    // 5: cerbos.cloud.provision.v1.Deployment
+	(*ListOrganizationsRequest)(nil),      // 6: cerbos.cloud.provision.v1.ListOrganizationsRequest
+	(*ListOrganizationsResponse)(nil),     // 7: cerbos.cloud.provision.v1.ListOrganizationsResponse
+	(*CreateOrganizationRequest)(nil),     // 8: cerbos.cloud.provision.v1.CreateOrganizationRequest
+	(*CreateOrganizationResponse)(nil),    // 9: cerbos.cloud.provision.v1.CreateOrganizationResponse
+	(*ReadOrganizationRequest)(nil),       // 10: cerbos.cloud.provision.v1.ReadOrganizationRequest
+	(*ReadOrganizationResponse)(nil),      // 11: cerbos.cloud.provision.v1.ReadOrganizationResponse
+	(*UpdateOrganizationRequest)(nil),     // 12: cerbos.cloud.provision.v1.UpdateOrganizationRequest
+	(*UpdateOrganizationResponse)(nil),    // 13: cerbos.cloud.provision.v1.UpdateOrganizationResponse
+	(*DeleteOrganizationRequest)(nil),     // 14: cerbos.cloud.provision.v1.DeleteOrganizationRequest
+	(*DeleteOrganizationResponse)(nil),    // 15: cerbos.cloud.provision.v1.DeleteOrganizationResponse
+	(*ListWorkspacesRequest)(nil),         // 16: cerbos.cloud.provision.v1.ListWorkspacesRequest
+	(*ListWorkspacesResponse)(nil),        // 17: cerbos.cloud.provision.v1.ListWorkspacesResponse
+	(*CreateWorkspaceRequest)(nil),        // 18: cerbos.cloud.provision.v1.CreateWorkspaceRequest
+	(*CreateWorkspaceResponse)(nil),       // 19: cerbos.cloud.provision.v1.CreateWorkspaceResponse
+	(*ReadWorkspaceRequest)(nil),          // 20: cerbos.cloud.provision.v1.ReadWorkspaceRequest
+	(*ReadWorkspaceResponse)(nil),         // 21: cerbos.cloud.provision.v1.ReadWorkspaceResponse
+	(*UpdateWorkspaceRequest)(nil),        // 22: cerbos.cloud.provision.v1.UpdateWorkspaceRequest
+	(*UpdateWorkspaceResponse)(nil),       // 23: cerbos.cloud.provision.v1.UpdateWorkspaceResponse
+	(*DeleteWorkspaceRequest)(nil),        // 24: cerbos.cloud.provision.v1.DeleteWorkspaceRequest
+	(*DeleteWorkspaceResponse)(nil),       // 25: cerbos.cloud.provision.v1.DeleteWorkspaceResponse
+	(*ListStoresRequest)(nil),             // 26: cerbos.cloud.provision.v1.ListStoresRequest
+	(*ListStoresResponse)(nil),            // 27: cerbos.cloud.provision.v1.ListStoresResponse
+	(*CreateStoreRequest)(nil),            // 28: cerbos.cloud.provision.v1.CreateStoreRequest
+	(*CreateStoreResponse)(nil),           // 29: cerbos.cloud.provision.v1.CreateStoreResponse
+	(*SetStoreGitConnectionRequest)(nil),  // 30: cerbos.cloud.provision.v1.SetStoreGitConnectionRequest
+	(*SetStoreGitConnectionResponse)(nil), // 31: cerbos.cloud.provision.v1.SetStoreGitConnectionResponse
+	(*ReadStoreRequest)(nil),              // 32: cerbos.cloud.provision.v1.ReadStoreRequest
+	(*ReadStoreResponse)(nil),             // 33: cerbos.cloud.provision.v1.ReadStoreResponse
+	(*UpdateStoreRequest)(nil),            // 34: cerbos.cloud.provision.v1.UpdateStoreRequest
+	(*UpdateStoreResponse)(nil),           // 35: cerbos.cloud.provision.v1.UpdateStoreResponse
+	(*DeleteStoreRequest)(nil),            // 36: cerbos.cloud.provision.v1.DeleteStoreRequest
+	(*DeleteStoreResponse)(nil),           // 37: cerbos.cloud.provision.v1.DeleteStoreResponse
+	(*ListDeploymentsRequest)(nil),        // 38: cerbos.cloud.provision.v1.ListDeploymentsRequest
+	(*ListDeploymentsResponse)(nil),       // 39: cerbos.cloud.provision.v1.ListDeploymentsResponse
+	(*CreateDeploymentRequest)(nil),       // 40: cerbos.cloud.provision.v1.CreateDeploymentRequest
+	(*CreateDeploymentResponse)(nil),      // 41: cerbos.cloud.provision.v1.CreateDeploymentResponse
+	(*ReadDeploymentRequest)(nil),         // 42: cerbos.cloud.provision.v1.ReadDeploymentRequest
+	(*ReadDeploymentResponse)(nil),        // 43: cerbos.cloud.provision.v1.ReadDeploymentResponse
+	(*UpdateDeploymentRequest)(nil),       // 44: cerbos.cloud.provision.v1.UpdateDeploymentRequest
+	(*UpdateDeploymentResponse)(nil),      // 45: cerbos.cloud.provision.v1.UpdateDeploymentResponse
+	(*DeleteDeploymentRequest)(nil),       // 46: cerbos.cloud.provision.v1.DeleteDeploymentRequest
+	(*DeleteDeploymentResponse)(nil),      // 47: cerbos.cloud.provision.v1.DeleteDeploymentResponse
+	(*Resource_Organization)(nil),         // 48: cerbos.cloud.provision.v1.Resource.Organization
+	(*Resource_Workspace)(nil),            // 49: cerbos.cloud.provision.v1.Resource.Workspace
+	(*Resource_Playground)(nil),           // 50: cerbos.cloud.provision.v1.Resource.Playground
+	(*Resource_Store)(nil),                // 51: cerbos.cloud.provision.v1.Resource.Store
+	(*Resource_Deployment)(nil),           // 52: cerbos.cloud.provision.v1.Resource.Deployment
+	(*timestamppb.Timestamp)(nil),         // 53: google.protobuf.Timestamp
 }
 var file_cerbos_cloud_provision_v1_provision_proto_depIdxs = []int32{
-	46, // 0: cerbos.cloud.provision.v1.Resource.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
-	47, // 1: cerbos.cloud.provision.v1.Resource.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
-	48, // 2: cerbos.cloud.provision.v1.Resource.playground:type_name -> cerbos.cloud.provision.v1.Resource.Playground
-	49, // 3: cerbos.cloud.provision.v1.Resource.store:type_name -> cerbos.cloud.provision.v1.Resource.Store
-	50, // 4: cerbos.cloud.provision.v1.Resource.deployment:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
-	46, // 5: cerbos.cloud.provision.v1.Organization.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
-	47, // 6: cerbos.cloud.provision.v1.Workspace.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
-	49, // 7: cerbos.cloud.provision.v1.Store.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
+	48, // 0: cerbos.cloud.provision.v1.Resource.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	49, // 1: cerbos.cloud.provision.v1.Resource.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	50, // 2: cerbos.cloud.provision.v1.Resource.playground:type_name -> cerbos.cloud.provision.v1.Resource.Playground
+	51, // 3: cerbos.cloud.provision.v1.Resource.store:type_name -> cerbos.cloud.provision.v1.Resource.Store
+	52, // 4: cerbos.cloud.provision.v1.Resource.deployment:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	48, // 5: cerbos.cloud.provision.v1.Organization.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	49, // 6: cerbos.cloud.provision.v1.Workspace.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	51, // 7: cerbos.cloud.provision.v1.Store.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
 	4,  // 8: cerbos.cloud.provision.v1.Store.github_connection:type_name -> cerbos.cloud.provision.v1.StoreGitHubConnection
-	50, // 9: cerbos.cloud.provision.v1.Deployment.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
-	51, // 10: cerbos.cloud.provision.v1.Deployment.bundle_activated_at:type_name -> google.protobuf.Timestamp
+	52, // 9: cerbos.cloud.provision.v1.Deployment.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	53, // 10: cerbos.cloud.provision.v1.Deployment.bundle_activated_at:type_name -> google.protobuf.Timestamp
 	1,  // 11: cerbos.cloud.provision.v1.ListOrganizationsResponse.organizations:type_name -> cerbos.cloud.provision.v1.Organization
 	1,  // 12: cerbos.cloud.provision.v1.CreateOrganizationResponse.organization:type_name -> cerbos.cloud.provision.v1.Organization
-	46, // 13: cerbos.cloud.provision.v1.ReadOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	48, // 13: cerbos.cloud.provision.v1.ReadOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
 	1,  // 14: cerbos.cloud.provision.v1.ReadOrganizationResponse.organization:type_name -> cerbos.cloud.provision.v1.Organization
-	46, // 15: cerbos.cloud.provision.v1.UpdateOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	48, // 15: cerbos.cloud.provision.v1.UpdateOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
 	1,  // 16: cerbos.cloud.provision.v1.UpdateOrganizationResponse.organization:type_name -> cerbos.cloud.provision.v1.Organization
-	46, // 17: cerbos.cloud.provision.v1.DeleteOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
-	46, // 18: cerbos.cloud.provision.v1.ListWorkspacesRequest.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	48, // 17: cerbos.cloud.provision.v1.DeleteOrganizationRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	48, // 18: cerbos.cloud.provision.v1.ListWorkspacesRequest.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
 	2,  // 19: cerbos.cloud.provision.v1.ListWorkspacesResponse.workspaces:type_name -> cerbos.cloud.provision.v1.Workspace
-	46, // 20: cerbos.cloud.provision.v1.CreateWorkspaceRequest.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
+	48, // 20: cerbos.cloud.provision.v1.CreateWorkspaceRequest.organization:type_name -> cerbos.cloud.provision.v1.Resource.Organization
 	2,  // 21: cerbos.cloud.provision.v1.CreateWorkspaceResponse.workspace:type_name -> cerbos.cloud.provision.v1.Workspace
-	47, // 22: cerbos.cloud.provision.v1.ReadWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	49, // 22: cerbos.cloud.provision.v1.ReadWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	2,  // 23: cerbos.cloud.provision.v1.ReadWorkspaceResponse.workspace:type_name -> cerbos.cloud.provision.v1.Workspace
-	47, // 24: cerbos.cloud.provision.v1.UpdateWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	49, // 24: cerbos.cloud.provision.v1.UpdateWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	2,  // 25: cerbos.cloud.provision.v1.UpdateWorkspaceResponse.workspace:type_name -> cerbos.cloud.provision.v1.Workspace
-	47, // 26: cerbos.cloud.provision.v1.DeleteWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
-	47, // 27: cerbos.cloud.provision.v1.ListStoresRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	49, // 26: cerbos.cloud.provision.v1.DeleteWorkspaceRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	49, // 27: cerbos.cloud.provision.v1.ListStoresRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	3,  // 28: cerbos.cloud.provision.v1.ListStoresResponse.stores:type_name -> cerbos.cloud.provision.v1.Store
-	47, // 29: cerbos.cloud.provision.v1.CreateStoreRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
-	4,  // 30: cerbos.cloud.provision.v1.CreateStoreRequest.github_connection:type_name -> cerbos.cloud.provision.v1.StoreGitHubConnection
-	3,  // 31: cerbos.cloud.provision.v1.CreateStoreResponse.store:type_name -> cerbos.cloud.provision.v1.Store
-	49, // 32: cerbos.cloud.provision.v1.ReadStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
-	3,  // 33: cerbos.cloud.provision.v1.ReadStoreResponse.store:type_name -> cerbos.cloud.provision.v1.Store
-	49, // 34: cerbos.cloud.provision.v1.UpdateStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
-	4,  // 35: cerbos.cloud.provision.v1.UpdateStoreRequest.github_connection:type_name -> cerbos.cloud.provision.v1.StoreGitHubConnection
+	49, // 29: cerbos.cloud.provision.v1.CreateStoreRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	3,  // 30: cerbos.cloud.provision.v1.CreateStoreResponse.store:type_name -> cerbos.cloud.provision.v1.Store
+	51, // 31: cerbos.cloud.provision.v1.SetStoreGitConnectionRequest.store:type_name -> cerbos.cloud.provision.v1.Resource.Store
+	4,  // 32: cerbos.cloud.provision.v1.SetStoreGitConnectionRequest.github_connection:type_name -> cerbos.cloud.provision.v1.StoreGitHubConnection
+	51, // 33: cerbos.cloud.provision.v1.ReadStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
+	3,  // 34: cerbos.cloud.provision.v1.ReadStoreResponse.store:type_name -> cerbos.cloud.provision.v1.Store
+	51, // 35: cerbos.cloud.provision.v1.UpdateStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
 	3,  // 36: cerbos.cloud.provision.v1.UpdateStoreResponse.store:type_name -> cerbos.cloud.provision.v1.Store
-	49, // 37: cerbos.cloud.provision.v1.DeleteStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
-	47, // 38: cerbos.cloud.provision.v1.ListDeploymentsRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	51, // 37: cerbos.cloud.provision.v1.DeleteStoreRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Store
+	49, // 38: cerbos.cloud.provision.v1.ListDeploymentsRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	5,  // 39: cerbos.cloud.provision.v1.ListDeploymentsResponse.deployments:type_name -> cerbos.cloud.provision.v1.Deployment
-	47, // 40: cerbos.cloud.provision.v1.CreateDeploymentRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
+	49, // 40: cerbos.cloud.provision.v1.CreateDeploymentRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	5,  // 41: cerbos.cloud.provision.v1.CreateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	50, // 42: cerbos.cloud.provision.v1.ReadDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	52, // 42: cerbos.cloud.provision.v1.ReadDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
 	5,  // 43: cerbos.cloud.provision.v1.ReadDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	50, // 44: cerbos.cloud.provision.v1.UpdateDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	52, // 44: cerbos.cloud.provision.v1.UpdateDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
 	5,  // 45: cerbos.cloud.provision.v1.UpdateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	50, // 46: cerbos.cloud.provision.v1.DeleteDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	52, // 46: cerbos.cloud.provision.v1.DeleteDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
 	6,  // 47: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:input_type -> cerbos.cloud.provision.v1.ListOrganizationsRequest
 	8,  // 48: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateOrganization:input_type -> cerbos.cloud.provision.v1.CreateOrganizationRequest
 	10, // 49: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:input_type -> cerbos.cloud.provision.v1.ReadOrganizationRequest
@@ -2933,16 +3031,16 @@ var file_cerbos_cloud_provision_v1_provision_proto_depIdxs = []int32{
 	20, // 54: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:input_type -> cerbos.cloud.provision.v1.ReadWorkspaceRequest
 	22, // 55: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:input_type -> cerbos.cloud.provision.v1.UpdateWorkspaceRequest
 	24, // 56: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:input_type -> cerbos.cloud.provision.v1.DeleteWorkspaceRequest
-	36, // 57: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:input_type -> cerbos.cloud.provision.v1.ListDeploymentsRequest
-	38, // 58: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:input_type -> cerbos.cloud.provision.v1.CreateDeploymentRequest
-	40, // 59: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:input_type -> cerbos.cloud.provision.v1.ReadDeploymentRequest
-	42, // 60: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:input_type -> cerbos.cloud.provision.v1.UpdateDeploymentRequest
-	44, // 61: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:input_type -> cerbos.cloud.provision.v1.DeleteDeploymentRequest
+	38, // 57: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:input_type -> cerbos.cloud.provision.v1.ListDeploymentsRequest
+	40, // 58: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:input_type -> cerbos.cloud.provision.v1.CreateDeploymentRequest
+	42, // 59: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:input_type -> cerbos.cloud.provision.v1.ReadDeploymentRequest
+	44, // 60: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:input_type -> cerbos.cloud.provision.v1.UpdateDeploymentRequest
+	46, // 61: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:input_type -> cerbos.cloud.provision.v1.DeleteDeploymentRequest
 	26, // 62: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:input_type -> cerbos.cloud.provision.v1.ListStoresRequest
 	28, // 63: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:input_type -> cerbos.cloud.provision.v1.CreateStoreRequest
-	30, // 64: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:input_type -> cerbos.cloud.provision.v1.ReadStoreRequest
-	32, // 65: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:input_type -> cerbos.cloud.provision.v1.UpdateStoreRequest
-	34, // 66: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:input_type -> cerbos.cloud.provision.v1.DeleteStoreRequest
+	32, // 64: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:input_type -> cerbos.cloud.provision.v1.ReadStoreRequest
+	34, // 65: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:input_type -> cerbos.cloud.provision.v1.UpdateStoreRequest
+	36, // 66: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:input_type -> cerbos.cloud.provision.v1.DeleteStoreRequest
 	7,  // 67: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:output_type -> cerbos.cloud.provision.v1.ListOrganizationsResponse
 	9,  // 68: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateOrganization:output_type -> cerbos.cloud.provision.v1.CreateOrganizationResponse
 	11, // 69: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:output_type -> cerbos.cloud.provision.v1.ReadOrganizationResponse
@@ -2953,16 +3051,16 @@ var file_cerbos_cloud_provision_v1_provision_proto_depIdxs = []int32{
 	21, // 74: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:output_type -> cerbos.cloud.provision.v1.ReadWorkspaceResponse
 	23, // 75: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:output_type -> cerbos.cloud.provision.v1.UpdateWorkspaceResponse
 	25, // 76: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:output_type -> cerbos.cloud.provision.v1.DeleteWorkspaceResponse
-	37, // 77: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:output_type -> cerbos.cloud.provision.v1.ListDeploymentsResponse
-	39, // 78: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:output_type -> cerbos.cloud.provision.v1.CreateDeploymentResponse
-	41, // 79: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:output_type -> cerbos.cloud.provision.v1.ReadDeploymentResponse
-	43, // 80: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:output_type -> cerbos.cloud.provision.v1.UpdateDeploymentResponse
-	45, // 81: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:output_type -> cerbos.cloud.provision.v1.DeleteDeploymentResponse
+	39, // 77: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:output_type -> cerbos.cloud.provision.v1.ListDeploymentsResponse
+	41, // 78: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:output_type -> cerbos.cloud.provision.v1.CreateDeploymentResponse
+	43, // 79: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:output_type -> cerbos.cloud.provision.v1.ReadDeploymentResponse
+	45, // 80: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:output_type -> cerbos.cloud.provision.v1.UpdateDeploymentResponse
+	47, // 81: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:output_type -> cerbos.cloud.provision.v1.DeleteDeploymentResponse
 	27, // 82: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:output_type -> cerbos.cloud.provision.v1.ListStoresResponse
 	29, // 83: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:output_type -> cerbos.cloud.provision.v1.CreateStoreResponse
-	31, // 84: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:output_type -> cerbos.cloud.provision.v1.ReadStoreResponse
-	33, // 85: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:output_type -> cerbos.cloud.provision.v1.UpdateStoreResponse
-	35, // 86: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:output_type -> cerbos.cloud.provision.v1.DeleteStoreResponse
+	33, // 84: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:output_type -> cerbos.cloud.provision.v1.ReadStoreResponse
+	35, // 85: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:output_type -> cerbos.cloud.provision.v1.UpdateStoreResponse
+	37, // 86: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:output_type -> cerbos.cloud.provision.v1.DeleteStoreResponse
 	67, // [67:87] is the sub-list for method output_type
 	47, // [47:67] is the sub-list for method input_type
 	47, // [47:47] is the sub-list for extension type_name
@@ -2987,15 +3085,16 @@ func file_cerbos_cloud_provision_v1_provision_proto_init() {
 		(*StoreGitHubConnection_Branch)(nil),
 		(*StoreGitHubConnection_Tag)(nil),
 	}
-	file_cerbos_cloud_provision_v1_provision_proto_msgTypes[28].OneofWrappers = []any{}
-	file_cerbos_cloud_provision_v1_provision_proto_msgTypes[32].OneofWrappers = []any{}
+	file_cerbos_cloud_provision_v1_provision_proto_msgTypes[30].OneofWrappers = []any{
+		(*SetStoreGitConnectionRequest_GithubConnection)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_provision_v1_provision_proto_rawDesc), len(file_cerbos_cloud_provision_v1_provision_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   51,
+			NumMessages:   53,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

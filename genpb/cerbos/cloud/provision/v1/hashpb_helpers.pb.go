@@ -88,11 +88,6 @@ func cerbos_cloud_provision_v1_CreateStoreRequest_hashpb_sum(m *CreateStoreReque
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
 	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.github_connection"]; !ok {
-		if m.GetGithubConnection() != nil {
-			cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m.GetGithubConnection(), hasher, ignore, b)
-		}
-	}
 }
 
 func cerbos_cloud_provision_v1_CreateStoreResponse_hashpb_sum(m *CreateStoreResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
@@ -438,6 +433,27 @@ func cerbos_cloud_provision_v1_Resource_hashpb_sum(m *Resource, hasher hash.Hash
 	}
 }
 
+func cerbos_cloud_provision_v1_SetStoreGitConnectionRequest_hashpb_sum(m *SetStoreGitConnectionRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.SetStoreGitConnectionRequest.store"]; !ok {
+		if m.GetStore() != nil {
+			cerbos_cloud_provision_v1_Resource_Store_hashpb_sum(m.GetStore(), hasher, ignore, b)
+		}
+	}
+	if m.Connection != nil {
+		if _, ok := ignore["cerbos.cloud.provision.v1.SetStoreGitConnectionRequest.connection"]; !ok {
+			switch t := m.Connection.(type) {
+			case *SetStoreGitConnectionRequest_GithubConnection:
+				if t.GithubConnection != nil {
+					cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(t.GithubConnection, hasher, ignore, b)
+				}
+			}
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_SetStoreGitConnectionResponse_hashpb_sum(m *SetStoreGitConnectionResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+}
+
 func cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m *StoreGitHubConnection, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.StoreGitHubConnection.owner"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetOwner()))))
@@ -540,11 +556,6 @@ func cerbos_cloud_provision_v1_UpdateStoreRequest_hashpb_sum(m *UpdateStoreReque
 	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateStoreRequest.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
-	}
-	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateStoreRequest.github_connection"]; !ok {
-		if m.GetGithubConnection() != nil {
-			cerbos_cloud_provision_v1_StoreGitHubConnection_hashpb_sum(m.GetGithubConnection(), hasher, ignore, b)
-		}
 	}
 }
 

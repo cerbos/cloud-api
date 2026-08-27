@@ -195,12 +195,21 @@ message CreateStoreRequest {
     min_len: 1
     max_len: 128
   }];
-  optional StoreGitHubConnection github_connection = 3;
 }
 
 message CreateStoreResponse {
   Store store = 1;
 }
+
+message SetStoreGitConnectionRequest {
+  Resource.Store store = 1 [(buf.validate.field).required = true];
+  oneof connection {
+    option (buf.validate.oneof).required = true;
+    StoreGitHubConnection github_connection = 2;
+  }
+}
+
+message SetStoreGitConnectionResponse {}
 
 message ReadStoreRequest {
   Resource.Store resource_id = 1 [(buf.validate.field).required = true];
@@ -216,7 +225,6 @@ message UpdateStoreRequest {
     min_len: 1
     max_len: 128
   }];
-  optional StoreGitHubConnection github_connection = 3;
 }
 
 message UpdateStoreResponse {
