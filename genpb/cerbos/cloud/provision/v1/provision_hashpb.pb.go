@@ -130,26 +130,6 @@ func (m *ListOrganizationsResponse) HashPB(hasher hash.Hash, ignore map[string]s
 
 // HashPB computes a hash of the message using the given hash function
 // The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *CreateOrganizationRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		b := hashpb_bufPool.Get().(*[10]byte)
-		cerbos_cloud_provision_v1_CreateOrganizationRequest_hashpb_sum(m, hasher, ignore, b)
-		hashpb_bufPool.Put(b)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *CreateOrganizationResponse) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		b := hashpb_bufPool.Get().(*[10]byte)
-		cerbos_cloud_provision_v1_CreateOrganizationResponse_hashpb_sum(m, hasher, ignore, b)
-		hashpb_bufPool.Put(b)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
 func (m *ReadOrganizationRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
@@ -184,16 +164,6 @@ func (m *UpdateOrganizationResponse) HashPB(hasher hash.Hash, ignore map[string]
 	if m != nil {
 		b := hashpb_bufPool.Get().(*[10]byte)
 		cerbos_cloud_provision_v1_UpdateOrganizationResponse_hashpb_sum(m, hasher, ignore, b)
-		hashpb_bufPool.Put(b)
-	}
-}
-
-// HashPB computes a hash of the message using the given hash function
-// The ignore set must contain fully-qualified field names (pkg.msg.field) that should be ignored from the hash
-func (m *DeleteOrganizationRequest) HashPB(hasher hash.Hash, ignore map[string]struct{}) {
-	if m != nil {
-		b := hashpb_bufPool.Get().(*[10]byte)
-		cerbos_cloud_provision_v1_DeleteOrganizationRequest_hashpb_sum(m, hasher, ignore, b)
 		hashpb_bufPool.Put(b)
 	}
 }

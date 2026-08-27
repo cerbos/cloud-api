@@ -71,10 +71,10 @@ func (h *Hub) LogCapClient() (*logcap.Client, error) {
 	return logcap.NewClient(h.client, h.opts)
 }
 
-func (h *Hub) StoreClient() (*store.ClientImpl, error) {
+func (h *Hub) StoreClient() (store.Client, error) {
 	return store.NewClient(h.client, h.opts)
 }
 
-func (h *Hub) ProvisionClient() (*provision.ClientImpl, error) {
+func (h *Hub) ProvisionClient() (provision.Client, error) {
 	return provision.NewClient(h.client, h.opts)
 }

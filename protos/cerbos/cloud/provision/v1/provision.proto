@@ -94,17 +94,6 @@ message ListOrganizationsResponse {
   repeated Organization organizations = 1;
 }
 
-message CreateOrganizationRequest {
-  string name = 1 [(buf.validate.field).string = {
-    min_len: 3
-    max_len: 128
-  }];
-}
-
-message CreateOrganizationResponse {
-  Organization organization = 1;
-}
-
 message ReadOrganizationRequest {
   Resource.Organization resource_id = 1 [(buf.validate.field).required = true];
 }
@@ -124,12 +113,6 @@ message UpdateOrganizationRequest {
 message UpdateOrganizationResponse {
   Organization organization = 1;
 }
-
-message DeleteOrganizationRequest {
-  Resource.Organization resource_id = 1 [(buf.validate.field).required = true];
-}
-
-message DeleteOrganizationResponse {}
 
 message ListWorkspacesRequest {
   Resource.Organization organization = 1;
@@ -291,12 +274,10 @@ service CerbosHubProvisioningService {
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
-  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {}
   rpc ReadOrganization(ReadOrganizationRequest) returns (ReadOrganizationResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {}
-  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {}
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }

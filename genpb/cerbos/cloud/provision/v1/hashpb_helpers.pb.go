@@ -63,21 +63,6 @@ func cerbos_cloud_provision_v1_CreateDeploymentResponse_hashpb_sum(m *CreateDepl
 	}
 }
 
-func cerbos_cloud_provision_v1_CreateOrganizationRequest_hashpb_sum(m *CreateOrganizationRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateOrganizationRequest.name"]; !ok {
-		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
-		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
-	}
-}
-
-func cerbos_cloud_provision_v1_CreateOrganizationResponse_hashpb_sum(m *CreateOrganizationResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.provision.v1.CreateOrganizationResponse.organization"]; !ok {
-		if m.GetOrganization() != nil {
-			cerbos_cloud_provision_v1_Organization_hashpb_sum(m.GetOrganization(), hasher, ignore, b)
-		}
-	}
-}
-
 func cerbos_cloud_provision_v1_CreateStoreRequest_hashpb_sum(m *CreateStoreRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.CreateStoreRequest.workspace"]; !ok {
 		if m.GetWorkspace() != nil {
@@ -127,17 +112,6 @@ func cerbos_cloud_provision_v1_DeleteDeploymentRequest_hashpb_sum(m *DeleteDeplo
 }
 
 func cerbos_cloud_provision_v1_DeleteDeploymentResponse_hashpb_sum(m *DeleteDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-}
-
-func cerbos_cloud_provision_v1_DeleteOrganizationRequest_hashpb_sum(m *DeleteOrganizationRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
-	if _, ok := ignore["cerbos.cloud.provision.v1.DeleteOrganizationRequest.resource_id"]; !ok {
-		if m.GetResourceId() != nil {
-			cerbos_cloud_provision_v1_Resource_Organization_hashpb_sum(m.GetResourceId(), hasher, ignore, b)
-		}
-	}
-}
-
-func cerbos_cloud_provision_v1_DeleteOrganizationResponse_hashpb_sum(m *DeleteOrganizationResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 }
 
 func cerbos_cloud_provision_v1_DeleteStoreRequest_hashpb_sum(m *DeleteStoreRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {

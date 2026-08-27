@@ -119,7 +119,7 @@ func details(err *connect.Error) iter.Seq[proto.Message] {
 	}
 }
 
-var _ Client = (*ClientImpl)(nil)
+var _ Client = (*clientImpl)(nil)
 
 type Client interface {
 	ListFiles(context.Context, *storev1.ListFilesRequest) (*storev1.ListFilesResponse, error)
@@ -129,22 +129,22 @@ type Client interface {
 	ReplaceFiles(context.Context, *storev1.ReplaceFilesRequest) (*storev1.ReplaceFilesResponse, error)
 }
 
-type ClientImpl struct {
+type clientImpl struct {
 	rpcClient storev1connect.CerbosStoreServiceClient
 	base.Client
 }
 
-func NewClient(baseClient base.Client, options []connect.ClientOption) (*ClientImpl, error) {
+func NewClient(baseClient base.Client, options []connect.ClientOption) (Client, error) {
 	httpClient := baseClient.StdHTTPClient()
 	rpcClient := storev1connect.NewCerbosStoreServiceClient(httpClient, baseClient.APIEndpoint, options...)
 
-	return &ClientImpl{
+	return &clientImpl{
 		Client:    baseClient,
 		rpcClient: rpcClient,
 	}, nil
 }
 
-func (c *ClientImpl) ListFiles(ctx context.Context, req *storev1.ListFilesRequest) (*storev1.ListFilesResponse, error) {
+func (c *clientImpl) ListFiles(ctx context.Context, req *storev1.ListFilesRequest) (*storev1.ListFilesResponse, error) {
 	resp, err := c.rpcClient.ListFiles(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, newRPCError(err)
@@ -153,7 +153,7 @@ func (c *ClientImpl) ListFiles(ctx context.Context, req *storev1.ListFilesReques
 	return resp.Msg, nil
 }
 
-func (c *ClientImpl) GetCurrentVersion(ctx context.Context, req *storev1.GetCurrentVersionRequest) (*storev1.GetCurrentVersionResponse, error) {
+func (c *clientImpl) GetCurrentVersion(ctx context.Context, req *storev1.GetCurrentVersionRequest) (*storev1.GetCurrentVersionResponse, error) {
 	resp, err := c.rpcClient.GetCurrentVersion(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, newRPCError(err)
@@ -162,7 +162,7 @@ func (c *ClientImpl) GetCurrentVersion(ctx context.Context, req *storev1.GetCurr
 	return resp.Msg, nil
 }
 
-func (c *ClientImpl) GetFiles(ctx context.Context, req *storev1.GetFilesRequest) (*storev1.GetFilesResponse, error) {
+func (c *clientImpl) GetFiles(ctx context.Context, req *storev1.GetFilesRequest) (*storev1.GetFilesResponse, error) {
 	resp, err := c.rpcClient.GetFiles(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, newRPCError(err)
@@ -171,7 +171,7 @@ func (c *ClientImpl) GetFiles(ctx context.Context, req *storev1.GetFilesRequest)
 	return resp.Msg, nil
 }
 
-func (c *ClientImpl) ModifyFiles(ctx context.Context, req *storev1.ModifyFilesRequest) (*storev1.ModifyFilesResponse, error) {
+func (c *clientImpl) ModifyFiles(ctx context.Context, req *storev1.ModifyFilesRequest) (*storev1.ModifyFilesResponse, error) {
 	resp, err := c.rpcClient.ModifyFiles(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, newRPCError(err)
@@ -180,7 +180,7 @@ func (c *ClientImpl) ModifyFiles(ctx context.Context, req *storev1.ModifyFilesRe
 	return resp.Msg, nil
 }
 
-func (c *ClientImpl) ReplaceFiles(ctx context.Context, req *storev1.ReplaceFilesRequest) (*storev1.ReplaceFilesResponse, error) {
+func (c *clientImpl) ReplaceFiles(ctx context.Context, req *storev1.ReplaceFilesRequest) (*storev1.ReplaceFilesResponse, error) {
 	resp, err := c.rpcClient.ReplaceFiles(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, newRPCError(err)
