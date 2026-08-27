@@ -2699,7 +2699,7 @@ var File_cerbos_cloud_provision_v1_provision_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_provision_v1_provision_proto_rawDesc = "" +
 	"\n" +
-	")cerbos/cloud/provision/v1/provision.proto\x12\x19cerbos.cloud.provision.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fcerbos/cloud/auth/v1/auth.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\a\n" +
+	")cerbos/cloud/provision/v1/provision.proto\x12\x19cerbos.cloud.provision.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\a\n" +
 	"\bResource\x12V\n" +
 	"\forganization\x18\x01 \x01(\v20.cerbos.cloud.provision.v1.Resource.OrganizationH\x00R\forganization\x12M\n" +
 	"\tworkspace\x18\x02 \x01(\v2-.cerbos.cloud.provision.v1.Resource.WorkspaceH\x00R\tworkspace\x12P\n" +
