@@ -72,6 +72,7 @@ func TestIngest(t *testing.T) {
 						DecisionLogEntry: &auditv1.DecisionLogEntry{
 							CallId:    "2",
 							Timestamp: timestamppb.New(now.Add(time.Duration(2) * time.Second)),
+							//nolint:staticcheck
 							Inputs: []*enginev1.CheckInput{
 								{
 									RequestId: "2",
@@ -86,6 +87,7 @@ func TestIngest(t *testing.T) {
 									Actions: []string{"a1", "a2"},
 								},
 							},
+							//nolint:staticcheck
 							Outputs: []*enginev1.CheckOutput{
 								{
 									RequestId:  "2",

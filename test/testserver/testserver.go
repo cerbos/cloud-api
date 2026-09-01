@@ -81,7 +81,7 @@ func newHub(t *testing.T, server *httptest.Server, creds *credentials.Credential
 		certPool.AddCert(cert)
 		tlsConf = &tls.Config{
 			MinVersion:               tls.VersionTLS12,
-			PreferServerCipherSuites: true,
+			PreferServerCipherSuites: true, //nolint:staticcheck
 			CurvePreferences: []tls.CurveID{
 				tls.CurveP256,
 				tls.X25519,
