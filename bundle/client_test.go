@@ -1155,7 +1155,7 @@ func mkClient(t *testing.T, url string, cert *x509.Certificate) (*bundle.Client,
 		certPool.AddCert(cert)
 		tlsConf = &tls.Config{
 			MinVersion:               tls.VersionTLS12,
-			PreferServerCipherSuites: true,
+			PreferServerCipherSuites: true, //nolint:staticcheck
 			CurvePreferences: []tls.CurveID{
 				tls.CurveP256,
 				tls.X25519,
