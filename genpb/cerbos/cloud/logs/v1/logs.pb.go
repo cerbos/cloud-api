@@ -182,6 +182,61 @@ func (x *IngestRequest) GetBatch() *IngestBatch {
 	return nil
 }
 
+// RawIngestRequest is wire-identical alias of IngestRequest for clients
+// that already hold the batch in serialized form.
+type RawIngestRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	PdpId *v1.Identifier         `protobuf:"bytes,1,opt,name=pdp_id,json=pdpId,proto3" json:"pdp_id,omitempty"`
+	// A serialized IngestBatch message.
+	Batch         []byte `protobuf:"bytes,2,opt,name=batch,proto3" json:"batch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RawIngestRequest) Reset() {
+	*x = RawIngestRequest{}
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RawIngestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RawIngestRequest) ProtoMessage() {}
+
+func (x *RawIngestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RawIngestRequest.ProtoReflect.Descriptor instead.
+func (*RawIngestRequest) Descriptor() ([]byte, []int) {
+	return file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RawIngestRequest) GetPdpId() *v1.Identifier {
+	if x != nil {
+		return x.PdpId
+	}
+	return nil
+}
+
+func (x *RawIngestRequest) GetBatch() []byte {
+	if x != nil {
+		return x.Batch
+	}
+	return nil
+}
+
 type IngestResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Status:
@@ -195,7 +250,7 @@ type IngestResponse struct {
 
 func (x *IngestResponse) Reset() {
 	*x = IngestResponse{}
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +262,7 @@ func (x *IngestResponse) String() string {
 func (*IngestResponse) ProtoMessage() {}
 
 func (x *IngestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -220,7 +275,7 @@ func (x *IngestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestResponse.ProtoReflect.Descriptor instead.
 func (*IngestResponse) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP(), []int{2}
+	return file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *IngestResponse) GetStatus() isIngestResponse_Status {
@@ -279,7 +334,7 @@ type IngestBatch_Entry struct {
 
 func (x *IngestBatch_Entry) Reset() {
 	*x = IngestBatch_Entry{}
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -291,7 +346,7 @@ func (x *IngestBatch_Entry) String() string {
 func (*IngestBatch_Entry) ProtoMessage() {}
 
 func (x *IngestBatch_Entry) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -371,7 +426,7 @@ type IngestResponse_Backoff struct {
 
 func (x *IngestResponse_Backoff) Reset() {
 	*x = IngestResponse_Backoff{}
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +438,7 @@ func (x *IngestResponse_Backoff) String() string {
 func (*IngestResponse_Backoff) ProtoMessage() {}
 
 func (x *IngestResponse_Backoff) ProtoReflect() protoreflect.Message {
-	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4]
+	mi := &file_cerbos_cloud_logs_v1_logs_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -396,7 +451,7 @@ func (x *IngestResponse_Backoff) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestResponse_Backoff.ProtoReflect.Descriptor instead.
 func (*IngestResponse_Backoff) Descriptor() ([]byte, []int) {
-	return file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP(), []int{2, 0}
+	return file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *IngestResponse_Backoff) GetDuration() *durationpb.Duration {
@@ -427,7 +482,10 @@ const file_cerbos_cloud_logs_v1_logs_proto_rawDesc = "" +
 	"\x17ENTRY_KIND_DECISION_LOG\x10\x02\"\x90\x01\n" +
 	"\rIngestRequest\x12>\n" +
 	"\x06pdp_id\x18\x01 \x01(\v2\x1f.cerbos.cloud.pdp.v1.IdentifierB\x06\xbaH\x03\xc8\x01\x01R\x05pdpId\x12?\n" +
-	"\x05batch\x18\x02 \x01(\v2!.cerbos.cloud.logs.v1.IngestBatchB\x06\xbaH\x03\xc8\x01\x01R\x05batch\"\xda\x01\n" +
+	"\x05batch\x18\x02 \x01(\v2!.cerbos.cloud.logs.v1.IngestBatchB\x06\xbaH\x03\xc8\x01\x01R\x05batch\"q\n" +
+	"\x10RawIngestRequest\x12>\n" +
+	"\x06pdp_id\x18\x01 \x01(\v2\x1f.cerbos.cloud.pdp.v1.IdentifierB\x06\xbaH\x03\xc8\x01\x01R\x05pdpId\x12\x1d\n" +
+	"\x05batch\x18\x02 \x01(\fB\a\xbaH\x04z\x02\x10\x01R\x05batch\"\xda\x01\n" +
 	"\x0eIngestResponse\x122\n" +
 	"\asuccess\x18\x01 \x01(\v2\x16.google.protobuf.EmptyH\x00R\asuccess\x12H\n" +
 	"\abackoff\x18\x02 \x01(\v2,.cerbos.cloud.logs.v1.IngestResponse.BackoffH\x00R\abackoff\x1a@\n" +
@@ -451,39 +509,41 @@ func file_cerbos_cloud_logs_v1_logs_proto_rawDescGZIP() []byte {
 }
 
 var file_cerbos_cloud_logs_v1_logs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cerbos_cloud_logs_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_cerbos_cloud_logs_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_cerbos_cloud_logs_v1_logs_proto_goTypes = []any{
 	(IngestBatch_EntryKind)(0),     // 0: cerbos.cloud.logs.v1.IngestBatch.EntryKind
 	(*IngestBatch)(nil),            // 1: cerbos.cloud.logs.v1.IngestBatch
 	(*IngestRequest)(nil),          // 2: cerbos.cloud.logs.v1.IngestRequest
-	(*IngestResponse)(nil),         // 3: cerbos.cloud.logs.v1.IngestResponse
-	(*IngestBatch_Entry)(nil),      // 4: cerbos.cloud.logs.v1.IngestBatch.Entry
-	(*IngestResponse_Backoff)(nil), // 5: cerbos.cloud.logs.v1.IngestResponse.Backoff
-	(*v1.Identifier)(nil),          // 6: cerbos.cloud.pdp.v1.Identifier
-	(*emptypb.Empty)(nil),          // 7: google.protobuf.Empty
-	(*timestamppb.Timestamp)(nil),  // 8: google.protobuf.Timestamp
-	(*v11.AccessLogEntry)(nil),     // 9: cerbos.audit.v1.AccessLogEntry
-	(*v11.DecisionLogEntry)(nil),   // 10: cerbos.audit.v1.DecisionLogEntry
-	(*durationpb.Duration)(nil),    // 11: google.protobuf.Duration
+	(*RawIngestRequest)(nil),       // 3: cerbos.cloud.logs.v1.RawIngestRequest
+	(*IngestResponse)(nil),         // 4: cerbos.cloud.logs.v1.IngestResponse
+	(*IngestBatch_Entry)(nil),      // 5: cerbos.cloud.logs.v1.IngestBatch.Entry
+	(*IngestResponse_Backoff)(nil), // 6: cerbos.cloud.logs.v1.IngestResponse.Backoff
+	(*v1.Identifier)(nil),          // 7: cerbos.cloud.pdp.v1.Identifier
+	(*emptypb.Empty)(nil),          // 8: google.protobuf.Empty
+	(*timestamppb.Timestamp)(nil),  // 9: google.protobuf.Timestamp
+	(*v11.AccessLogEntry)(nil),     // 10: cerbos.audit.v1.AccessLogEntry
+	(*v11.DecisionLogEntry)(nil),   // 11: cerbos.audit.v1.DecisionLogEntry
+	(*durationpb.Duration)(nil),    // 12: google.protobuf.Duration
 }
 var file_cerbos_cloud_logs_v1_logs_proto_depIdxs = []int32{
-	4,  // 0: cerbos.cloud.logs.v1.IngestBatch.entries:type_name -> cerbos.cloud.logs.v1.IngestBatch.Entry
-	6,  // 1: cerbos.cloud.logs.v1.IngestRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	5,  // 0: cerbos.cloud.logs.v1.IngestBatch.entries:type_name -> cerbos.cloud.logs.v1.IngestBatch.Entry
+	7,  // 1: cerbos.cloud.logs.v1.IngestRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
 	1,  // 2: cerbos.cloud.logs.v1.IngestRequest.batch:type_name -> cerbos.cloud.logs.v1.IngestBatch
-	7,  // 3: cerbos.cloud.logs.v1.IngestResponse.success:type_name -> google.protobuf.Empty
-	5,  // 4: cerbos.cloud.logs.v1.IngestResponse.backoff:type_name -> cerbos.cloud.logs.v1.IngestResponse.Backoff
-	0,  // 5: cerbos.cloud.logs.v1.IngestBatch.Entry.kind:type_name -> cerbos.cloud.logs.v1.IngestBatch.EntryKind
-	8,  // 6: cerbos.cloud.logs.v1.IngestBatch.Entry.timestamp:type_name -> google.protobuf.Timestamp
-	9,  // 7: cerbos.cloud.logs.v1.IngestBatch.Entry.access_log_entry:type_name -> cerbos.audit.v1.AccessLogEntry
-	10, // 8: cerbos.cloud.logs.v1.IngestBatch.Entry.decision_log_entry:type_name -> cerbos.audit.v1.DecisionLogEntry
-	11, // 9: cerbos.cloud.logs.v1.IngestResponse.Backoff.duration:type_name -> google.protobuf.Duration
-	2,  // 10: cerbos.cloud.logs.v1.CerbosLogsService.Ingest:input_type -> cerbos.cloud.logs.v1.IngestRequest
-	3,  // 11: cerbos.cloud.logs.v1.CerbosLogsService.Ingest:output_type -> cerbos.cloud.logs.v1.IngestResponse
-	11, // [11:12] is the sub-list for method output_type
-	10, // [10:11] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	7,  // 3: cerbos.cloud.logs.v1.RawIngestRequest.pdp_id:type_name -> cerbos.cloud.pdp.v1.Identifier
+	8,  // 4: cerbos.cloud.logs.v1.IngestResponse.success:type_name -> google.protobuf.Empty
+	6,  // 5: cerbos.cloud.logs.v1.IngestResponse.backoff:type_name -> cerbos.cloud.logs.v1.IngestResponse.Backoff
+	0,  // 6: cerbos.cloud.logs.v1.IngestBatch.Entry.kind:type_name -> cerbos.cloud.logs.v1.IngestBatch.EntryKind
+	9,  // 7: cerbos.cloud.logs.v1.IngestBatch.Entry.timestamp:type_name -> google.protobuf.Timestamp
+	10, // 8: cerbos.cloud.logs.v1.IngestBatch.Entry.access_log_entry:type_name -> cerbos.audit.v1.AccessLogEntry
+	11, // 9: cerbos.cloud.logs.v1.IngestBatch.Entry.decision_log_entry:type_name -> cerbos.audit.v1.DecisionLogEntry
+	12, // 10: cerbos.cloud.logs.v1.IngestResponse.Backoff.duration:type_name -> google.protobuf.Duration
+	2,  // 11: cerbos.cloud.logs.v1.CerbosLogsService.Ingest:input_type -> cerbos.cloud.logs.v1.IngestRequest
+	4,  // 12: cerbos.cloud.logs.v1.CerbosLogsService.Ingest:output_type -> cerbos.cloud.logs.v1.IngestResponse
+	12, // [12:13] is the sub-list for method output_type
+	11, // [11:12] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_logs_v1_logs_proto_init() }
@@ -491,11 +551,11 @@ func file_cerbos_cloud_logs_v1_logs_proto_init() {
 	if File_cerbos_cloud_logs_v1_logs_proto != nil {
 		return
 	}
-	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[2].OneofWrappers = []any{
+	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3].OneofWrappers = []any{
 		(*IngestResponse_Success)(nil),
 		(*IngestResponse_Backoff_)(nil),
 	}
-	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3].OneofWrappers = []any{
+	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[4].OneofWrappers = []any{
 		(*IngestBatch_Entry_AccessLogEntry)(nil),
 		(*IngestBatch_Entry_DecisionLogEntry)(nil),
 	}
@@ -505,7 +565,7 @@ func file_cerbos_cloud_logs_v1_logs_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cerbos_cloud_logs_v1_logs_proto_rawDesc), len(file_cerbos_cloud_logs_v1_logs_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
