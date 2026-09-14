@@ -363,6 +363,18 @@ func cerbos_cloud_logs_v1_IngestResponse_hashpb_sum(m *IngestResponse, hasher ha
 	}
 }
 
+func cerbos_cloud_logs_v1_RawIngestRequest_hashpb_sum(m *RawIngestRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.logs.v1.RawIngestRequest.pdp_id"]; !ok {
+		if m.GetPdpId() != nil {
+			cerbos_cloud_pdp_v1_Identifier_hashpb_sum(m.GetPdpId(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.logs.v1.RawIngestRequest.batch"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetBatch()))))
+		_, _ = hasher.Write(m.GetBatch())
+	}
+}
+
 func cerbos_cloud_pdp_v1_Identifier_hashpb_sum(m *v11.Identifier, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.pdp.v1.Identifier.instance"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetInstance()))))
