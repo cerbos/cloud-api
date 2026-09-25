@@ -39,6 +39,9 @@ var pdpIdentifer = &pdpv1.Identifier{
 func mkIngestBatch(now time.Time) *logsv1.IngestBatch {
 	return &logsv1.IngestBatch{
 		Id: "foo",
+		Target: &logsv1.IngestBatch_WorkspaceId{
+			WorkspaceId: "87IGB1VDKCVZ",
+		},
 		Entries: []*logsv1.IngestBatch_Entry{
 			{
 				Kind:      logsv1.IngestBatch_ENTRY_KIND_ACCESS_LOG,
@@ -115,7 +118,7 @@ func TestIngest(t *testing.T) {
 
 		mockLogsSvc.EXPECT().
 			Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
-				return cmp.Diff(c.Msg, want, protocmp.Transform()) == ""
+				return cmp.Equal(c.Msg, want, protocmp.Transform())
 			})).
 			Return(connect.NewResponse(&logsv1.IngestResponse{
 				Status: &logsv1.IngestResponse_Success{},
@@ -165,7 +168,7 @@ func TestIngestRaw(t *testing.T) {
 
 	mockLogsSvc.EXPECT().
 		Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
-			return cmp.Diff(c.Msg, want, protocmp.Transform()) == ""
+			return cmp.Equal(c.Msg, want, protocmp.Transform())
 		})).
 		Return(connect.NewResponse(&logsv1.IngestResponse{
 			Status: &logsv1.IngestResponse_Success{},

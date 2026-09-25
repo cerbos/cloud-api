@@ -323,6 +323,18 @@ func cerbos_cloud_logs_v1_IngestBatch_hashpb_sum(m *IngestBatch, hasher hash.Has
 			}
 		}
 	}
+	if m.Target != nil {
+		if _, ok := ignore["cerbos.cloud.logs.v1.IngestBatch.target"]; !ok {
+			switch t := m.Target.(type) {
+			case *IngestBatch_WorkspaceId:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.WorkspaceId))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.WorkspaceId), len(t.WorkspaceId)))
+			case *IngestBatch_DeploymentId:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.DeploymentId))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.DeploymentId), len(t.DeploymentId)))
+			}
+		}
+	}
 }
 
 func cerbos_cloud_logs_v1_IngestRequest_hashpb_sum(m *IngestRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
