@@ -79,9 +79,14 @@ func (IngestBatch_EntryKind) EnumDescriptor() ([]byte, []int) {
 }
 
 type IngestBatch struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Entries       []*IngestBatch_Entry   `protobuf:"bytes,2,rep,name=entries,proto3" json:"entries,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Entries []*IngestBatch_Entry   `protobuf:"bytes,2,rep,name=entries,proto3" json:"entries,omitempty"`
+	// Types that are valid to be assigned to Target:
+	//
+	//	*IngestBatch_WorkspaceId
+	//	*IngestBatch_DeploymentId
+	Target        isIngestBatch_Target `protobuf_oneof:"target"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -129,6 +134,47 @@ func (x *IngestBatch) GetEntries() []*IngestBatch_Entry {
 	}
 	return nil
 }
+
+func (x *IngestBatch) GetTarget() isIngestBatch_Target {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *IngestBatch) GetWorkspaceId() string {
+	if x != nil {
+		if x, ok := x.Target.(*IngestBatch_WorkspaceId); ok {
+			return x.WorkspaceId
+		}
+	}
+	return ""
+}
+
+func (x *IngestBatch) GetDeploymentId() string {
+	if x != nil {
+		if x, ok := x.Target.(*IngestBatch_DeploymentId); ok {
+			return x.DeploymentId
+		}
+	}
+	return ""
+}
+
+type isIngestBatch_Target interface {
+	isIngestBatch_Target()
+}
+
+type IngestBatch_WorkspaceId struct {
+	WorkspaceId string `protobuf:"bytes,3,opt,name=workspace_id,json=workspaceId,proto3,oneof"`
+}
+
+type IngestBatch_DeploymentId struct {
+	DeploymentId string `protobuf:"bytes,4,opt,name=deployment_id,json=deploymentId,proto3,oneof"`
+}
+
+func (*IngestBatch_WorkspaceId) isIngestBatch_Target() {}
+
+func (*IngestBatch_DeploymentId) isIngestBatch_Target() {}
 
 type IngestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -465,10 +511,12 @@ var File_cerbos_cloud_logs_v1_logs_proto protoreflect.FileDescriptor
 
 const file_cerbos_cloud_logs_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x1fcerbos/cloud/logs/v1/logs.proto\x12\x14cerbos.cloud.logs.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a\x1dcerbos/cloud/pdp/v1/pdp.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x04\n" +
+	"\x1fcerbos/cloud/logs/v1/logs.proto\x12\x14cerbos.cloud.logs.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bcerbos/audit/v1/audit.proto\x1a\x1dcerbos/cloud/pdp/v1/pdp.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x81\x05\n" +
 	"\vIngestBatch\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12N\n" +
-	"\aentries\x18\x02 \x03(\v2'.cerbos.cloud.logs.v1.IngestBatch.EntryB\v\xbaH\b\x92\x01\x05\b\x01\x10\x80\bR\aentries\x1a\xc6\x02\n" +
+	"\aentries\x18\x02 \x03(\v2'.cerbos.cloud.logs.v1.IngestBatch.EntryB\v\xbaH\b\x92\x01\x05\b\x01\x10\x80\bR\aentries\x12-\n" +
+	"\fworkspace_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x98\x01\fH\x00R\vworkspaceId\x12/\n" +
+	"\rdeployment_id\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x98\x01\fH\x00R\fdeploymentId\x1a\xc6\x02\n" +
 	"\x05Entry\x12K\n" +
 	"\x04kind\x18\x01 \x01(\x0e2+.cerbos.cloud.logs.v1.IngestBatch.EntryKindB\n" +
 	"\xbaH\a\x82\x01\x04\x18\x01\x18\x02R\x04kind\x12@\n" +
@@ -479,7 +527,8 @@ const file_cerbos_cloud_logs_v1_logs_proto_rawDesc = "" +
 	"\tEntryKind\x12\x1a\n" +
 	"\x16ENTRY_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ENTRY_KIND_ACCESS_LOG\x10\x01\x12\x1b\n" +
-	"\x17ENTRY_KIND_DECISION_LOG\x10\x02\"\x90\x01\n" +
+	"\x17ENTRY_KIND_DECISION_LOG\x10\x02B\b\n" +
+	"\x06target\"\x90\x01\n" +
 	"\rIngestRequest\x12>\n" +
 	"\x06pdp_id\x18\x01 \x01(\v2\x1f.cerbos.cloud.pdp.v1.IdentifierB\x06\xbaH\x03\xc8\x01\x01R\x05pdpId\x12?\n" +
 	"\x05batch\x18\x02 \x01(\v2!.cerbos.cloud.logs.v1.IngestBatchB\x06\xbaH\x03\xc8\x01\x01R\x05batch\"q\n" +
@@ -550,6 +599,10 @@ func init() { file_cerbos_cloud_logs_v1_logs_proto_init() }
 func file_cerbos_cloud_logs_v1_logs_proto_init() {
 	if File_cerbos_cloud_logs_v1_logs_proto != nil {
 		return
+	}
+	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[0].OneofWrappers = []any{
+		(*IngestBatch_WorkspaceId)(nil),
+		(*IngestBatch_DeploymentId)(nil),
 	}
 	file_cerbos_cloud_logs_v1_logs_proto_msgTypes[3].OneofWrappers = []any{
 		(*IngestResponse_Success)(nil),
