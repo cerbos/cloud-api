@@ -4,8 +4,8 @@ github.com/bitfield/gotestdox v0.2.2 h1:x6RcPAbBbErKLnapz1QeAlf3ospg8efBsedU93CD
 github.com/bitfield/gotestdox v0.2.2/go.mod h1:D+gwtS0urjBrzguAkTM2wodsTQYFHdpx8eqRJ3N+9pY=
 github.com/brunoga/deep v1.3.1 h1:bSrL6FhAZa6JlVv4vsi7Hg8SLwroDb1kgDERRVipBCo=
 github.com/brunoga/deep v1.3.1/go.mod h1:GDV6dnXqn80ezsLSZ5Wlv1PdKAWAO4L5PnKYtv2dgaI=
-github.com/cerbos/actions v0.0.0-20260914055624-c19f02311607 h1:HH6D+WEuigeEv9EaAmn62C4u35hlMO9XQF04ZStLll8=
-github.com/cerbos/actions v0.0.0-20260914055624-c19f02311607/go.mod h1:amcyHVwdNes+qGPs+ZylvpFQKBfX6j9kWMYzh0mMRac=
+github.com/cerbos/actions v0.0.0-20260921054828-b277cb5f0be6 h1:cp/D5qPTIqe9pyf6hLFQ3ggCY1ZlF43U64rWcN9hujE=
+github.com/cerbos/actions v0.0.0-20260921054828-b277cb5f0be6/go.mod h1:TSU/i1Q2K9oYlZ38w0DPnBEEfZTD7q9vCFOw5zDrOsI=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.0 h1:eRxAGfPtAPIwuEu/5TwUM//iE2DLxPRv6MYcKTk+Vqg=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.0/go.mod h1:2xx4aHivI/LQZA2iusGwPwsg/EOKxRX59BZZbojy2OM=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
