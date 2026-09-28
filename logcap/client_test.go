@@ -26,6 +26,7 @@ import (
 	logsv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/logs/v1/logsv1connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
+	"github.com/cerbos/cloud-api/logcap"
 	"github.com/cerbos/cloud-api/test"
 	mocklogsv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/logs/v1/logsv1connect"
 	"github.com/cerbos/cloud-api/test/testserver"
@@ -39,9 +40,6 @@ var pdpIdentifer = &pdpv1.Identifier{
 func mkIngestBatch(now time.Time) *logsv1.IngestBatch {
 	return &logsv1.IngestBatch{
 		Id: "foo",
-		Target: &logsv1.IngestBatch_WorkspaceId{
-			WorkspaceId: "87IGB1VDKCVZ",
-		},
 		Entries: []*logsv1.IngestBatch_Entry{
 			{
 				Kind:      logsv1.IngestBatch_ENTRY_KIND_ACCESS_LOG,
@@ -103,32 +101,59 @@ func TestIngest(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Success", func(t *testing.T) {
-		mockLogsSvc := mocklogsv1connect.NewCerbosLogsServiceHandler(t)
-		logsPath, logsHandler := logsv1connect.NewCerbosLogsServiceHandler(mockLogsSvc)
-		mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{logsPath: testserver.LogRequests(t, logsHandler)}, creds)
-
-		testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
-
-		batch := mkIngestBatch(time.Now())
-
-		want := &logsv1.IngestRequest{
-			PdpId: pdpIdentifer,
-			Batch: batch,
+		testCases := []struct {
+			name       string
+			target     logcap.Target
+			wantTarget *logsv1.IngestTarget
+		}{
+			{
+				name:       "target unspecified",
+				target:     nil,
+				wantTarget: nil,
+			},
+			{
+				name:       "workspace",
+				target:     logcap.WorkspaceID("LFFQFJRJU11P"),
+				wantTarget: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_WorkspaceId{WorkspaceId: "LFFQFJRJU11P"}},
+			},
+			{
+				name:       "deployment",
+				target:     logcap.DeploymentID("LFFQFJRJU11P"),
+				wantTarget: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_DeploymentId{DeploymentId: "LFFQFJRJU11P"}},
+			},
 		}
 
-		mockLogsSvc.EXPECT().
-			Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
-				return cmp.Equal(c.Msg, want, protocmp.Transform())
-			})).
-			Return(connect.NewResponse(&logsv1.IngestResponse{
-				Status: &logsv1.IngestResponse_Success{},
-			}), nil).Once()
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				mockLogsSvc := mocklogsv1connect.NewCerbosLogsServiceHandler(t)
+				logsPath, logsHandler := logsv1connect.NewCerbosLogsServiceHandler(mockLogsSvc)
+				mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{logsPath: testserver.LogRequests(t, logsHandler)}, creds)
 
-		client, err := hub.LogCapClient()
-		require.NoError(t, err)
+				testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
-		_, err = client.Ingest(test.Context(t), batch)
-		require.NoError(t, err)
+				batch := mkIngestBatch(time.Now())
+
+				want := &logsv1.IngestRequest{
+					PdpId:  pdpIdentifer,
+					Batch:  batch,
+					Target: tc.wantTarget,
+				}
+
+				mockLogsSvc.EXPECT().
+					Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
+						return cmp.Equal(c.Msg, want, protocmp.Transform())
+					})).
+					Return(connect.NewResponse(&logsv1.IngestResponse{
+						Status: &logsv1.IngestResponse_Success{},
+					}), nil).Once()
+
+				client, err := hub.LogCapClient()
+				require.NoError(t, err)
+
+				_, err = client.Ingest(test.Context(t), tc.target, batch)
+				require.NoError(t, err)
+			})
+		}
 	})
 
 	t.Run("AuthenticationFailure", func(t *testing.T) {
@@ -141,7 +166,7 @@ func TestIngest(t *testing.T) {
 		require.NoError(t, err)
 		client.BypassCircuitBreaker()
 
-		_, err = client.Ingest(test.Context(t), &logsv1.IngestBatch{})
+		_, err = client.Ingest(test.Context(t), nil, &logsv1.IngestBatch{})
 		require.Error(t, err)
 		require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 	})
@@ -151,34 +176,61 @@ func TestIngestRaw(t *testing.T) {
 	creds, err := credentials.New("client-id", "client-secret")
 	require.NoError(t, err)
 
-	mockLogsSvc := mocklogsv1connect.NewCerbosLogsServiceHandler(t)
-	logsPath, logsHandler := logsv1connect.NewCerbosLogsServiceHandler(mockLogsSvc)
-	mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{logsPath: testserver.LogRequests(t, logsHandler)}, creds)
-
-	testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
-
-	batch := mkIngestBatch(time.Now())
-	rawBatch, err := batch.MarshalVT()
-	require.NoError(t, err)
-
-	want := &logsv1.IngestRequest{
-		PdpId: pdpIdentifer,
-		Batch: batch,
+	testCases := []struct {
+		name       string
+		target     logcap.Target
+		wantTarget *logsv1.IngestTarget
+	}{
+		{
+			name:       "target unspecified",
+			target:     nil,
+			wantTarget: nil,
+		},
+		{
+			name:       "workspace",
+			target:     logcap.WorkspaceID("LFFQFJRJU11P"),
+			wantTarget: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_WorkspaceId{WorkspaceId: "LFFQFJRJU11P"}},
+		},
+		{
+			name:       "deployment",
+			target:     logcap.DeploymentID("LFFQFJRJU11P"),
+			wantTarget: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_DeploymentId{DeploymentId: "LFFQFJRJU11P"}},
+		},
 	}
 
-	mockLogsSvc.EXPECT().
-		Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
-			return cmp.Equal(c.Msg, want, protocmp.Transform())
-		})).
-		Return(connect.NewResponse(&logsv1.IngestResponse{
-			Status: &logsv1.IngestResponse_Success{},
-		}), nil).Once()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockLogsSvc := mocklogsv1connect.NewCerbosLogsServiceHandler(t)
+			logsPath, logsHandler := logsv1connect.NewCerbosLogsServiceHandler(mockLogsSvc)
+			mockAPIKeySvc, hub := testserver.Start(t, map[string]http.Handler{logsPath: testserver.LogRequests(t, logsHandler)}, creds)
 
-	client, err := hub.LogCapClient()
-	require.NoError(t, err)
+			testserver.ExpectAPIKeySuccess(t, mockAPIKeySvc)
 
-	_, err = client.IngestRaw(test.Context(t), rawBatch)
-	require.NoError(t, err)
+			batch := mkIngestBatch(time.Now())
+			rawBatch, err := batch.MarshalVT()
+			require.NoError(t, err)
+
+			want := &logsv1.IngestRequest{
+				PdpId:  pdpIdentifer,
+				Batch:  batch,
+				Target: tc.wantTarget,
+			}
+
+			mockLogsSvc.EXPECT().
+				Ingest(mock.Anything, mock.MatchedBy(func(c *connect.Request[logsv1.IngestRequest]) bool {
+					return cmp.Equal(c.Msg, want, protocmp.Transform())
+				})).
+				Return(connect.NewResponse(&logsv1.IngestResponse{
+					Status: &logsv1.IngestResponse_Success{},
+				}), nil).Once()
+
+			client, err := hub.LogCapClient()
+			require.NoError(t, err)
+
+			_, err = client.IngestRaw(test.Context(t), tc.target, rawBatch)
+			require.NoError(t, err)
+		})
+	}
 }
 
 func TestRawIngestRequestWireEquivalence(t *testing.T) {
@@ -186,16 +238,37 @@ func TestRawIngestRequestWireEquivalence(t *testing.T) {
 	rawBatch, err := batch.MarshalVT()
 	require.NoError(t, err)
 
-	typed := &logsv1.IngestRequest{PdpId: pdpIdentifer, Batch: batch}
-	raw := &logsv1.RawIngestRequest{PdpId: pdpIdentifer, Batch: rawBatch}
+	testCases := []struct {
+		name   string
+		target *logsv1.IngestTarget
+	}{
+		{
+			name: "target unspecified",
+		},
+		{
+			name:   "workspace",
+			target: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_WorkspaceId{WorkspaceId: "LFFQFJRJU11P"}},
+		},
+		{
+			name:   "deployment",
+			target: &logsv1.IngestTarget{Target: &logsv1.IngestTarget_DeploymentId{DeploymentId: "6CXEQL80M0H0"}},
+		},
+	}
 
-	typedWire, err := typed.MarshalVT()
-	require.NoError(t, err)
-	rawWire, err := raw.MarshalVT()
-	require.NoError(t, err)
-	require.Equal(t, typedWire, rawWire, "RawIngestRequest wire encoding diverged from IngestRequest")
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			typed := &logsv1.IngestRequest{PdpId: pdpIdentifer, Batch: batch, Target: tc.target}
+			raw := &logsv1.RawIngestRequest{PdpId: pdpIdentifer, Batch: rawBatch, Target: tc.target}
 
-	decoded := &logsv1.IngestRequest{}
-	require.NoError(t, proto.Unmarshal(rawWire, decoded))
-	require.Empty(t, cmp.Diff(decoded, typed, protocmp.Transform()))
+			typedWire, err := typed.MarshalVT()
+			require.NoError(t, err)
+			rawWire, err := raw.MarshalVT()
+			require.NoError(t, err)
+			require.Equal(t, typedWire, rawWire, "RawIngestRequest wire encoding diverged from IngestRequest")
+
+			decoded := &logsv1.IngestRequest{}
+			require.NoError(t, proto.Unmarshal(rawWire, decoded))
+			require.Empty(t, cmp.Diff(decoded, typed, protocmp.Transform()))
+		})
+	}
 }

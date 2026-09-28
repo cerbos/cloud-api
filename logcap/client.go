@@ -40,14 +40,48 @@ func NewClient(baseClient base.Client, options []connect.ClientOption) (*Client,
 	}, nil
 }
 
-func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) (time.Duration, error) {
+type Target interface {
+	ToProto() *logsv1.IngestTarget
+}
+
+type WorkspaceID string
+
+var _ Target = WorkspaceID("")
+
+func (id WorkspaceID) ToProto() *logsv1.IngestTarget {
+	return &logsv1.IngestTarget{
+		Target: &logsv1.IngestTarget_WorkspaceId{
+			WorkspaceId: string(id),
+		},
+	}
+}
+
+type DeploymentID string
+
+var _ Target = DeploymentID("")
+
+func (id DeploymentID) ToProto() *logsv1.IngestTarget {
+	return &logsv1.IngestTarget{
+		Target: &logsv1.IngestTarget_DeploymentId{
+			DeploymentId: string(id),
+		},
+	}
+}
+
+func (c *Client) Ingest(ctx context.Context, target Target, batch *logsv1.IngestBatch) (time.Duration, error) {
 	log := c.Logger
 	log.V(1).Info("Calling Ingest RPC")
 
-	resp, err := c.rpcClient.Ingest(ctx, connect.NewRequest(&logsv1.IngestRequest{
+	req := &logsv1.IngestRequest{
 		PdpId: c.PDPIdentifier,
 		Batch: batch,
-	}))
+	}
+
+	if target != nil {
+		req.Target = target.ToProto()
+	}
+
+	resp, err := c.rpcClient.Ingest(ctx, connect.NewRequest(req))
 	if err != nil {
 		log.Error(err, "Ingest RPC failed")
 		return 0, err
@@ -60,14 +94,20 @@ func (c *Client) Ingest(ctx context.Context, batch *logsv1.IngestBatch) (time.Du
 
 // IngestRaw is Ingest for callers that already hold the batch in serialized
 // form. batch must be a serialized logsv1.IngestBatch.
-func (c *Client) IngestRaw(ctx context.Context, batch []byte) (time.Duration, error) {
+func (c *Client) IngestRaw(ctx context.Context, target Target, batch []byte) (time.Duration, error) {
 	log := c.Logger
 	log.V(1).Info("Calling Ingest RPC (raw)")
 
-	resp, err := c.rawRPCClient.CallUnary(ctx, connect.NewRequest(&logsv1.RawIngestRequest{
+	req := &logsv1.RawIngestRequest{
 		PdpId: c.PDPIdentifier,
 		Batch: batch,
-	}))
+	}
+
+	if target != nil {
+		req.Target = target.ToProto()
+	}
+
+	resp, err := c.rawRPCClient.CallUnary(ctx, connect.NewRequest(req))
 	if err != nil {
 		log.Error(err, "Ingest RPC failed")
 		return 0, err
