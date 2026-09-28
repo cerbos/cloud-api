@@ -5,6 +5,7 @@ package provisionv1
 
 import (
 	protowire "google.golang.org/protobuf/encoding/protowire"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	hash "hash"
 	sync "sync"
@@ -136,6 +137,35 @@ func cerbos_cloud_provision_v1_DeleteWorkspaceRequest_hashpb_sum(m *DeleteWorksp
 func cerbos_cloud_provision_v1_DeleteWorkspaceResponse_hashpb_sum(m *DeleteWorkspaceResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 }
 
+func cerbos_cloud_provision_v1_DeploymentReleaseCondition_hashpb_sum(m *DeploymentReleaseCondition, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentReleaseCondition.id"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetId()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetId()), len(m.GetId())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentReleaseCondition.kind"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetKind())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentReleaseCondition.title"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTitle()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTitle()), len(m.GetTitle())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentReleaseCondition.description"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetDescription()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetDescription()), len(m.GetDescription())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentReleaseCondition.configuration"]; !ok {
+		if m.GetConfiguration() != nil {
+			google_protobuf_Any_hashpb_sum(m.GetConfiguration(), hasher, ignore, b)
+		}
+	}
+}
+
+func cerbos_cloud_provision_v1_DeploymentSignOffConfiguration_hashpb_sum(m *DeploymentSignOffConfiguration, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["cerbos.cloud.provision.v1.DeploymentSignOffConfiguration.num_required"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(m.GetNumRequired())))
+	}
+}
+
 func cerbos_cloud_provision_v1_Deployment_hashpb_sum(m *Deployment, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.resource_id"]; !ok {
 		if m.GetResourceId() != nil {
@@ -164,6 +194,15 @@ func cerbos_cloud_provision_v1_Deployment_hashpb_sum(m *Deployment, hasher hash.
 	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.bundle_activated_at"]; !ok {
 		if m.GetBundleActivatedAt() != nil {
 			google_protobuf_Timestamp_hashpb_sum(m.GetBundleActivatedAt(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.Deployment.release_conditions"]; !ok {
+		if len(m.ReleaseConditions) > 0 {
+			for _, v := range m.ReleaseConditions {
+				if v != nil {
+					cerbos_cloud_provision_v1_DeploymentReleaseCondition_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
 		}
 	}
 }
@@ -570,6 +609,17 @@ func cerbos_cloud_provision_v1_Workspace_hashpb_sum(m *Workspace, hasher hash.Ha
 	if _, ok := ignore["cerbos.cloud.provision.v1.Workspace.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+}
+
+func google_protobuf_Any_hashpb_sum(m *anypb.Any, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if _, ok := ignore["google.protobuf.Any.type_url"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetTypeUrl()))))
+		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetTypeUrl()), len(m.GetTypeUrl())))
+	}
+	if _, ok := ignore["google.protobuf.Any.value"]; !ok {
+		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetValue()))))
+		_, _ = hasher.Write(m.GetValue())
 	}
 }
 
