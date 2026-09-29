@@ -21,10 +21,19 @@ func NewCerbosStoreServiceHandler(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *CerbosStoreServiceHandler {
+	if helper, ok := t.(interface{ Helper() }); ok {
+		helper.Helper()
+	}
+
 	mock := &CerbosStoreServiceHandler{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() {
+		if helper, ok := t.(interface{ Helper() }); ok {
+			helper.Helper()
+		}
+		mock.AssertExpectations(t)
+	})
 
 	return mock
 }

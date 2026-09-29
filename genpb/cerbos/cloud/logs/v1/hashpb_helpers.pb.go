@@ -323,18 +323,6 @@ func cerbos_cloud_logs_v1_IngestBatch_hashpb_sum(m *IngestBatch, hasher hash.Has
 			}
 		}
 	}
-	if m.Target != nil {
-		if _, ok := ignore["cerbos.cloud.logs.v1.IngestBatch.target"]; !ok {
-			switch t := m.Target.(type) {
-			case *IngestBatch_WorkspaceId:
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.WorkspaceId))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.WorkspaceId), len(t.WorkspaceId)))
-			case *IngestBatch_DeploymentId:
-				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.DeploymentId))))
-				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.DeploymentId), len(t.DeploymentId)))
-			}
-		}
-	}
 }
 
 func cerbos_cloud_logs_v1_IngestRequest_hashpb_sum(m *IngestRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
@@ -346,6 +334,11 @@ func cerbos_cloud_logs_v1_IngestRequest_hashpb_sum(m *IngestRequest, hasher hash
 	if _, ok := ignore["cerbos.cloud.logs.v1.IngestRequest.batch"]; !ok {
 		if m.GetBatch() != nil {
 			cerbos_cloud_logs_v1_IngestBatch_hashpb_sum(m.GetBatch(), hasher, ignore, b)
+		}
+	}
+	if _, ok := ignore["cerbos.cloud.logs.v1.IngestRequest.target"]; !ok {
+		if m.GetTarget() != nil {
+			cerbos_cloud_logs_v1_IngestTarget_hashpb_sum(m.GetTarget(), hasher, ignore, b)
 		}
 	}
 }
@@ -375,6 +368,21 @@ func cerbos_cloud_logs_v1_IngestResponse_hashpb_sum(m *IngestResponse, hasher ha
 	}
 }
 
+func cerbos_cloud_logs_v1_IngestTarget_hashpb_sum(m *IngestTarget, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
+	if m.Target != nil {
+		if _, ok := ignore["cerbos.cloud.logs.v1.IngestTarget.target"]; !ok {
+			switch t := m.Target.(type) {
+			case *IngestTarget_WorkspaceId:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.WorkspaceId))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.WorkspaceId), len(t.WorkspaceId)))
+			case *IngestTarget_DeploymentId:
+				_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(t.DeploymentId))))
+				_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(t.DeploymentId), len(t.DeploymentId)))
+			}
+		}
+	}
+}
+
 func cerbos_cloud_logs_v1_RawIngestRequest_hashpb_sum(m *RawIngestRequest, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
 	if _, ok := ignore["cerbos.cloud.logs.v1.RawIngestRequest.pdp_id"]; !ok {
 		if m.GetPdpId() != nil {
@@ -384,6 +392,11 @@ func cerbos_cloud_logs_v1_RawIngestRequest_hashpb_sum(m *RawIngestRequest, hashe
 	if _, ok := ignore["cerbos.cloud.logs.v1.RawIngestRequest.batch"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetBatch()))))
 		_, _ = hasher.Write(m.GetBatch())
+	}
+	if _, ok := ignore["cerbos.cloud.logs.v1.RawIngestRequest.target"]; !ok {
+		if m.GetTarget() != nil {
+			cerbos_cloud_logs_v1_IngestTarget_hashpb_sum(m.GetTarget(), hasher, ignore, b)
+		}
 	}
 }
 

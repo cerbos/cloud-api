@@ -52,7 +52,6 @@ import (
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 	pdpv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/pdp/v1"
 	"github.com/cerbos/cloud-api/hub"
-	"github.com/cerbos/cloud-api/test"
 	mockapikeyv1connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/apikey/v1/apikeyv1connect"
 	mockbundlev2connect "github.com/cerbos/cloud-api/test/mocks/genpb/cerbos/cloud/bundle/v2/bundlev2connect"
 )
@@ -122,7 +121,7 @@ func TestBootstrapBundle(t *testing.T) {
 		require.NoError(t, err, "Failed to marshal")
 		writeBootstrapBundleResponse(t, source, bundleRespBytes)
 
-		file, haveBundleType, encryptionKey, err := client.BootstrapBundle(test.Context(t), source)
+		file, haveBundleType, encryptionKey, err := client.BootstrapBundle(t.Context(), source)
 		require.NoError(t, err)
 		require.Equal(t, bundleResp.BundleInfo.EncryptionKey, encryptionKey)
 		require.Equal(t, bundlev2.BundleType_BUNDLE_TYPE_RULE_TABLE, haveBundleType)
@@ -132,7 +131,7 @@ func TestBootstrapBundle(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		_, _, _, err := client.BootstrapBundle(test.Context(t), bundle.DeploymentID("VQZE8L9LQDML"))
+		_, _, _, err := client.BootstrapBundle(t.Context(), bundle.DeploymentID("VQZE8L9LQDML"))
 		require.Error(t, err)
 	})
 }
@@ -186,7 +185,7 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file, haveBundleType, encryptionKey, err := client.GetBundle(test.Context(t), tc.source)
+						file, haveBundleType, encryptionKey, err := client.GetBundle(t.Context(), tc.source)
 						require.NoError(t, err)
 						require.Equal(t, wantEncryptionKey, encryptionKey)
 						require.Equal(t, bundleType, haveBundleType)
@@ -235,7 +234,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil)
 
-					file, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
+					file, haveBundleType, _, err := client.GetBundle(t.Context(), tc.source)
 					require.NoError(t, err)
 					require.Equal(t, bundleType, haveBundleType)
 
@@ -285,7 +284,7 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
+						file, haveBundleType, _, err := client.GetBundle(t.Context(), tc.source)
 						require.NoError(t, err)
 						require.Equal(t, bundleType, haveBundleType)
 
@@ -344,7 +343,7 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file1, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
+						file1, haveBundleType, _, err := client.GetBundle(t.Context(), tc.source)
 						require.NoError(t, err)
 						require.Equal(t, bundleType, haveBundleType)
 
@@ -397,7 +396,7 @@ func TestGetBundle(t *testing.T) {
 						}), nil).Times(3)
 
 					for range 3 {
-						file2, haveBundleType, _, err := client.GetBundle(test.Context(t), tc.source)
+						file2, haveBundleType, _, err := client.GetBundle(t.Context(), tc.source)
 						require.NoError(t, err)
 						require.Equal(t, bundleType, haveBundleType)
 
@@ -453,7 +452,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(t.Context(), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -501,7 +500,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(t.Context(), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 3, counter.getTotal(), "Total download count does not match")
@@ -538,7 +537,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(t.Context(), tc.source)
 					require.Error(t, err)
 
 					require.Equal(t, 1, counter.getTotal(), "Total download count does not match")
@@ -573,7 +572,7 @@ func TestGetBundle(t *testing.T) {
 							}),
 						}), nil).Once()
 
-					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(t.Context(), tc.source)
 					require.Error(t, err)
 				})
 
@@ -589,7 +588,7 @@ func TestGetBundle(t *testing.T) {
 						IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 						Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-					_, _, _, err := client.GetBundle(test.Context(t), tc.source)
+					_, _, _, err := client.GetBundle(t.Context(), tc.source)
 					require.Error(t, err)
 					require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 				})
@@ -651,7 +650,7 @@ func TestWatchBundle(t *testing.T) {
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 					wantChecksum2 := checksum(t, filepath.Join("testdata", "bundle2.crbp"))
 
-					ctx, cancelFn := context.WithCancel(test.Context(t))
+					ctx, cancelFn := context.WithCancel(t.Context())
 					t.Cleanup(cancelFn)
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -724,7 +723,7 @@ func TestWatchBundle(t *testing.T) {
 					client, _ := mkClient(t, server.URL, server.Certificate())
 					wantChecksum := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-					ctx, cancelFn := context.WithCancel(test.Context(t))
+					ctx, cancelFn := context.WithCancel(t.Context())
 					t.Cleanup(cancelFn)
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -763,7 +762,7 @@ func TestWatchBundle(t *testing.T) {
 
 					client, _ := mkClient(t, server.URL, server.Certificate())
 
-					ctx, cancelFn := context.WithCancel(test.Context(t))
+					ctx, cancelFn := context.WithCancel(t.Context())
 					t.Cleanup(cancelFn)
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -790,7 +789,7 @@ func TestWatchBundle(t *testing.T) {
 					client, _ := mkClient(t, server.URL, server.Certificate())
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-					ctx, cancelFn := context.WithCancel(test.Context(t))
+					ctx, cancelFn := context.WithCancel(t.Context())
 					t.Cleanup(cancelFn)
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -837,7 +836,7 @@ func TestWatchBundle(t *testing.T) {
 					client, _ := mkClient(t, server.URL, server.Certificate())
 					wantChecksum1 := checksum(t, filepath.Join("testdata", "bundle1.crbp"))
 
-					ctx, cancelFn := context.WithCancel(test.Context(t))
+					ctx, cancelFn := context.WithCancel(t.Context())
 					t.Cleanup(cancelFn)
 					expectIssueAccessToken(mockAPIKeySvc)
 
@@ -886,7 +885,7 @@ func TestWatchBundle(t *testing.T) {
 						IssueAccessToken(mock.Anything, mock.MatchedBy(issueAccessTokenRequest())).
 						Return(nil, connect.NewError(connect.CodeUnauthenticated, errors.New("🙅")))
 
-					_, err := client.WatchBundle(test.Context(t), bundle.DeploymentID("PJX7SLDX8SNG"))
+					_, err := client.WatchBundle(t.Context(), bundle.DeploymentID("PJX7SLDX8SNG"))
 					require.Error(t, err)
 					require.ErrorIs(t, err, base.ErrAuthenticationFailed)
 				})
@@ -960,7 +959,7 @@ func TestNetworkIssues(t *testing.T) {
 		t.Cleanup(func() { _ = proxy.Delete() })
 
 		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
-		ctx, cancelFn := context.WithCancel(test.Context(t))
+		ctx, cancelFn := context.WithCancel(t.Context())
 		t.Cleanup(cancelFn)
 
 		require.NoError(t, proxy.Disable(), " Failed to apply toxic")
@@ -981,7 +980,7 @@ func TestNetworkIssues(t *testing.T) {
 
 		client, _ := mkClient(t, "https://"+proxy.Listen, server.Certificate())
 
-		ctx, cancelFn := context.WithCancel(test.Context(t))
+		ctx, cancelFn := context.WithCancel(t.Context())
 		t.Cleanup(cancelFn)
 		expectIssueAccessToken(mockAPIKeySvc)
 
@@ -1076,7 +1075,7 @@ func startToxiProxy(t *testing.T) *toxiclient.Client {
 		hc := &http.Client{}
 		url := fmt.Sprintf("http://%s:%s/version", host, port)
 
-		ctx, cancelFn := context.WithTimeout(test.Context(t), 150*time.Millisecond)
+		ctx, cancelFn := context.WithTimeout(t.Context(), 150*time.Millisecond)
 		defer cancelFn()
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
