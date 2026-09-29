@@ -2067,12 +2067,13 @@ func (x *ListDeploymentsResponse) GetDeployments() []*Deployment {
 }
 
 type CreateDeploymentRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Workspace     *Resource_Workspace    `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Stores        []string               `protobuf:"bytes,3,rep,name=stores,proto3" json:"stores,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState        `protogen:"open.v1"`
+	Workspace         *Resource_Workspace           `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
+	Name              string                        `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Stores            []string                      `protobuf:"bytes,3,rep,name=stores,proto3" json:"stores,omitempty"`
+	ReleaseConditions []*DeploymentReleaseCondition `protobuf:"bytes,4,rep,name=release_conditions,json=releaseConditions,proto3" json:"release_conditions,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CreateDeploymentRequest) Reset() {
@@ -2122,6 +2123,13 @@ func (x *CreateDeploymentRequest) GetName() string {
 func (x *CreateDeploymentRequest) GetStores() []string {
 	if x != nil {
 		return x.Stores
+	}
+	return nil
+}
+
+func (x *CreateDeploymentRequest) GetReleaseConditions() []*DeploymentReleaseCondition {
+	if x != nil {
+		return x.ReleaseConditions
 	}
 	return nil
 }
@@ -2259,11 +2267,12 @@ func (x *ReadDeploymentResponse) GetDeployment() *Deployment {
 }
 
 type UpdateDeploymentRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ResourceId    *Resource_Deployment   `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState        `protogen:"open.v1"`
+	ResourceId        *Resource_Deployment          `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	Name              string                        `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	ReleaseConditions []*DeploymentReleaseCondition `protobuf:"bytes,4,rep,name=release_conditions,json=releaseConditions,proto3" json:"release_conditions,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *UpdateDeploymentRequest) Reset() {
@@ -2308,6 +2317,13 @@ func (x *UpdateDeploymentRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *UpdateDeploymentRequest) GetReleaseConditions() []*DeploymentReleaseCondition {
+	if x != nil {
+		return x.ReleaseConditions
+	}
+	return nil
 }
 
 type UpdateDeploymentResponse struct {
@@ -2859,13 +2875,14 @@ const file_cerbos_cloud_provision_v1_provision_proto_rawDesc = "" +
 	"\x16ListDeploymentsRequest\x12K\n" +
 	"\tworkspace\x18\x01 \x01(\v2-.cerbos.cloud.provision.v1.Resource.WorkspaceR\tworkspace\"b\n" +
 	"\x17ListDeploymentsResponse\x12G\n" +
-	"\vdeployments\x18\x01 \x03(\v2%.cerbos.cloud.provision.v1.DeploymentR\vdeployments\"\xbb\x01\n" +
+	"\vdeployments\x18\x01 \x03(\v2%.cerbos.cloud.provision.v1.DeploymentR\vdeployments\"\xa1\x02\n" +
 	"\x17CreateDeploymentRequest\x12S\n" +
 	"\tworkspace\x18\x01 \x01(\v2-.cerbos.cloud.provision.v1.Resource.WorkspaceB\x06\xbaH\x03\xc8\x01\x01R\tworkspace\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\x12+\n" +
 	"\x06stores\x18\x03 \x03(\tB\x13\xbaH\x10\x92\x01\r\b\x01\x10\n" +
-	"\x18\x01\"\x05r\x03\x98\x01\fR\x06stores\"a\n" +
+	"\x18\x01\"\x05r\x03\x98\x01\fR\x06stores\x12d\n" +
+	"\x12release_conditions\x18\x04 \x03(\v25.cerbos.cloud.provision.v1.DeploymentReleaseConditionR\x11releaseConditions\"a\n" +
 	"\x18CreateDeploymentResponse\x12E\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2%.cerbos.cloud.provision.v1.DeploymentR\n" +
@@ -2876,12 +2893,13 @@ const file_cerbos_cloud_provision_v1_provision_proto_rawDesc = "" +
 	"\x16ReadDeploymentResponse\x12E\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2%.cerbos.cloud.provision.v1.DeploymentR\n" +
-	"deployment\"\x92\x01\n" +
+	"deployment\"\xf8\x01\n" +
 	"\x17UpdateDeploymentRequest\x12W\n" +
 	"\vresource_id\x18\x01 \x01(\v2..cerbos.cloud.provision.v1.Resource.DeploymentB\x06\xbaH\x03\xc8\x01\x01R\n" +
 	"resourceId\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"a\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\x12d\n" +
+	"\x12release_conditions\x18\x04 \x03(\v25.cerbos.cloud.provision.v1.DeploymentReleaseConditionR\x11releaseConditions\"a\n" +
 	"\x18UpdateDeploymentResponse\x12E\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2%.cerbos.cloud.provision.v1.DeploymentR\n" +
@@ -3025,53 +3043,55 @@ var file_cerbos_cloud_provision_v1_provision_proto_depIdxs = []int32{
 	48, // 39: cerbos.cloud.provision.v1.ListDeploymentsRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
 	6,  // 40: cerbos.cloud.provision.v1.ListDeploymentsResponse.deployments:type_name -> cerbos.cloud.provision.v1.Deployment
 	48, // 41: cerbos.cloud.provision.v1.CreateDeploymentRequest.workspace:type_name -> cerbos.cloud.provision.v1.Resource.Workspace
-	6,  // 42: cerbos.cloud.provision.v1.CreateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	51, // 43: cerbos.cloud.provision.v1.ReadDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
-	6,  // 44: cerbos.cloud.provision.v1.ReadDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	51, // 45: cerbos.cloud.provision.v1.UpdateDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
-	6,  // 46: cerbos.cloud.provision.v1.UpdateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
-	51, // 47: cerbos.cloud.provision.v1.DeleteDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
-	9,  // 48: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:input_type -> cerbos.cloud.provision.v1.ListOrganizationsRequest
-	11, // 49: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:input_type -> cerbos.cloud.provision.v1.ReadOrganizationRequest
-	13, // 50: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateOrganization:input_type -> cerbos.cloud.provision.v1.UpdateOrganizationRequest
-	15, // 51: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces:input_type -> cerbos.cloud.provision.v1.ListWorkspacesRequest
-	17, // 52: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace:input_type -> cerbos.cloud.provision.v1.CreateWorkspaceRequest
-	19, // 53: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:input_type -> cerbos.cloud.provision.v1.ReadWorkspaceRequest
-	21, // 54: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:input_type -> cerbos.cloud.provision.v1.UpdateWorkspaceRequest
-	23, // 55: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:input_type -> cerbos.cloud.provision.v1.DeleteWorkspaceRequest
-	37, // 56: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:input_type -> cerbos.cloud.provision.v1.ListDeploymentsRequest
-	39, // 57: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:input_type -> cerbos.cloud.provision.v1.CreateDeploymentRequest
-	41, // 58: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:input_type -> cerbos.cloud.provision.v1.ReadDeploymentRequest
-	43, // 59: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:input_type -> cerbos.cloud.provision.v1.UpdateDeploymentRequest
-	45, // 60: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:input_type -> cerbos.cloud.provision.v1.DeleteDeploymentRequest
-	25, // 61: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:input_type -> cerbos.cloud.provision.v1.ListStoresRequest
-	27, // 62: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:input_type -> cerbos.cloud.provision.v1.CreateStoreRequest
-	31, // 63: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:input_type -> cerbos.cloud.provision.v1.ReadStoreRequest
-	33, // 64: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:input_type -> cerbos.cloud.provision.v1.UpdateStoreRequest
-	35, // 65: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:input_type -> cerbos.cloud.provision.v1.DeleteStoreRequest
-	10, // 66: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:output_type -> cerbos.cloud.provision.v1.ListOrganizationsResponse
-	12, // 67: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:output_type -> cerbos.cloud.provision.v1.ReadOrganizationResponse
-	14, // 68: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateOrganization:output_type -> cerbos.cloud.provision.v1.UpdateOrganizationResponse
-	16, // 69: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces:output_type -> cerbos.cloud.provision.v1.ListWorkspacesResponse
-	18, // 70: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace:output_type -> cerbos.cloud.provision.v1.CreateWorkspaceResponse
-	20, // 71: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:output_type -> cerbos.cloud.provision.v1.ReadWorkspaceResponse
-	22, // 72: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:output_type -> cerbos.cloud.provision.v1.UpdateWorkspaceResponse
-	24, // 73: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:output_type -> cerbos.cloud.provision.v1.DeleteWorkspaceResponse
-	38, // 74: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:output_type -> cerbos.cloud.provision.v1.ListDeploymentsResponse
-	40, // 75: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:output_type -> cerbos.cloud.provision.v1.CreateDeploymentResponse
-	42, // 76: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:output_type -> cerbos.cloud.provision.v1.ReadDeploymentResponse
-	44, // 77: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:output_type -> cerbos.cloud.provision.v1.UpdateDeploymentResponse
-	46, // 78: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:output_type -> cerbos.cloud.provision.v1.DeleteDeploymentResponse
-	26, // 79: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:output_type -> cerbos.cloud.provision.v1.ListStoresResponse
-	28, // 80: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:output_type -> cerbos.cloud.provision.v1.CreateStoreResponse
-	32, // 81: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:output_type -> cerbos.cloud.provision.v1.ReadStoreResponse
-	34, // 82: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:output_type -> cerbos.cloud.provision.v1.UpdateStoreResponse
-	36, // 83: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:output_type -> cerbos.cloud.provision.v1.DeleteStoreResponse
-	66, // [66:84] is the sub-list for method output_type
-	48, // [48:66] is the sub-list for method input_type
-	48, // [48:48] is the sub-list for extension type_name
-	48, // [48:48] is the sub-list for extension extendee
-	0,  // [0:48] is the sub-list for field type_name
+	7,  // 42: cerbos.cloud.provision.v1.CreateDeploymentRequest.release_conditions:type_name -> cerbos.cloud.provision.v1.DeploymentReleaseCondition
+	6,  // 43: cerbos.cloud.provision.v1.CreateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
+	51, // 44: cerbos.cloud.provision.v1.ReadDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	6,  // 45: cerbos.cloud.provision.v1.ReadDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
+	51, // 46: cerbos.cloud.provision.v1.UpdateDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	7,  // 47: cerbos.cloud.provision.v1.UpdateDeploymentRequest.release_conditions:type_name -> cerbos.cloud.provision.v1.DeploymentReleaseCondition
+	6,  // 48: cerbos.cloud.provision.v1.UpdateDeploymentResponse.deployment:type_name -> cerbos.cloud.provision.v1.Deployment
+	51, // 49: cerbos.cloud.provision.v1.DeleteDeploymentRequest.resource_id:type_name -> cerbos.cloud.provision.v1.Resource.Deployment
+	9,  // 50: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:input_type -> cerbos.cloud.provision.v1.ListOrganizationsRequest
+	11, // 51: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:input_type -> cerbos.cloud.provision.v1.ReadOrganizationRequest
+	13, // 52: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateOrganization:input_type -> cerbos.cloud.provision.v1.UpdateOrganizationRequest
+	15, // 53: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces:input_type -> cerbos.cloud.provision.v1.ListWorkspacesRequest
+	17, // 54: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace:input_type -> cerbos.cloud.provision.v1.CreateWorkspaceRequest
+	19, // 55: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:input_type -> cerbos.cloud.provision.v1.ReadWorkspaceRequest
+	21, // 56: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:input_type -> cerbos.cloud.provision.v1.UpdateWorkspaceRequest
+	23, // 57: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:input_type -> cerbos.cloud.provision.v1.DeleteWorkspaceRequest
+	37, // 58: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:input_type -> cerbos.cloud.provision.v1.ListDeploymentsRequest
+	39, // 59: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:input_type -> cerbos.cloud.provision.v1.CreateDeploymentRequest
+	41, // 60: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:input_type -> cerbos.cloud.provision.v1.ReadDeploymentRequest
+	43, // 61: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:input_type -> cerbos.cloud.provision.v1.UpdateDeploymentRequest
+	45, // 62: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:input_type -> cerbos.cloud.provision.v1.DeleteDeploymentRequest
+	25, // 63: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:input_type -> cerbos.cloud.provision.v1.ListStoresRequest
+	27, // 64: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:input_type -> cerbos.cloud.provision.v1.CreateStoreRequest
+	31, // 65: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:input_type -> cerbos.cloud.provision.v1.ReadStoreRequest
+	33, // 66: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:input_type -> cerbos.cloud.provision.v1.UpdateStoreRequest
+	35, // 67: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:input_type -> cerbos.cloud.provision.v1.DeleteStoreRequest
+	10, // 68: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListOrganizations:output_type -> cerbos.cloud.provision.v1.ListOrganizationsResponse
+	12, // 69: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadOrganization:output_type -> cerbos.cloud.provision.v1.ReadOrganizationResponse
+	14, // 70: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateOrganization:output_type -> cerbos.cloud.provision.v1.UpdateOrganizationResponse
+	16, // 71: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListWorkspaces:output_type -> cerbos.cloud.provision.v1.ListWorkspacesResponse
+	18, // 72: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateWorkspace:output_type -> cerbos.cloud.provision.v1.CreateWorkspaceResponse
+	20, // 73: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadWorkspace:output_type -> cerbos.cloud.provision.v1.ReadWorkspaceResponse
+	22, // 74: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateWorkspace:output_type -> cerbos.cloud.provision.v1.UpdateWorkspaceResponse
+	24, // 75: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteWorkspace:output_type -> cerbos.cloud.provision.v1.DeleteWorkspaceResponse
+	38, // 76: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListDeployments:output_type -> cerbos.cloud.provision.v1.ListDeploymentsResponse
+	40, // 77: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateDeployment:output_type -> cerbos.cloud.provision.v1.CreateDeploymentResponse
+	42, // 78: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadDeployment:output_type -> cerbos.cloud.provision.v1.ReadDeploymentResponse
+	44, // 79: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateDeployment:output_type -> cerbos.cloud.provision.v1.UpdateDeploymentResponse
+	46, // 80: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteDeployment:output_type -> cerbos.cloud.provision.v1.DeleteDeploymentResponse
+	26, // 81: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ListStores:output_type -> cerbos.cloud.provision.v1.ListStoresResponse
+	28, // 82: cerbos.cloud.provision.v1.CerbosHubProvisioningService.CreateStore:output_type -> cerbos.cloud.provision.v1.CreateStoreResponse
+	32, // 83: cerbos.cloud.provision.v1.CerbosHubProvisioningService.ReadStore:output_type -> cerbos.cloud.provision.v1.ReadStoreResponse
+	34, // 84: cerbos.cloud.provision.v1.CerbosHubProvisioningService.UpdateStore:output_type -> cerbos.cloud.provision.v1.UpdateStoreResponse
+	36, // 85: cerbos.cloud.provision.v1.CerbosHubProvisioningService.DeleteStore:output_type -> cerbos.cloud.provision.v1.DeleteStoreResponse
+	68, // [68:86] is the sub-list for method output_type
+	50, // [50:68] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_cerbos_cloud_provision_v1_provision_proto_init() }

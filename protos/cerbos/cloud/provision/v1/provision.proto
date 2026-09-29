@@ -262,6 +262,7 @@ message CreateDeploymentRequest {
     }
     unique: true
   }];
+  repeated DeploymentReleaseCondition release_conditions = 4;
 }
 
 message CreateDeploymentResponse {
@@ -282,6 +283,7 @@ message UpdateDeploymentRequest {
     min_len: 1
     max_len: 128
   }];
+  repeated DeploymentReleaseCondition release_conditions = 4;
 }
 
 message UpdateDeploymentResponse {
