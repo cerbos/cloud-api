@@ -54,6 +54,15 @@ func cerbos_cloud_provision_v1_CreateDeploymentRequest_hashpb_sum(m *CreateDeplo
 			}
 		}
 	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.CreateDeploymentRequest.release_conditions"]; !ok {
+		if len(m.ReleaseConditions) > 0 {
+			for _, v := range m.ReleaseConditions {
+				if v != nil {
+					cerbos_cloud_provision_v1_DeploymentReleaseCondition_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
+	}
 }
 
 func cerbos_cloud_provision_v1_CreateDeploymentResponse_hashpb_sum(m *CreateDeploymentResponse, hasher hash.Hash, ignore map[string]struct{}, b *[10]byte) {
@@ -529,6 +538,15 @@ func cerbos_cloud_provision_v1_UpdateDeploymentRequest_hashpb_sum(m *UpdateDeplo
 	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateDeploymentRequest.name"]; !ok {
 		_, _ = hasher.Write(protowire.AppendVarint(b[:0], uint64(len(m.GetName()))))
 		_, _ = hasher.Write(unsafe.Slice(unsafe.StringData(m.GetName()), len(m.GetName())))
+	}
+	if _, ok := ignore["cerbos.cloud.provision.v1.UpdateDeploymentRequest.release_conditions"]; !ok {
+		if len(m.ReleaseConditions) > 0 {
+			for _, v := range m.ReleaseConditions {
+				if v != nil {
+					cerbos_cloud_provision_v1_DeploymentReleaseCondition_hashpb_sum(v, hasher, ignore, b)
+				}
+			}
+		}
 	}
 }
 
