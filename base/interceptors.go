@@ -24,10 +24,11 @@ func init() {
 }
 
 type userAgentInterceptor struct {
-	userAgent string
+	userAgent  string
+	pdpVersion string
 }
 
-func newUserAgentInterceptor() userAgentInterceptor {
+func newUserAgentInterceptor(pdpVersion string) userAgentInterceptor {
 	version := "unknown"
 	if info, ok := debug.ReadBuildInfo(); ok {
 		if info.Main.Sum != "" {
@@ -41,19 +42,25 @@ func newUserAgentInterceptor() userAgentInterceptor {
 		}
 	}
 
-	return userAgentInterceptor{userAgent: fmt.Sprintf("cerbos-cloud-client/%s (%s; %s)", version, runtime.GOOS, runtime.GOARCH)}
+	return userAgentInterceptor{
+		userAgent:  fmt.Sprintf("cerbos-cloud-client/%s (%s; %s)", version, runtime.GOOS, runtime.GOARCH),
+		pdpVersion: pdpVersion,
+	}
 }
 
 func (uai userAgentInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return connect.UnaryFunc(func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 		req.Header().Set("User-Agent", uai.userAgent)
+		if uai.pdpVersion != "" {
+			req.Header().Set("X-Cerbos-PDP-Version", uai.pdpVersion)
+		}
 		return next(ctx, req)
 	})
 }
 
 func (uai userAgentInterceptor) WrapStreamingClient(c connect.StreamingClientFunc) connect.StreamingClientFunc {
 	return func(ctx context.Context, spec connect.Spec) connect.StreamingClientConn {
-		return uaStreamingClientConn{StreamingClientConn: c(ctx, spec), userAgent: uai.userAgent}
+		return uaStreamingClientConn{StreamingClientConn: c(ctx, spec), userAgent: uai.userAgent, pdpVersion: uai.pdpVersion}
 	}
 }
 
@@ -63,12 +70,16 @@ func (uai userAgentInterceptor) WrapStreamingHandler(h connect.StreamingHandlerF
 
 type uaStreamingClientConn struct {
 	connect.StreamingClientConn
-	userAgent string
+	userAgent  string
+	pdpVersion string
 }
 
 func (uas uaStreamingClientConn) RequestHeader() http.Header {
 	h := uas.StreamingClientConn.RequestHeader()
 	h.Set("User-Agent", uas.userAgent)
+	if uas.pdpVersion != "" {
+		h.Set("X-Cerbos-PDP-Version", uas.pdpVersion)
+	}
 	return h
 }
 

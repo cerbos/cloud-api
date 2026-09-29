@@ -39,7 +39,7 @@ func NewClient(conf ClientConf) (c Client, opts []connect.ClientOption, _ error)
 		connect.WithCompressMinBytes(1024),
 		connect.WithInterceptors(
 			otelConnect,
-			newUserAgentInterceptor(),
+			newUserAgentInterceptor(conf.PDPIdentifier.GetVersion()),
 		),
 	}
 
