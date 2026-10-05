@@ -234,7 +234,8 @@ func TestIngestRaw(t *testing.T) {
 
 func TestRawIngestRequestWireEquivalence(t *testing.T) {
 	batch := mkIngestBatch(time.Now())
-	rawBatch, err := batch.MarshalVT()
+	det := proto.MarshalOptions{Deterministic: true}
+	rawBatch, err := det.Marshal(batch)
 	require.NoError(t, err)
 
 	testCases := []struct {
@@ -259,7 +260,7 @@ func TestRawIngestRequestWireEquivalence(t *testing.T) {
 			typed := &logsv1.IngestRequest{PdpId: pdpIdentifer, Batch: batch, Target: tc.target}
 			raw := &logsv1.RawIngestRequest{PdpId: pdpIdentifer, Batch: rawBatch, Target: tc.target}
 
-			typedWire, err := typed.MarshalVT()
+			typedWire, err := det.Marshal(typed)
 			require.NoError(t, err)
 			rawWire, err := raw.MarshalVT()
 			require.NoError(t, err)
