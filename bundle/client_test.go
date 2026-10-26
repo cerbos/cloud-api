@@ -1016,7 +1016,7 @@ func TestNetworkIssues(t *testing.T) {
 
 		haveErr := mustPopFromChan(t, handle.Errors())
 		require.Error(t, haveErr, "Expected error ")
-		require.Equal(t, connect.CodeInvalidArgument, connect.CodeOf(haveErr))
+		require.Equal(t, connect.CodeInternal, connect.CodeOf(haveErr))
 	})
 }
 
