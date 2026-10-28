@@ -32,9 +32,9 @@ type Client interface {
 	UpdateStore(context.Context, *provisionv1.Resource_Store, string) (*provisionv1.Store, error)
 	DeleteStore(context.Context, *provisionv1.Resource_Store) error
 	ListDeployments(context.Context, *provisionv1.Resource_Workspace) ([]*provisionv1.Deployment, error)
-	CreateDeployment(context.Context, *provisionv1.Resource_Workspace, string, []string) (*provisionv1.Deployment, error)
+	CreateDeployment(context.Context, *provisionv1.Resource_Workspace, string, []string, []*provisionv1.DeploymentReleaseCondition) (*provisionv1.Deployment, error)
 	ReadDeployment(context.Context, *provisionv1.Resource_Deployment) (*provisionv1.Deployment, error)
-	UpdateDeployment(context.Context, *provisionv1.Resource_Deployment, string) (*provisionv1.Deployment, error)
+	UpdateDeployment(context.Context, *provisionv1.Resource_Deployment, string, []*provisionv1.DeploymentReleaseCondition) (*provisionv1.Deployment, error)
 	DeleteDeployment(context.Context, *provisionv1.Resource_Deployment) error
 }
 
@@ -177,11 +177,12 @@ func (c *clientImpl) ListDeployments(ctx context.Context, workspace *provisionv1
 	return resp.Msg.GetDeployments(), nil
 }
 
-func (c *clientImpl) CreateDeployment(ctx context.Context, workspace *provisionv1.Resource_Workspace, name string, stores []string) (*provisionv1.Deployment, error) {
+func (c *clientImpl) CreateDeployment(ctx context.Context, workspace *provisionv1.Resource_Workspace, name string, stores []string, releaseConditions []*provisionv1.DeploymentReleaseCondition) (*provisionv1.Deployment, error) {
 	resp, err := c.rpcClient.CreateDeployment(ctx, connect.NewRequest(&provisionv1.CreateDeploymentRequest{
-		Workspace: workspace,
-		Name:      name,
-		Stores:    stores,
+		Workspace:         workspace,
+		Name:              name,
+		Stores:            stores,
+		ReleaseConditions: releaseConditions,
 	}))
 	if err != nil {
 		return nil, handleError(err)
@@ -199,8 +200,12 @@ func (c *clientImpl) ReadDeployment(ctx context.Context, deployment *provisionv1
 	return resp.Msg.GetDeployment(), nil
 }
 
-func (c *clientImpl) UpdateDeployment(ctx context.Context, deployment *provisionv1.Resource_Deployment, name string) (*provisionv1.Deployment, error) {
-	resp, err := c.rpcClient.UpdateDeployment(ctx, connect.NewRequest(&provisionv1.UpdateDeploymentRequest{ResourceId: deployment, Name: name}))
+func (c *clientImpl) UpdateDeployment(ctx context.Context, deployment *provisionv1.Resource_Deployment, name string, releaseConditions []*provisionv1.DeploymentReleaseCondition) (*provisionv1.Deployment, error) {
+	resp, err := c.rpcClient.UpdateDeployment(ctx, connect.NewRequest(&provisionv1.UpdateDeploymentRequest{
+		ResourceId:        deployment,
+		Name:              name,
+		ReleaseConditions: releaseConditions,
+	}))
 	if err != nil {
 		return nil, handleError(err)
 	}
