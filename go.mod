@@ -1,14 +1,14 @@
 module github.com/cerbos/cloud-api
 
-go 1.26.10
+go 1.27.0
 
 require (
 	buf.build/go/protovalidate v1.4.0
 	connectrpc.com/connect v1.21.1
 	connectrpc.com/grpcreflect v1.3.1
 	connectrpc.com/otelconnect v0.12.0
-	github.com/Shopify/toxiproxy/v2 v2.12.0
-	github.com/cerbos/cerbos/api/genpb v0.57.1-0.20261026115804-c8c7d5b03127
+	github.com/Shopify/toxiproxy/v2 v2.13.0
+	github.com/cerbos/cerbos/api/genpb v0.57.1-0.20261102084901-41b2a0b00ba3
 	github.com/failsafe-go/failsafe-go v0.9.8
 	github.com/go-logr/logr v1.4.4
 	github.com/google/go-cmp v0.7.0
@@ -22,7 +22,7 @@ require (
 	github.com/zalando/go-keyring v0.2.8
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.58.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261026165753-2ffab32bce7e
 	google.golang.org/protobuf v1.36.12
 )
 
