@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	connectrpc.com/connect v1.21.1
-	github.com/cerbos/actions v0.0.0-20261019103610-6f636d2f02ee
+	github.com/cerbos/actions v0.0.0-20261102065444-d175c7439326
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.1
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/vektra/mockery/v3 v3.8.1
