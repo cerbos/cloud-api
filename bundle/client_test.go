@@ -27,8 +27,8 @@ import (
 	"testing"
 	"time"
 
-	"connectrpc.com/connect"
-	"connectrpc.com/grpcreflect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/grpcreflect/v2"
 	"github.com/Shopify/toxiproxy/v2"
 	toxiclient "github.com/Shopify/toxiproxy/v2/client"
 	"github.com/go-logr/logr/testr"

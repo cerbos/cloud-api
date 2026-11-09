@@ -10,7 +10,7 @@ package mockbundlev2connect
 import (
 	"context"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"
 	mock "github.com/stretchr/testify/mock"
 )

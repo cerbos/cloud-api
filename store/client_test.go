@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

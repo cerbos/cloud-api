@@ -8,7 +8,7 @@
 package storev1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
 	errors "errors"
 	v1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/store/v1"

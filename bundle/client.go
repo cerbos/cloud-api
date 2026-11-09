@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"buf.build/go/protovalidate"
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/go-logr/logr"
 	"github.com/rogpeppe/go-internal/cache"
 	"github.com/sourcegraph/conc/pool"

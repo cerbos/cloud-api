@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	"github.com/cerbos/cloud-api/base"
 	"github.com/cerbos/cloud-api/bundle"

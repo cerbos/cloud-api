@@ -8,7 +8,7 @@
 package bundlev2connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
 	errors "errors"
 	v2 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/bundle/v2"

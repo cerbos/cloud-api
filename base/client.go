@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"connectrpc.com/otelconnect"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-retryablehttp"

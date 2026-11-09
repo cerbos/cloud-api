@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	"github.com/cerbos/cloud-api/base"
 	provisionv1 "github.com/cerbos/cloud-api/genpb/cerbos/cloud/provision/v1"
