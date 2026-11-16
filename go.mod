@@ -1,13 +1,13 @@
 module github.com/cerbos/cloud-api
 
-go 1.27.0
+go 1.26.11
 
 require (
 	buf.build/go/protovalidate v1.4.0
 	connectrpc.com/connect v1.21.1
 	connectrpc.com/grpcreflect v1.3.1
 	connectrpc.com/otelconnect v0.12.0
-	github.com/Shopify/toxiproxy/v2 v2.13.0
+	github.com/Shopify/toxiproxy/v2 v2.12.0
 	github.com/cerbos/cerbos/api/genpb v0.57.1-0.20261116075444-5b4fbe376560
 	github.com/failsafe-go/failsafe-go v0.9.8
 	github.com/go-logr/logr v1.4.4
@@ -48,7 +48,7 @@ require (
 	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/prometheus/client_golang v1.25.0 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
-	github.com/prometheus/common v0.73.1 // indirect
+	github.com/prometheus/common v0.74.0 // indirect
 	github.com/prometheus/procfs v0.23.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
