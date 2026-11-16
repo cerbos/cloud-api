@@ -4,8 +4,8 @@ github.com/bitfield/gotestdox v0.2.2 h1:x6RcPAbBbErKLnapz1QeAlf3ospg8efBsedU93CD
 github.com/bitfield/gotestdox v0.2.2/go.mod h1:D+gwtS0urjBrzguAkTM2wodsTQYFHdpx8eqRJ3N+9pY=
 github.com/brunoga/deep v1.3.1 h1:bSrL6FhAZa6JlVv4vsi7Hg8SLwroDb1kgDERRVipBCo=
 github.com/brunoga/deep v1.3.1/go.mod h1:GDV6dnXqn80ezsLSZ5Wlv1PdKAWAO4L5PnKYtv2dgaI=
-github.com/cerbos/actions v0.0.0-20261102065444-d175c7439326 h1:1FOTvYzS5liVJG3MZFc/VQyalZUf6Xf7/1ygUHCBTWY=
-github.com/cerbos/actions v0.0.0-20261102065444-d175c7439326/go.mod h1:lV0o8EoyvGryYguQa0/CbS2OJ2YGKoCfYeA2glB9bC8=
+github.com/cerbos/actions v0.0.0-20261109113504-4155ab4469b7 h1:FzVwEdzSrybgDaodHUDZ6/O1HzQaMnlQeiTZQLUkIaQ=
+github.com/cerbos/actions v0.0.0-20261109113504-4155ab4469b7/go.mod h1:cnsw2RJzxWgtYS7guUXE5UG4iUvXPyhSgAGcZ9dReiw=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.1 h1:lCdBJcXvs3lgL3KxYxu71BYn0jImPq0mKCsquv90cOM=
 github.com/cerbos/protoc-gen-go-hashpb v0.5.1/go.mod h1:JPxkZwfqZqzDzJXXxFP+wb/1WD/5A5DBCA0/pAiTTqQ=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
@@ -14,8 +14,6 @@ github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJ
 github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
-github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dnephin/pflag v1.0.7 h1:oxONGlWxhmUct0YzKTgrpQv9AUA1wtPBn7zuSjJqptk=
 github.com/dnephin/pflag v1.0.7/go.mod h1:uxE91IoWURlOiTUIA8Mq5ZZkAv3dPUfZNaT80Zm7OQE=
 github.com/fatih/color v1.19.0 h1:Zp3PiM21/9Ld6FzSKyL5c/BULoe/ONr9KlbYVOfG8+w=
@@ -75,8 +73,6 @@ github.com/nikandfor/escape v0.0.0-20211015113450-0e8be7818ccf/go.mod h1:rDAzxfD
 github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25 h1:S1hI5JiKP7883xBzZAr1ydcxrKNSVNm7+3+JwjxZEsg=
 github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25/go.mod h1:ZQntvDG8TkPgljxtA0R9frDoND4QORU1VXz015N5Ks4=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
-github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/rs/zerolog v1.35.1 h1:m7xQeoiLIiV0BCEY4Hs+j2NG4Gp2o2KPKmhnnLiazKI=
@@ -93,8 +89,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/objx v0.5.3 h1:jmXUvGomnU1o3W/V5h2VEradbpJDwGrzugQQvL0POH4=
 github.com/stretchr/objx v0.5.3/go.mod h1:rDQraq+vQZU7Fde9LOZLr8Tax6zZvy4kuNKF+QYS+U0=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
-github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
-github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
+github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
+github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/vektra/mockery/v3 v3.9.0 h1:BeuKC+6aQBP4cgqIxBsJxUs5F0iThO7+blEWbE5lkKs=
 github.com/vektra/mockery/v3 v3.9.0/go.mod h1:1+hDVtNiQfxGv9YhpYmQ1q1Drf7z4w1rUvsAvwe2aIY=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
