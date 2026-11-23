@@ -4,7 +4,7 @@ go 1.26.7
 
 require (
 	connectrpc.com/connect v1.21.1
-	github.com/cerbos/actions v0.0.0-20261109113504-4155ab4469b7
+	github.com/cerbos/actions v0.0.0-20261116063849-19e204e7bafa
 	github.com/cerbos/protoc-gen-go-hashpb v0.5.1
 	github.com/planetscale/vtprotobuf v0.6.1-0.20250313105119-ba97887b0a25
 	github.com/vektra/mockery/v3 v3.9.1
@@ -52,7 +52,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a // indirect
-	golang.org/x/mod v0.42.0 // indirect
+	golang.org/x/mod v0.43.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.45.0 // indirect
